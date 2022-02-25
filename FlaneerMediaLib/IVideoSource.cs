@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace FlaneerMediaLib
 {
-    internal interface IVideoSource
+    public interface IVideoSource
     {
     }
 }
