@@ -38,10 +38,7 @@
 #define _NV_ENCODEAPI_H_
 
 #include <stdlib.h>
-
-#ifdef _WIN32
-#include <windows.h>
-#endif
+#include <Windows.h>
 
 #ifdef _MSC_VER
 #ifndef _STDINT

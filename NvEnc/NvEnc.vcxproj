@@ -153,13 +153,16 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="CaptureRuntime.h" />
     <ClInclude Include="DDAImpl.h" />
     <ClInclude Include="Defs.h" />
+    <ClInclude Include="InteropStructs.h" />
     <ClInclude Include="nvEncodeAPI.h" />
     <ClInclude Include="NvEncoder.h" />
     <ClInclude Include="NvEncoderD3D11.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="CaptureRuntime.cpp" />
     <ClCompile Include="DDAImpl.cpp" />
     <ClCompile Include="NvEncoder.cpp" />
     <ClCompile Include="NvEncoderD3D11.cpp" />

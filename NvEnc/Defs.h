@@ -43,7 +43,32 @@
 #endif
 
 
+#define returnIfError(x)\
+    if (FAILED(x))\
+    {\
+        printf(__FUNCTION__": Line %d, File %s Returning error 0x%08x\n", __LINE__, __FILE__, x);\
+        return x;\
+    }
 
 #define MICROSEC_TIME(x,f)\
     x.QuadPart *= 1000000;\
     x.QuadPart /= f.QuadPart;
+
+
+#define HD_W 1280
+#define HD_H 720
+
+#define FHD_W 1920
+#define FHD_H 1080
+
+#define WUXGA_W 1920
+#define WUXGA_H 1200
+
+#define QHD_W 2560
+#define QHD_H 1440
+
+#define WQHD_W 3440
+#define WQHD_H 1440
+
+#define UHD_W 3840
+#define UHD_H 2160
