@@ -17,7 +17,6 @@ typedef struct
 /// </summary>
 typedef struct
 {
-    short CRF;
     NV_ENC_BUFFER_FORMAT Format;
     short GoPLength;
 } H264CodecSettings;
@@ -31,5 +30,5 @@ typedef struct
     short Width;
     short Height;
 
-    INT_PTR Data;
+    unsigned char* Data;
 } FrameRequest;

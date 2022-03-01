@@ -50,5 +50,8 @@
     <ClCompile Include="CaptureRuntime.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="InteropRuntime.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

@@ -164,6 +164,7 @@
   <ItemGroup>
     <ClCompile Include="CaptureRuntime.cpp" />
     <ClCompile Include="DDAImpl.cpp" />
+    <ClCompile Include="InteropRuntime.cpp" />
     <ClCompile Include="NvEncoder.cpp" />
     <ClCompile Include="NvEncoderD3D11.cpp" />
   </ItemGroup>
