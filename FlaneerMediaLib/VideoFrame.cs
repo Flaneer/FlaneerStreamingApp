@@ -6,8 +6,11 @@ using System.Threading.Tasks;
 
 namespace FlaneerMediaLib
 {
-    public interface IEncoder
+    public class VideoFrame
     {
-        VideoFrame GetFrame();
+        public VideoCodec Codec;
+        public int Width;
+        public int Height;
+        public IntPtr FrameData;
     }
 }

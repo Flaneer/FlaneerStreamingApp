@@ -6,8 +6,7 @@ using System.Threading.Tasks;
 
 namespace FlaneerMediaLib
 {
-    public interface IEncoder
+    public interface ICodecSettings
     {
-        VideoFrame GetFrame();
     }
 }

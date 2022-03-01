@@ -3,11 +3,16 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using FlaneerMediaLib;
+
 
 namespace FlaneerMediaLib
 {
-    public interface IEncoder
+    public class FrameSettings
     {
-        VideoFrame GetFrame();
+        public int Width;
+        public int Height;
+
+        public int MaxFPS;
     }
 }
