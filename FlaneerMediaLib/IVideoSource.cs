@@ -8,6 +8,6 @@ namespace FlaneerMediaLib
 {
     public interface IVideoSource : IService, IDisposable
     {
-        public void Init(FrameSettings frameSettings, ICodecSettings codecSettings);
+        public bool Init(FrameSettings frameSettings, ICodecSettings codecSettings);
     }
 }

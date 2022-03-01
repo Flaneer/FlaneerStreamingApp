@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Runtime.InteropServices;
 
 namespace NvEncWrapper
 {
@@ -12,10 +7,10 @@ namespace NvEncWrapper
         private const string DLLNAME = "nvencvideosource.dll";
 
         [DllImport(DLLNAME)]
-        public static extern void Init(VideoCaptureSettings capture_settings, H264CodecSettings codec_settings);
+        public static extern long Init(VideoCaptureSettings capture_settings, H264CodecSettings codec_settings);
 
         [DllImport(DLLNAME)]
-        public static extern void FulfilFrameRequest(FrameRequest frame_request);
+        public static extern long FulfilFrameRequest(FrameRequest frame_request);
 
         [DllImport(DLLNAME)]
         public static extern void CleanUp();

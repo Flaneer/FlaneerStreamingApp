@@ -1,4 +1,6 @@
-﻿namespace FlaneerMediaLib
+﻿using NvEncWrapper;
+
+namespace FlaneerMediaLib
 {
     public class MediaEncoder
     {
@@ -12,6 +14,11 @@
                 default:
                     throw new ArgumentOutOfRangeException(nameof(videoEncoder), videoEncoder, null);
             }
+        }
+
+        public void InitVideo(FrameSettings frameSettings, ICodecSettings codecSettings)
+        {
+            
         }
     }
 }

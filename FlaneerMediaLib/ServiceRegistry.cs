@@ -27,7 +27,7 @@
 
         public static void AddService<T>(T service) where T : IService
         {
-            foreach (var ifce in service.GetType().FindInterfaces(null, null))
+            foreach (var ifce in service.GetType().GetInterfaces())
             {
                 Instance.registry.Add(ifce, service);
             }

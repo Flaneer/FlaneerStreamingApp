@@ -1,10 +1,12 @@
-﻿namespace FlaneerMediaLib
+﻿using NvEncWrapper;
+
+namespace FlaneerMediaLib
 {
     internal class NvEncVideoSource : IVideoSource, IEncoder
     {
-        public void Init(FrameSettings frameSettings, ICodecSettings codecSettings)
+        public bool Init(FrameSettings frameSettings, ICodecSettings codecSettings)
         {
-
+            return Wrapper.Init(Utils.FromFrameSettings(frameSettings), Utils.FromCodecSettings(codecSettings));
         }
 
         public VideoFrame GetFrame()

@@ -1,22 +1,13 @@
-﻿using FlaneerMediaLib;
-
-namespace NvEncWrapper
+﻿namespace NvEncWrapper
 {
     public class Wrapper
     {
-        public static void Init(FrameSettings capture_settings, ICodecSettings codec_settings)
+        public static bool Init(VideoCaptureSettings capture_settings, H264CodecSettings codec_settings)
         {
-            switch (codec_settings)
-            {
-                case FlaneerMediaLib.H264CodecSettings h264CodecSettings:
-                    InteropMethods.Init(Utils.FromFrameSettings(capture_settings), Utils.FromCodecSettings(codec_settings));
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(codec_settings));
-            }
+            return InteropMethods.Init(capture_settings, codec_settings) == 0;
         }
 
-        public static IntPtr FulfilFrameRequest(int width, int height)
+        public static IntPtr RequestNewFrame(int width, int height)
         {
             var interopFrame = new FrameRequest
             {

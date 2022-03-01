@@ -6,7 +6,7 @@ namespace NvEncWrapper
     /// The colour format of the buffer
     /// <remarks>Copy of FlaneerStreamingApp\NvEnc\nvEncodeAPI.NV_ENC_BUFFER_FORMAT</remarks>
     /// </summary>
-    internal enum NV_BufferFormat
+    public enum NV_BufferFormat
     {
         NV_ENC_BUFFER_FORMAT_UNDEFINED = 0x00000000,  /**< Undefined buffer format */
 
@@ -52,7 +52,7 @@ namespace NvEncWrapper
     /// Settings that specify the specs fo the video capture feed
     /// </summary>
     [StructLayout(LayoutKind.Sequential)]
-    internal struct VideoCaptureSettings
+    public struct VideoCaptureSettings
     {
         public Int16 Width;
         public Int16 Height;
@@ -64,7 +64,7 @@ namespace NvEncWrapper
     /// Provides information to configure 
     /// </summary>
     [StructLayout(LayoutKind.Sequential)]
-    internal struct H264CodecSettings
+    public struct H264CodecSettings
     {
         public NV_BufferFormat Format;
         public Int16 GoPLength;
