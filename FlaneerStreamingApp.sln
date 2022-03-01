@@ -4,12 +4,15 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 VisualStudioVersion = 17.0.32112.339
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NvEncWrapper", "NvEncWrapper\NvEncWrapper.csproj", "{E55FD524-63E6-457A-91F7-3674E9195CF9}"
+	ProjectSection(ProjectDependencies) = postProject
+		{82D3A0E0-984A-4E06-9908-1928B3C4C2E9} = {82D3A0E0-984A-4E06-9908-1928B3C4C2E9}
+	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "NvEnc", "NvEnc\NvEnc.vcxproj", "{82D3A0E0-984A-4E06-9908-1928B3C4C2E9}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "NvEncVideoSource", "NvEnc\NvEnc.vcxproj", "{82D3A0E0-984A-4E06-9908-1928B3C4C2E9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FlaneerMediaLib", "FlaneerMediaLib\FlaneerMediaLib.csproj", "{D4D0B018-6510-47B2-99F5-C789E4E89B06}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FlaneerMediaLib", "FlaneerMediaLib\FlaneerMediaLib.csproj", "{D4D0B018-6510-47B2-99F5-C789E4E89B06}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LocalMediaFileOut", "LocalMediaFileOut\LocalMediaFileOut.csproj", "{E543DA67-4228-4586-91F9-B00D5AC951A0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LocalMediaFileOut", "LocalMediaFileOut\LocalMediaFileOut.csproj", "{E543DA67-4228-4586-91F9-B00D5AC951A0}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
