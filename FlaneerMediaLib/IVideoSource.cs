@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace FlaneerMediaLib
 {
-    public interface IVideoSource : IDisposable
+    public interface IVideoSource : IService, IDisposable
     {
         public void Init(FrameSettings frameSettings, ICodecSettings codecSettings);
     }

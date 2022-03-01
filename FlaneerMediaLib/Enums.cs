@@ -1,5 +1,10 @@
 ﻿namespace FlaneerMediaLib;
 
+public enum VideoEncoders
+{
+    NvEncH264
+}
+
 public enum VideoCodec
 {
     H264,

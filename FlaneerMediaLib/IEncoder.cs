@@ -1,12 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace FlaneerMediaLib
+﻿namespace FlaneerMediaLib
 {
-    public interface IEncoder
+    public interface IEncoder : IService
     {
         VideoFrame GetFrame();
     }
