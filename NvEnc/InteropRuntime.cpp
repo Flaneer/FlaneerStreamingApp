@@ -4,10 +4,10 @@
 
 CaptureRuntime capture_runtime;
 
-EXPORT void Init(VideoCaptureSettings capture_settings, H264CodecSettings codec_settings)
+EXPORT HRESULT Init(VideoCaptureSettings capture_settings, H264CodecSettings codec_settings)
 {
 	capture_runtime = CaptureRuntime(capture_settings, codec_settings);
-	capture_runtime.Init();
+	return capture_runtime.Init();
 }
 
 EXPORT HRESULT FulfilFrameRequest(FrameRequest& frame_request)

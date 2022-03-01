@@ -14,7 +14,6 @@ CaptureRuntime::CaptureRuntime(const VideoCaptureSettings capture_settings, cons
     Codec_Id = NV_ENC_CODEC_H264_GUID;
     BufferFormat = codec_settings.Format;
     GoPLength = codec_settings.GoPLength;
-    CRF = codec_settings.CRF;
 }
 
 CaptureRuntime::~CaptureRuntime()
@@ -123,6 +122,8 @@ HRESULT CaptureRuntime::Init()
 
     hr = InitEnc();
     returnIfError(hr);
+
+    return hr;
 }
 
 /// Capture a frame using DDA
