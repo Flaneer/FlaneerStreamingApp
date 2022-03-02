@@ -4,7 +4,7 @@ namespace NvEncWrapper
 {
     internal static class InteropMethods
     {
-        private const string DLLNAME = "nvencvideosource.dll";
+        private const string DLLNAME = "NvEncVideoSource.dll";
 
         [DllImport(DLLNAME)]
         public static extern long Init(VideoCaptureSettings capture_settings, H264CodecSettings codec_settings);
