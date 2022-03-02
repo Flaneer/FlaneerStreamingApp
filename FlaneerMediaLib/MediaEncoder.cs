@@ -2,7 +2,7 @@
 
 namespace FlaneerMediaLib
 {
-    public class MediaEncoder
+    public class MediaEncoder : IDisposable
     {
         public MediaEncoder(VideoEncoders videoEncoder)
         {
@@ -18,7 +18,18 @@ namespace FlaneerMediaLib
 
         public void InitVideo(FrameSettings frameSettings, ICodecSettings codecSettings)
         {
-            
+            if (ServiceRegistry.TryGetService<IVideoSource>(out var videoSource))
+            {
+                videoSource.Init(frameSettings, codecSettings);
+            }
+        }
+
+        public void Dispose()
+        {
+            if (ServiceRegistry.TryGetService<IVideoSource>(out var videoSource))
+            {
+                videoSource.Dispose();
+            }
         }
     }
 }
