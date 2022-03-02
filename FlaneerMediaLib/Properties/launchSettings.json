@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "FlaneerMediaLib": {
+      "commandName": "Project",
+      "nativeDebugging": true
+    }
+  }
+}

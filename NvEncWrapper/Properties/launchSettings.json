@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "NvEncWrapper": {
+      "commandName": "Project",
+      "nativeDebugging": true
+    }
+  }
+}

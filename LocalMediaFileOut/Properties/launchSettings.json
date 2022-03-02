@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "LocalMediaFileOut": {
+      "commandName": "Project",
+      "nativeDebugging": true
+    }
+  }
+}
