@@ -21,6 +21,37 @@ CaptureRuntime::~CaptureRuntime()
     Cleanup();
 }
 
+std::vector <IDXGIAdapter*> EnumerateAdapters(void)
+{
+    IDXGIAdapter* pAdapter;
+    std::vector <IDXGIAdapter*> vAdapters;
+    IDXGIFactory* pFactory = NULL;
+
+
+    // Create a DXGIFactory object.
+    if (FAILED(CreateDXGIFactory(__uuidof(IDXGIFactory), (void**)&pFactory)))
+    {
+        return vAdapters;
+    }
+
+
+    for (UINT i = 0;
+        pFactory->EnumAdapters(i, &pAdapter) != DXGI_ERROR_NOT_FOUND;
+        ++i)
+    {
+        vAdapters.push_back(pAdapter);
+    }
+
+
+    if (pFactory)
+    {
+        pFactory->Release();
+    }
+
+    return vAdapters;
+
+}
+
 /// Initialize DXGI pipeline
 HRESULT CaptureRuntime::InitDXGI()
 {
@@ -48,8 +79,13 @@ HRESULT CaptureRuntime::InitDXGI()
     /// Create device
     for (UINT DriverTypeIndex = 0; DriverTypeIndex < NumDriverTypes; ++DriverTypeIndex)
     {
-        hr = D3D11CreateDevice(nullptr, DriverTypes[DriverTypeIndex], nullptr, /*D3D11_CREATE_DEVICE_DEBUG*/0, FeatureLevels, NumFeatureLevels,
+        //TODO: MAKE THIS RELIABLE GOOD CODE
+        auto adapters = EnumerateAdapters();
+
+        hr = D3D11CreateDevice(adapters[1], DriverTypes[DriverTypeIndex], nullptr,
+            D3D11_CREATE_DEVICE_DEBUG, FeatureLevels, NumFeatureLevels,
             D3D11_SDK_VERSION, &D3DDevice, &FeatureLevel, &deviceContext);
+        
         if (SUCCEEDED(hr))
         {
             // Device creation succeeded, no need to loop anymore
