@@ -16,11 +16,15 @@ namespace FlaneerMediaLib
             }
         }
 
-        public void InitVideo(FrameSettings frameSettings, ICodecSettings codecSettings)
+        public bool InitVideo(FrameSettings frameSettings, ICodecSettings codecSettings)
         {
             if (ServiceRegistry.TryGetService<IVideoSource>(out var videoSource))
             {
-                videoSource.Init(frameSettings, codecSettings);
+                return videoSource.Init(frameSettings, codecSettings);
+            }
+            else
+            {
+                return false;
             }
         }
 

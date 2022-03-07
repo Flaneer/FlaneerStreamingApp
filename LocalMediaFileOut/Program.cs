@@ -24,10 +24,16 @@ namespace LocalMediaFileOut
                 GoPLength = 5
             };
 
-            encoder.InitVideo(frameSettings, codecSettings);
-
-            MP4VideoSink videoSink = new MP4VideoSink();
-            videoSink.Capture(600);
+            if(encoder.InitVideo(frameSettings, codecSettings))
+            {
+                MP4VideoSink videoSink = new MP4VideoSink();
+                videoSink.Capture(600);
+            }
+            else
+            {
+                Console.WriteLine("Failed to init video");
+                Console.ReadLine();
+            }
         }
     }
 }
