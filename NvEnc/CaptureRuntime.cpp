@@ -79,18 +79,20 @@ HRESULT CaptureRuntime::InitDXGI()
     /// Create device
     for (UINT DriverTypeIndex = 0; DriverTypeIndex < NumDriverTypes; ++DriverTypeIndex)
     {
-        //TODO: MAKE THIS RELIABLE GOOD CODE
         auto adapters = EnumerateAdapters();
 
-        hr = D3D11CreateDevice(adapters[1], DriverTypes[DriverTypeIndex], nullptr,
+        for (const auto adapter : adapters)
+        {
+	        hr = D3D11CreateDevice(adapter, DriverTypes[DriverTypeIndex], nullptr,
             D3D11_CREATE_DEVICE_DEBUG, FeatureLevels, NumFeatureLevels,
             D3D11_SDK_VERSION, &D3DDevice, &FeatureLevel, &deviceContext);
         
-        if (SUCCEEDED(hr))
-        {
-            // Device creation succeeded, no need to loop anymore
-            break;
-        }
+	        if (SUCCEEDED(hr))
+	        {
+	            // Device creation succeeded, no need to loop anymore
+                return hr;
+	        }
+        }     
     }
     return hr;
 }
@@ -165,7 +167,10 @@ HRESULT CaptureRuntime::Init()
 /// Capture a frame using DDA
 HRESULT CaptureRuntime::Capture()
 {
-    return  ddaWrapper->GetCapturedFrame(&dupTex2D, timeout()); // Release after preproc
+    if (ddaWrapper)
+        return ddaWrapper->GetCapturedFrame(&dupTex2D, timeout()); // Release after preproc
+    else
+        return 1;
 }
 
 /// Preprocess captured frame
@@ -201,7 +206,7 @@ HRESULT CaptureRuntime::Encode()
 HRESULT CaptureRuntime::FulfilFrameRequest(FrameRequest& frame_request)
 {
     auto hr = Capture();
-    if (hr == DXGI_ERROR_WAIT_TIMEOUT)
+    if (FAILED(hr))
     {
         return hr;
     }
