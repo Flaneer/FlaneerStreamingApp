@@ -7,10 +7,14 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <Content Include="..\x64\Debug\NvEncVideoSource.dll">
-        <Link>NvEncVideoSource.dll</Link>
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </Content>
+        <Content Include="..\x64\Debug\NvEncVideoSource.dll">
+            <Link>NvEncVideoSource.dll</Link>
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        </Content>
+	    <Content Include="..\x64\Debug\NvEncVideoSource.pdb">
+		    <Link>NvEncVideoSource.pdb</Link>
+		    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	    </Content>
     </ItemGroup>
 
 </Project>
