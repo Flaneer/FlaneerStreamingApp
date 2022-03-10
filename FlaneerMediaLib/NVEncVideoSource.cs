@@ -14,7 +14,7 @@ namespace FlaneerMediaLib
             this.codecSettings = codecSettings;
             switch (codecSettings)
             {
-                case H264CodecSettings h264CodecSettings:
+                case H264CodecSettings:
                     codec = VideoCodec.H264;
                     break;
                 default:
