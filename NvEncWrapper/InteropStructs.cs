@@ -75,11 +75,12 @@ namespace NvEncWrapper
     /// an empty data pointer to be set to the address of the frame data
     /// </summary>
     [StructLayout(LayoutKind.Sequential)]
-    internal struct FrameRequest
+    public struct FrameRequest
     {
         public Int16 Width;
         public Int16 Height;
 
         public IntPtr Data;
+        public Int32 BufferSize;
     }
 }
