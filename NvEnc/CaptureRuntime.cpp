@@ -21,27 +21,25 @@ CaptureRuntime::~CaptureRuntime()
     Cleanup();
 }
 
-std::vector <IDXGIAdapter*> EnumerateAdapters(void)
+std::vector <IDXGIAdapter*> GetNVidiaAdapter(void)
 {
     IDXGIAdapter* pAdapter;
     std::vector <IDXGIAdapter*> vAdapters;
-    IDXGIFactory* pFactory = NULL;
-
+    IDXGIFactory* pFactory = nullptr;
 
     // Create a DXGIFactory object.
-    if (FAILED(CreateDXGIFactory(__uuidof(IDXGIFactory), (void**)&pFactory)))
+    if (FAILED(CreateDXGIFactory(__uuidof(IDXGIFactory), reinterpret_cast<void**>(&pFactory))))
     {
         return vAdapters;
     }
 
-
-    for (UINT i = 0;
-        pFactory->EnumAdapters(i, &pAdapter) != DXGI_ERROR_NOT_FOUND;
-        ++i)
+    for (UINT i = 0; pFactory->EnumAdapters(i, &pAdapter) != DXGI_ERROR_NOT_FOUND; ++i)
     {
+	    DXGI_ADAPTER_DESC desc;
+        pAdapter->GetDesc(&desc);
+        if(desc.VendorId == 4318)//4318 is NVidia's vendor ID
         vAdapters.push_back(pAdapter);
     }
-
 
     if (pFactory)
     {
@@ -49,13 +47,12 @@ std::vector <IDXGIAdapter*> EnumerateAdapters(void)
     }
 
     return vAdapters;
-
 }
 
 /// Initialize DXGI pipeline
 HRESULT CaptureRuntime::InitDXGI()
 {
-    HRESULT hr = S_OK;
+    HRESULT hr = S_FALSE;
     /// Driver types supported
     D3D_DRIVER_TYPE DriverTypes[] =
     {
@@ -79,20 +76,38 @@ HRESULT CaptureRuntime::InitDXGI()
     /// Create device
     for (UINT DriverTypeIndex = 0; DriverTypeIndex < NumDriverTypes; ++DriverTypeIndex)
     {
-        auto adapters = EnumerateAdapters();
-
-        for (const auto adapter : adapters)
+        auto adapters = GetNVidiaAdapter();
+	    
+        if(adapters.empty())
         {
-	        hr = D3D11CreateDevice(adapter, DriverTypes[DriverTypeIndex], nullptr,
-            D3D11_CREATE_DEVICE_DEBUG, FeatureLevels, NumFeatureLevels,
-            D3D11_SDK_VERSION, &D3DDevice, &FeatureLevel, &deviceContext);
+            break;
+        }
+
+        //hr = D3D11CreateDevice(
+        //    adapters[0],//Get the first NVidia adapter
+        //    D3D_DRIVER_TYPE_UNKNOWN,
+        //    nullptr,
+        //    /*D3D11_CREATE_DEVICE_DEBUG*/0, 
+        //    FeatureLevels, 
+        //    NumFeatureLevels,
+        //    D3D11_SDK_VERSION, 
+        //    &D3DDevice, &FeatureLevel, &deviceContext);
+
+        hr = D3D11CreateDevice(
+            nullptr,
+            DriverTypes[DriverTypeIndex],
+            nullptr,
+            /*D3D11_CREATE_DEVICE_DEBUG*/0,
+            FeatureLevels,
+            NumFeatureLevels,
+            D3D11_SDK_VERSION,
+            &D3DDevice, &FeatureLevel, &deviceContext);
         
-	        if (SUCCEEDED(hr))
-	        {
-	            // Device creation succeeded, no need to loop anymore
-                return hr;
-	        }
-        }     
+	    if (SUCCEEDED(hr))
+	    {
+	        // Device creation succeeded, no need to loop anymore
+            return hr;
+	    }
     }
     return hr;
 }

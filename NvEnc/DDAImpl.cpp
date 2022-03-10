@@ -35,14 +35,12 @@ HRESULT DDAImpl::Init()
 {
     IDXGIOutput * pOutput = nullptr;
     IDXGIDevice2* pDevice = nullptr;
-    IDXGIFactory1* pFactory = nullptr;
     IDXGIAdapter *pAdapter = nullptr;
     IDXGIOutput1* pOut1 = nullptr;
 
     /// Release all temporary refs before exit
 #define CLEAN_RETURN(x) \
     SAFE_RELEASE(pDevice);\
-    SAFE_RELEASE(pFactory);\
     SAFE_RELEASE(pOutput);\
     SAFE_RELEASE(pOut1);\
     SAFE_RELEASE(pAdapter);\
@@ -50,6 +48,43 @@ HRESULT DDAImpl::Init()
 
     HRESULT hr = S_OK;
     /// To create a DDA object given a D3D11 device, we must first get to the DXGI Adapter associated with that device
+    /*if (FAILED(hr = pD3DDev->QueryInterface(__uuidof(IDXGIDevice2), (void**)&pDevice)))
+    {
+        CLEAN_RETURN(hr);
+    }
+
+    if (FAILED(hr = pDevice->GetParent(__uuidof(IDXGIAdapter), (void**)&pAdapter)))
+    {
+        CLEAN_RETURN(hr);
+    }
+    /// Once we have the DXGI Adapter, we enumerate the attached display outputs, and select which one we want to capture
+    UINT i = 0;
+    std::vector<IDXGIOutput*> outputs;
+	while(pAdapter->EnumOutputs(i, &pOutput) != DXGI_ERROR_NOT_FOUND)
+    {
+        if (!FAILED(hr = pAdapter->EnumOutputs(i, &pOutput)))
+        {
+            IDXGIOutput* foundOutput = pOutput;
+            outputs.push_back(foundOutput);
+        }
+        i++;
+    }
+    if (FAILED(hr))
+    {
+        CLEAN_RETURN(hr);
+    }    
+
+    if (FAILED(hr = pOutput->QueryInterface(__uuidof(IDXGIOutput1), (void**)&pOut1)))
+    {
+        CLEAN_RETURN(hr);
+    }
+
+    /// Ask DXGI to create an instance of IDXGIOutputDuplication for the selected output. We can now capture this display output
+    if (FAILED(hr = pOut1->DuplicateOutput(pDevice, &pDup)))
+    {
+        CLEAN_RETURN(hr);
+    }*/
+
     if (FAILED(hr = pD3DDev->QueryInterface(__uuidof(IDXGIDevice2), (void**)&pDevice)))
     {
         CLEAN_RETURN(hr);

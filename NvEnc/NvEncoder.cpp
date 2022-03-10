@@ -455,7 +455,7 @@ void NvEncoder::EndEncode(std::vector<std::vector<uint8_t>> &vPacket)
 void NvEncoder::GetEncodedPacket(std::vector<NV_ENC_OUTPUT_PTR> &vOutputBuffer, std::vector<std::vector<uint8_t>> &vPacket, bool bOutputDelay)
 {
     unsigned i = 0;
-    int iEnd = bOutputDelay ? m_iToSend - m_nOutputDelay : m_iToSend;
+    int iEnd = m_iToSend;
     for (; m_iGot < iEnd; m_iGot++)
     {
         WaitForCompletionEvent(m_iGot % m_nEncoderBuffer);
