@@ -27,7 +27,7 @@ namespace LocalMediaFileOut
             if(encoder.InitVideo(frameSettings, codecSettings))
             {
                 MP4VideoSink videoSink = new MP4VideoSink();
-                videoSink.Capture(600);
+                videoSink.Capture(600, frameSettings.MaxFPS);
             }
             else
             {

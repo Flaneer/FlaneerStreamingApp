@@ -1,4 +1,5 @@
 ﻿using FlaneerMediaLib;
+using System.Diagnostics;
 
 namespace LocalMediaFileOut
 {
@@ -14,13 +15,23 @@ namespace LocalMediaFileOut
                 throw new Exception("No available encoder");
         }
 
-        public unsafe void Capture(int numberOfFrames)
+        public unsafe void Capture(int numberOfFrames, int targetFramerate)
         {
+            Stopwatch stopWatch = new Stopwatch();
+            stopWatch.Start();
+            var frameLength = new TimeSpan(0, 0, (int)Math.Floor(1.0f/numberOfFrames));
+
             FileStream file;
             using (file = new FileStream("out.h264", FileMode.Create, FileAccess.Write))
             {
                 for (int i = 0; i < numberOfFrames; i++)
                 {
+
+                    while (stopWatch.Elapsed < (frameLength*i))
+                    {
+                        Thread.Sleep(1);
+                    }
+
                     try
                     {
                         var frame = encoder.GetFrame();
@@ -34,6 +45,7 @@ namespace LocalMediaFileOut
                         Console.Error.WriteLine(e);
                     }
                 }
+                stopWatch.Stop();
             }
         }
     }
