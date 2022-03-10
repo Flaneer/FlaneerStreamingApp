@@ -14,19 +14,26 @@ namespace LocalMediaFileOut
                 throw new Exception("No available encoder");
         }
 
-        public void Capture(int numberOfFrames)
+        public unsafe void Capture(int numberOfFrames)
         {
-            for (int i = 0; i < numberOfFrames; i++)
+            FileStream file;
+            using (file = new FileStream("out.h264", FileMode.Create, FileAccess.Write))
             {
-                try
+                for (int i = 0; i < numberOfFrames; i++)
                 {
-                    var ptrToFrame = encoder.GetFrame();
+                    try
+                    {
+                        var frame = encoder.GetFrame();
+                        using (UnmanagedMemoryStream ustream = new UnmanagedMemoryStream((byte*)frame.FrameData, frame.FrameSize))
+                        {
+                            ustream.CopyTo(file);
+                        }   
+                    }
+                    catch (Exception e)
+                    {
+                        Console.Error.WriteLine(e);
+                    }
                 }
-                catch (Exception e)
-                {
-                    Console.Error.WriteLine(e);
-                }
-                
             }
         }
     }
