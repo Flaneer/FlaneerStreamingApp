@@ -12,5 +12,6 @@ namespace FlaneerMediaLib
         public int Width;
         public int Height;
         public IntPtr FrameData;
+        public int FrameSize;
     }
 }

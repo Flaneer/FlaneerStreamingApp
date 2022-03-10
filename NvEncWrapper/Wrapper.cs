@@ -8,15 +8,15 @@
             return retCode == 0;
         }
 
-        public static IntPtr RequestNewFrame(int width, int height)
+        public static FrameRequest RequestNewFrame(int width, int height)
         {
             var interopFrame = new FrameRequest
             {
                 Height = (Int16) height,
                 Width = (Int16) width
             };
-            InteropMethods.FulfilFrameRequest(interopFrame);
-            return interopFrame.Data;
+            InteropMethods.FulfilFrameRequest(ref interopFrame);
+            return interopFrame;
         }
 
         public static void CleanUp()

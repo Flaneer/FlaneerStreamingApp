@@ -31,4 +31,5 @@ typedef struct
     short Height;
 
     unsigned char* Data;
+    INT32 Buffersize;
 } FrameRequest;

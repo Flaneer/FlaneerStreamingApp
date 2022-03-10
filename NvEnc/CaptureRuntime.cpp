@@ -223,6 +223,7 @@ HRESULT CaptureRuntime::FulfilFrameRequest(FrameRequest& frame_request)
         printf("Encode failed with error 0x%08x\n", hr);
         return hr;
     }
+    frame_request.Buffersize = vPacket.back().size();
     frame_request.Data = vPacket.back().data();
     return hr;
 }

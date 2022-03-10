@@ -26,14 +26,15 @@ namespace FlaneerMediaLib
         public VideoFrame GetFrame()
         {
             var frame = Wrapper.RequestNewFrame(frameSettings.Width, frameSettings.Height);
-            if (frame == IntPtr.Zero)
+            if (frame.Data == IntPtr.Zero)
                 throw new Exception("Invalid frame address provided");
             return new VideoFrame()
             {
                 Codec = codec,
                 Width = frameSettings.Width,
                 Height = frameSettings.Height,
-                FrameData = frame
+                FrameData = frame.Data,
+                FrameSize = frame.BufferSize
             };
         }
 
