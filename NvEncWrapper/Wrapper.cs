@@ -15,8 +15,11 @@
                 Height = (Int16) height,
                 Width = (Int16) width
             };
-            InteropMethods.FulfilFrameRequest(ref interopFrame);
-            return interopFrame;
+            var retCode = InteropMethods.FulfilFrameRequest(ref interopFrame);
+            if (retCode == 0)
+                return interopFrame;
+            else
+                throw new Exception($"Frame request failed, ret code {retCode}");
         }
 
         public static void CleanUp()
