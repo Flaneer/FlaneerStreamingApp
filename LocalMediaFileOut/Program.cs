@@ -1,27 +1,33 @@
 ﻿using FlaneerMediaLib;
+using System.Text.Json;
+using System.Windows;
 
 namespace LocalMediaFileOut
 {
     internal class Program
     {
-        static void Main(string[] args)
+        private static readonly HttpClient client = new HttpClient();
+
+        static async Task Main(string[] args)
         {
             Console.WriteLine($"The current directory is {Directory.GetCurrentDirectory()}");
             Console.WriteLine($"NvEncVideoSource.dll exists: {File.Exists("NvEncVideoSource.dll")}");
+
+            var videoSettings = await ProcessVideoSettings();
 
             using MediaEncoder encoder = new MediaEncoder(VideoEncoders.NvEncH264);
 
             var frameSettings = new FrameSettings()
             {
-                Height = 1440,
-                Width = 2560,
-                MaxFPS = 60
+                Height = videoSettings.Height,
+                Width = videoSettings.Width,
+                MaxFPS = videoSettings.MaxFPS
             };
 
             var codecSettings = new H264CodecSettings()
             {
-                Format = BufferFormat.ARGB,
-                GoPLength = 5
+                Format = videoSettings.Format,
+                GoPLength = (short)videoSettings.GoPLength
             };
 
             if(encoder.InitVideo(frameSettings, codecSettings))
@@ -34,6 +40,24 @@ namespace LocalMediaFileOut
                 Console.WriteLine("Failed to init video");
                 Console.ReadLine();
             }
+        }
+
+        class VideoSettings
+        {
+            public int Height = 1440;
+            public int Width = 2560;
+            public int MaxFPS = 60;
+            public BufferFormat Format = BufferFormat.ARGB;
+            public int GoPLength = 5;
+        }
+
+        private static async Task<VideoSettings> ProcessVideoSettings()
+        {
+            client.DefaultRequestHeaders.Accept.Clear();
+
+            var streamTask = client.GetStreamAsync("https://d5r5xl46i4.execute-api.eu-west-1.amazonaws.com/ConfigDemoStage/");
+            var VideoSettings = await JsonSerializer.DeserializeAsync<VideoSettings>(await streamTask);
+            return VideoSettings;
         }
     }
 }
