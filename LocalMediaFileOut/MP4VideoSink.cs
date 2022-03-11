@@ -19,7 +19,7 @@ namespace LocalMediaFileOut
         {
             Stopwatch stopWatch = new Stopwatch();
             stopWatch.Start();
-            var frameLength = new TimeSpan(0, 0, (int)Math.Floor(1.0f/numberOfFrames));
+            var frameLength = new TimeSpan(0, 0, (int)Math.Floor(1.0f/ targetFramerate));
 
             FileStream file;
             using (file = new FileStream("out.h264", FileMode.Create, FileAccess.Write))
