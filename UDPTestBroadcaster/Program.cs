@@ -2,40 +2,47 @@
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
+using FlaneerMediaLib;
+using LocalMediaFileOut;
 
 class Program
 {
-    static string pathSource = @"C:\Users\Tom\Code\FlaneerStreamingApp\TestResources\Netflix_RollerCoaster_4096x2160_60fps_10bit_420-gpu-0.mp4";
+    class VideoSettings
+    {
+        public int Height = 1440;
+        public int Width = 2560;
+        public int MaxFPS = 60;
+        public BufferFormat Format = BufferFormat.ARGB;
+        public int GoPLength = 5;
+    }
     
     static void Main(string[] args)
     {
-        Socket s = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
-        IPAddress broadcast = IPAddress.Parse("192.168.1.255");
-
-        int sent = 0;
-        
-        using (FileStream fsSource = new FileStream(pathSource, FileMode.Open, FileAccess.Read))
+        var videoSettings = new VideoSettings();
+        var frameSettings = new FrameSettings()
         {
-            while (sent <= fsSource.Length)
-            {
-                var bodySize = 65507;
-                var packetSize = Math.Min(bodySize, fsSource.Length - sent);
-                // Read the source file into a byte array.
-                byte[] bytes = new byte[packetSize];
-                int numBytesToRead = (int)packetSize;
-                // Read may return anything from 0 to numBytesToRead.
-                int n = fsSource.Read(bytes, 0, numBytesToRead);
+            Height = videoSettings.Height,
+            Width = videoSettings.Width,
+            MaxFPS = videoSettings.MaxFPS
+        };
 
-                // Break when the end of the file is reached.
-                if (n == 0)
-                    break;
+        var codecSettings = new H264CodecSettings()
+        {
+            Format = videoSettings.Format,
+            GoPLength = (short)videoSettings.GoPLength
+        };
 
-                sent += n;
-            
-                IPEndPoint ep = new IPEndPoint(broadcast, 11000);
-                s.SendTo(bytes, ep);
-                Console.WriteLine($"SENT CHUNK | {sent}/{fsSource.Length}");
-            }
+        using MediaEncoder encoder = new MediaEncoder(VideoEncoders.NvEncH264);
+
+        if(encoder.InitVideo(frameSettings, codecSettings))
+        {
+            UDPVideoStreamer videoSink = new UDPVideoStreamer();
+            videoSink.Capture(600, frameSettings.MaxFPS);
+        }
+        else
+        {
+            Console.WriteLine("Failed to init video");
+            Console.ReadLine();
         }
         
         Console.WriteLine("Message sent to the broadcast address");
