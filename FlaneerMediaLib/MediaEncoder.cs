@@ -1,6 +1,4 @@
-﻿using NvEncWrapper;
-
-namespace FlaneerMediaLib
+﻿namespace FlaneerMediaLib
 {
     public class MediaEncoder : IDisposable
     {

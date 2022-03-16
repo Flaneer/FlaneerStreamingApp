@@ -1,6 +1,6 @@
 ﻿namespace FlaneerMediaLib
 {
-    public interface IVideoSink
+    public interface ICodecSettings
     {
     }
 }
