@@ -11,6 +11,8 @@ namespace LocalMediaFileOut
 
         Socket s = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
         IPAddress broadcast = IPAddress.Parse("212.132.204.217");
+
+        private const int UDPHEADERSIZE = 28;
         
         public UDPVideoStreamer()
         {
@@ -41,7 +43,7 @@ namespace LocalMediaFileOut
                         int sent = 0;
                         while (sent <= ustream.Length)
                         {
-                            var bodySize = 65507;
+                            var bodySize = 65536 - UDPHEADERSIZE;
                             var packetSize = Math.Min(bodySize, ustream.Length - sent);
                             // Read the source file into a byte array.
                             byte[] bytes = new byte[packetSize];
