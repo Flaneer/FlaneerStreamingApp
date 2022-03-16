@@ -18,10 +18,12 @@ public class UDPListener
             {
                 Console.WriteLine("Waiting for broadcast");
                 byte[] bytes = listener.Receive(ref groupEP);
-
-                Console.WriteLine($"Received broadcast from {groupEP} :");
-                Console.WriteLine($" {Encoding.ASCII.GetString(bytes, 0, bytes.Length)}");
+                using (FileStream fsNew = new FileStream("out.mp4", FileMode.Append, FileAccess.Write))
+                {
+                    fsNew.Write(bytes, 0, bytes.Length);
+                }
             }
+            
         }
         catch (SocketException e)
         {
