@@ -5,6 +5,8 @@
     }
     public class ServiceRegistry
     {
+        public static Action<IService> ServiceAdded;
+        
         internal Dictionary<Type, IService> registry = new();
 
         private static ServiceRegistry instance = null;
@@ -30,6 +32,7 @@
             foreach (var ifce in service.GetType().GetInterfaces())
             {
                 Instance.registry.Add(ifce, service);
+                ServiceAdded?.Invoke(service);
             }
         }
 

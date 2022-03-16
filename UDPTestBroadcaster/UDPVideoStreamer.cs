@@ -16,14 +16,21 @@ namespace LocalMediaFileOut
         
         public UDPVideoStreamer()
         {
-            if(ServiceRegistry.TryGetService<IEncoder>(out var encoder))
+            if (ServiceRegistry.TryGetService<IEncoder>(out var encoder))
                 this.encoder = encoder;
             else
-                throw new Exception("No available encoder");
+                ServiceRegistry.ServiceAdded += service =>
+                {
+                    if (service is IEncoder encoder)
+                        this.encoder = encoder;
+                };
         }
 
         public unsafe void Capture(int numberOfFrames, int targetFramerate)
         {
+            if(encoder == default)
+                return;
+            
             Stopwatch stopWatch = new Stopwatch();
             stopWatch.Start();
             var frameTime = new TimeSpan(0, 0, (int)Math.Floor(1.0f/ targetFramerate));
