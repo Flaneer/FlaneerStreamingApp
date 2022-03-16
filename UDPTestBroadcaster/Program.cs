@@ -18,6 +18,17 @@ class Program
     
     static void Main(string[] args)
     {
+        InitialiseMediaEncoder();
+
+        UDPVideoStreamer videoSink = new UDPVideoStreamer();
+        var videoSettings = new VideoSettings();
+        videoSink.Capture(600, videoSettings.MaxFPS);
+        
+        Console.WriteLine("Message sent to the broadcast address");
+    }
+
+    private static void InitialiseMediaEncoder()
+    {
         var videoSettings = new VideoSettings();
         var frameSettings = new FrameSettings()
         {
@@ -31,20 +42,7 @@ class Program
             Format = videoSettings.Format,
             GoPLength = (short)videoSettings.GoPLength
         };
-
-        using MediaEncoder encoder = new MediaEncoder(VideoEncoders.NvEncH264);
-
-        if(encoder.InitVideo(frameSettings, codecSettings))
-        {
-            UDPVideoStreamer videoSink = new UDPVideoStreamer();
-            videoSink.Capture(600, frameSettings.MaxFPS);
-        }
-        else
-        {
-            Console.WriteLine("Failed to init video");
-            Console.ReadLine();
-        }
-        
-        Console.WriteLine("Message sent to the broadcast address");
+        MediaEncoderLifeCycleManager encoderLifeCycleManager = new MediaEncoderLifeCycleManager(VideoEncoders.NvEncH264);
+        encoderLifeCycleManager.InitVideo(frameSettings, codecSettings);
     }
 }

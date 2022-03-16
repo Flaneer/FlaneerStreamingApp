@@ -15,7 +15,7 @@ namespace LocalMediaFileOut
 
             var videoSettings = await ProcessVideoSettings();
 
-            using MediaEncoder encoder = new MediaEncoder(VideoEncoders.NvEncH264);
+            using MediaEncoderLifeCycleManager encoderLifeCycleManager = new MediaEncoderLifeCycleManager(VideoEncoders.NvEncH264);
 
             var frameSettings = new FrameSettings()
             {
@@ -30,7 +30,7 @@ namespace LocalMediaFileOut
                 GoPLength = (short)videoSettings.GoPLength
             };
 
-            if(encoder.InitVideo(frameSettings, codecSettings))
+            if(encoderLifeCycleManager.InitVideo(frameSettings, codecSettings))
             {
                 MP4VideoSink videoSink = new MP4VideoSink();
                 videoSink.Capture(600, frameSettings.MaxFPS);
