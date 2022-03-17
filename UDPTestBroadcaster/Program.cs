@@ -20,9 +20,9 @@ class Program
     {
         InitialiseMediaEncoder();
 
-        UDPVideoStreamer videoSink = new UDPVideoStreamer();
+        IVideoSink videoSink = new UDPVideoSink("212.132.204.217");
         var videoSettings = new VideoSettings();
-        videoSink.Capture(600, videoSettings.MaxFPS);
+        videoSink.CaptureFrames(600, videoSettings.MaxFPS);
         
         Console.WriteLine("Message sent to the broadcast address");
     }

@@ -15,7 +15,7 @@ namespace LocalMediaFileOut
                 throw new Exception("No available encoder");
         }
 
-        public unsafe void Capture(int numberOfFrames, int targetFramerate)
+        private unsafe void CaptureFramesImpl(int numberOfFrames, int targetFramerate)
         {
             Stopwatch stopWatch = new Stopwatch();
             stopWatch.Start();
@@ -47,6 +47,15 @@ namespace LocalMediaFileOut
                 }
                 stopWatch.Stop();
             }
+        }
+        public void CaptureFrames(int numberOfFrames, int targetFramerate)
+        {
+            CaptureFramesImpl(numberOfFrames, targetFramerate);
+        }
+
+        public void CaptureFrame()
+        {
+            throw new NotImplementedException();
         }
     }
 }

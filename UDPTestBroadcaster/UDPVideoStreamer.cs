@@ -5,7 +5,7 @@ using System.Net.Sockets;
 
 namespace LocalMediaFileOut
 {
-    internal class UDPVideoStreamer : IVideoSink
+    internal class UDPVideoStreamer
     {
         IEncoder encoder;
 
