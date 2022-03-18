@@ -35,10 +35,14 @@ namespace LocalMediaFileOut
                     try
                     {
                         var frame = encoder.GetFrame();
-                        using (UnmanagedMemoryStream ustream = new UnmanagedMemoryStream((byte*)frame.FrameData, frame.FrameSize))
+                        if (frame is UnmanagedVideoFrame unmanagedFrame)
                         {
-                            ustream.CopyTo(file);
-                        }   
+                            using (UnmanagedMemoryStream ustream = new UnmanagedMemoryStream((byte*)unmanagedFrame.FrameData, unmanagedFrame.FrameSize))
+                            {
+                                ustream.CopyTo(file);
+                            } 
+                        }
+                          
                     }
                     catch (Exception e)
                     {

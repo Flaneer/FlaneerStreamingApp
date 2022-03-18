@@ -1,12 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
+﻿using System.Net;
 using System.Net.Sockets;
-using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
-using NReco.VideoConverter;
 
 namespace FlaneerMediaLib
 {
@@ -56,19 +49,6 @@ namespace FlaneerMediaLib
             byte[] encodedBytes = listener.Receive(ref groupEP);
             
             var outputStream = new MemoryStream(encodedBytes);
-            
-            var ffMpeg = new FFMpegConverter();
-            try
-            {
-                var task = ffMpeg.ConvertLiveMedia(Format.h264, outputStream, Format.mjpeg, new ConvertSettings());
-                task.Start();
-                task.Write(encodedBytes, 0, encodedBytes.Length);
-                task.Stop();
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
-            }
 
             latestFrame.Stream = outputStream;
             
@@ -79,6 +59,5 @@ namespace FlaneerMediaLib
         {
             listener.Dispose();
         }
-        
     }
 }

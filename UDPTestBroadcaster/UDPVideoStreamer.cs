@@ -45,30 +45,34 @@ namespace LocalMediaFileOut
                 try
                 {
                     var frame = encoder.GetFrame();
-                    using (UnmanagedMemoryStream ustream = new UnmanagedMemoryStream((byte*)frame.FrameData, frame.FrameSize))
+                    if (frame is UnmanagedVideoFrame unmanagedFrame)
                     {
-                        int sent = 0;
-                        while (sent <= ustream.Length)
+                        using (UnmanagedMemoryStream ustream = new UnmanagedMemoryStream((byte*)unmanagedFrame.FrameData, unmanagedFrame.FrameSize))
                         {
-                            var bodySize = 65536 - UDPHEADERSIZE;
-                            var packetSize = Math.Min(bodySize, ustream.Length - sent);
-                            // Read the source file into a byte array.
-                            byte[] bytes = new byte[packetSize];
-                            int numBytesToRead = (int)packetSize;
-                            // Read may return anything from 0 to numBytesToRead.
-                            int n = ustream.Read(bytes, 0, numBytesToRead);
-
-                            // Break when the end of the file is reached.
-                            if (n == 0)
-                                break;
-
-                            sent += n;
-        
-                            IPEndPoint ep = new IPEndPoint(broadcast, 11000);
-                            s.SendTo(bytes, ep);
-                            Console.WriteLine($"SENT CHUNK | {sent}/{ustream.Length}");
+                            int sent = 0;
+                            while (sent <= ustream.Length)
+                            {
+                                var bodySize = 65536 - UDPHEADERSIZE;
+                                var packetSize = Math.Min(bodySize, ustream.Length - sent);
+                                // Read the source file into a byte array.
+                                byte[] bytes = new byte[packetSize];
+                                int numBytesToRead = (int)packetSize;
+                                // Read may return anything from 0 to numBytesToRead.
+                                int n = ustream.Read(bytes, 0, numBytesToRead);
+    
+                                // Break when the end of the file is reached.
+                                if (n == 0)
+                                    break;
+    
+                                sent += n;
+            
+                                IPEndPoint ep = new IPEndPoint(broadcast, 11000);
+                                s.SendTo(bytes, ep);
+                                Console.WriteLine($"SENT CHUNK | {sent}/{ustream.Length}");
+                            }
                         }
                     }
+                    
                 }
                 catch (Exception e)
                 {

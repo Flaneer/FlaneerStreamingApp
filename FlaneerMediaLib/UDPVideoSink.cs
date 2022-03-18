@@ -59,7 +59,8 @@ public class UDPVideoSink : IVideoSink
             try
             {
                 var frame = encoder.GetFrame();
-                SendFrame(frame);
+                if(frame is UnmanagedVideoFrame unmanagedFrame)
+                    SendFrame(unmanagedFrame);
             }
             catch (Exception e)
             {
@@ -69,7 +70,7 @@ public class UDPVideoSink : IVideoSink
         stopWatch.Stop();
     }
 
-    private unsafe void SendFrame(VideoFrame frame)
+    private unsafe void SendFrame(UnmanagedVideoFrame frame)
     {
         using (UnmanagedMemoryStream ustream = new UnmanagedMemoryStream((byte*) frame.FrameData, frame.FrameSize))
         {

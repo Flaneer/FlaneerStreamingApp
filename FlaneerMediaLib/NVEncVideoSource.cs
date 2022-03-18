@@ -28,7 +28,7 @@ namespace FlaneerMediaLib
             var frame = Wrapper.RequestNewFrame(frameSettings.Width, frameSettings.Height);
             if (frame.Data == IntPtr.Zero)
                 throw new Exception("Invalid frame address provided");
-            return new VideoFrame()
+            return new UnmanagedVideoFrame()
             {
                 Codec = codec,
                 Width = frameSettings.Width,
