@@ -42,7 +42,7 @@ class Program
             Format = videoSettings.Format,
             GoPLength = (short)videoSettings.GoPLength
         };
-        MediaEncoderLifeCycleManager encoderLifeCycleManager = new MediaEncoderLifeCycleManager(VideoEncoders.NvEncH264);
+        MediaEncoderLifeCycleManager encoderLifeCycleManager = new MediaEncoderLifeCycleManager(VideoSources.NvEncH264);
         encoderLifeCycleManager.InitVideo(frameSettings, codecSettings);
     }
 }

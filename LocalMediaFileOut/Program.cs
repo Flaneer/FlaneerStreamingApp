@@ -15,7 +15,7 @@ namespace LocalMediaFileOut
 
             var videoSettings = await ProcessVideoSettings();
 
-            using MediaEncoderLifeCycleManager encoderLifeCycleManager = new MediaEncoderLifeCycleManager(VideoEncoders.NvEncH264);
+            using MediaEncoderLifeCycleManager encoderLifeCycleManager = new MediaEncoderLifeCycleManager(VideoSources.NvEncH264);
 
             var frameSettings = new FrameSettings()
             {
