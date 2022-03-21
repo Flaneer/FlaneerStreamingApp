@@ -11,6 +11,7 @@ public class UDPVideoSink : IVideoSink
 
     private readonly Socket s = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
     private readonly IPAddress broadcast;
+    private byte nextframe = 0;
 
     private const int UDPHEADERSIZE = 28;
 
@@ -94,10 +95,11 @@ public class UDPVideoSink : IVideoSink
         {
             int n = 0;
             byte itCount = 0;
+            var writableSize = Int16.MaxValue - UDPHEADERSIZE;
+            var numberOfPackets = (byte) Math.Ceiling((double)ustream.Length / writableSize);
             //We loop here in case the frame needs to be split into multiple packets
             for (int sent = 0; sent <= ustream.Length; sent+=n)
             {
-                var writableSize = Int16.MaxValue - UDPHEADERSIZE;
                 var packetSize = Math.Min(writableSize, ustream.Length - sent);
                 // Read the source file into a byte array.
                 byte[] frameBytes = new byte[packetSize]; //TODO: make space for frame header 
@@ -111,11 +113,13 @@ public class UDPVideoSink : IVideoSink
                 {
                     Width = (short) videoSource.FrameSettings.Width,
                     Height = (short) videoSource.FrameSettings.Height,
-                    IsPartial = sent == ustream.Length,
+                    NumberOfPackets = numberOfPackets,
                     PacketIdx = itCount,
-                    FrameDataSize = sent
+                    FrameDataSize = sent,
+                    SequenceIDX = nextframe
                 };
                 itCount++;
+                IncrementNextFrame();
                 var headerBytes = frameHeader.ToUDPPacket();
                 
                 byte[] transmissionArray = new byte[headerBytes.Length + frameBytes.Length];
@@ -125,6 +129,18 @@ public class UDPVideoSink : IVideoSink
                 s.SendTo(transmissionArray, ep);
                 Console.WriteLine($"SENT CHUNK | {sent}/{ustream.Length}");
             }
+        }
+    }
+    
+    private void IncrementNextFrame()
+    {
+        if (nextframe + 1 > byte.MaxValue)
+        {
+            nextframe = 0;
+        }
+        else
+        {
+            nextframe++;
         }
     }
 }

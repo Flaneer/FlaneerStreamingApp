@@ -8,16 +8,16 @@ namespace FlaneerMediaLib
         private FrameSettings frameSettings;
         private ICodecSettings codecSettings;
         private VideoCodec codec;
-        private readonly int listenPort;
 
         UdpClient listener;
         IPEndPoint groupEP;
 
-        private TransmissionVideoFrame latestFrame;
+        private Dictionary<int, ManagedVideoFrame> frameBuffer = new();
+        private Dictionary<int, byte[]> partialFrames = new();
+        private byte nextframe = 0;
 
         public UDPVideoSource(int listenPort)
         {
-            this.listenPort = listenPort;
             listener = new UdpClient(listenPort);
             groupEP = new IPEndPoint(IPAddress.Any, listenPort);
         }
@@ -39,24 +39,72 @@ namespace FlaneerMediaLib
                     throw new ArgumentOutOfRangeException(nameof(codecSettings));
             }
 
-            latestFrame = new TransmissionVideoFrame
+            //Initialise dictionary, so it can be used as a pool
+            for (int i = 0; i < byte.MaxValue; i++)
             {
-                Codec = codec,
-                Height = (short) frameSettings.Height,
-                Width = (short) frameSettings.Width
-            };
+                frameBuffer.Add(i, new ManagedVideoFrame());
+            }
+            
+            BeginReceptionThread();
+            
             return true;
         }
 
-        public VideoFrame GetFrame()
+        private void BeginReceptionThread()
         {
-            byte[] encodedBytes = listener.Receive(ref groupEP);
-            
-            
-            
-            return latestFrame;
+            Task.Run(() =>
+            {
+                while (true)
+                {
+                    byte[] receivedBytes = listener.Receive(ref groupEP);
+                    var parsedBroadcast = TransmissionVideoFrame.FromUDPPacket(receivedBytes);
+                    TransmissionVideoFrame receivedFrame = parsedBroadcast.Item1;
+                    if (receivedFrame.NumberOfPackets == 1)
+                        frameBuffer[receivedFrame.SequenceIDX] = ManagedFrameFromTransmission(receivedFrame);
+                    else
+                        BufferPartialFrame(receivedFrame);
+                }
+            });
         }
 
+        private void BufferPartialFrame(TransmissionVideoFrame receivedFrame)
+        {
+            throw new NotImplementedException();
+        }
+
+        private ManagedVideoFrame ManagedFrameFromTransmission(TransmissionVideoFrame receivedFrame)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        ///
+        /// <remarks>
+        /// This must ensure we:
+        /// - Assemble frames from multiple packets
+        /// - Provide frames in order
+        /// </remarks>
+        /// </summary>
+        /// <returns></returns>
+        public VideoFrame GetFrame()
+        {
+            var ret = frameBuffer[nextframe];
+            IncrementNextFrame();
+            return ret;
+        }
+
+        private void IncrementNextFrame()
+        {
+            if (nextframe + 1 > byte.MaxValue)
+            {
+                nextframe = 0;
+            }
+            else
+            {
+                nextframe++;
+            }
+        }
+        
         public void Dispose()
         {
             listener.Dispose();

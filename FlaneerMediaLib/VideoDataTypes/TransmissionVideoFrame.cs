@@ -5,35 +5,41 @@ namespace FlaneerMediaLib;
 public class TransmissionVideoFrame : VideoFrame
 {
     //Int32 will always be sufficient since it will fit into UDP packet
-    public bool IsPartial;
+    public byte SequenceIDX;
+    public byte NumberOfPackets;
     public byte PacketIdx;
     public Int32 FrameDataSize;
 
+    public const int HeaderSize = 11;
+    
     public byte[] ToUDPPacket()
     {
         using MemoryStream stream = new MemoryStream();
         using var writer = new BinaryWriter(stream, Encoding.UTF8, false);
         writer.Write(Width);
         writer.Write(Height);
-        writer.Write(IsPartial);
+        writer.Write(SequenceIDX);
+        writer.Write(NumberOfPackets);
         writer.Write(PacketIdx);
         writer.Write(FrameDataSize);
-
+        
         return stream.GetBuffer();
     }
     
-    public static TransmissionVideoFrame FromUDPPacket(byte[] packet)
+    public static Tuple<TransmissionVideoFrame, byte[]> FromUDPPacket(byte[] packet)
     {
         using var stream = new MemoryStream(packet);
         using var reader = new BinaryReader(stream, Encoding.UTF8, false);
 
-        return new TransmissionVideoFrame()
+        var frame = new TransmissionVideoFrame()
         {
             Width = reader.ReadInt16(),
             Height = reader.ReadInt16(),
-            IsPartial = reader.ReadBoolean(),
+            SequenceIDX = reader.ReadByte(),
+            NumberOfPackets = reader.ReadByte(),
             PacketIdx = reader.ReadByte(),
             FrameDataSize = reader.ReadInt32()
         };
+        return new Tuple<TransmissionVideoFrame, byte[]>(frame, packet);
     }
 }
