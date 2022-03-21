@@ -7,6 +7,7 @@ namespace FlaneerMediaLib;
 public class UDPVideoSink : IVideoSink
 {
     IEncoder encoder;
+    private IVideoSource videoSource;
 
     private readonly Socket s = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
     private readonly IPAddress broadcast;
@@ -17,6 +18,7 @@ public class UDPVideoSink : IVideoSink
     {
         broadcast = IPAddress.Parse(ip);
         GetEncoder();
+        GetSource();
     }
 
     private void GetEncoder()
@@ -34,6 +36,22 @@ public class UDPVideoSink : IVideoSink
             };
         }
     }
+    
+    private void GetSource()
+    {
+        if (ServiceRegistry.TryGetService<IVideoSource>(out var foundSource))
+        {
+            videoSource = foundSource;
+        }
+        else
+        {
+            ServiceRegistry.ServiceAdded += service =>
+            {
+                if (service is IVideoSource foundSource)
+                    videoSource = foundSource;
+            };
+        }
+    }
 
     public void CaptureFrame() => CaptureFrameImpl();
 
@@ -42,7 +60,7 @@ public class UDPVideoSink : IVideoSink
     private void CaptureFrameImpl(int numberOfFrames = 1, int targetFramerate = -1)
     {
         //Return in the case the encoder is not created
-        if(encoder == default)
+        if(encoder == default || videoSource == default)
             return;
         
         Stopwatch stopWatch = new Stopwatch();
@@ -75,25 +93,36 @@ public class UDPVideoSink : IVideoSink
         using (UnmanagedMemoryStream ustream = new UnmanagedMemoryStream((byte*) frame.FrameData, frame.FrameSize))
         {
             int n = 0;
+            byte itCount = 0;
             //We loop here in case the frame needs to be split into multiple packets
             for (int sent = 0; sent <= ustream.Length; sent+=n)
             {
-                var bodySize = Int16.MaxValue - UDPHEADERSIZE;
-                var packetSize = Math.Min(bodySize, ustream.Length - sent);
+                var writableSize = Int16.MaxValue - UDPHEADERSIZE;
+                var packetSize = Math.Min(writableSize, ustream.Length - sent);
                 // Read the source file into a byte array.
-                byte[] bytes = new byte[packetSize];
+                byte[] frameBytes = new byte[packetSize]; //TODO: make space for frame header 
                 int numBytesToRead = (int) packetSize;
                 // Read may return anything from 0 to numBytesToRead.
-                n = ustream.Read(bytes, 0, numBytesToRead);
-
-                // Break when the end of the file is reached.
-                if (n == 0)
-                    break;
-
+                n = ustream.Read(frameBytes, 0, numBytesToRead);
                 sent += n;
-
                 IPEndPoint ep = new IPEndPoint(broadcast, 11000);
-                s.SendTo(bytes, ep);
+                
+                var frameHeader = new TransmissionVideoFrame
+                {
+                    Width = videoSource.FrameSettings.Width,
+                    Height = videoSource.FrameSettings.Height,
+                    IsPartial = sent == ustream.Length,
+                    PacketIdx = itCount,
+                    FrameDataSize = sent
+                };
+                itCount++;
+                var headerBytes = frameHeader.ToUDPPacket();
+                
+                byte[] transmissionArray = new byte[headerBytes.Length + frameBytes.Length];
+                Array.Copy(headerBytes, transmissionArray, headerBytes.Length);
+                Array.Copy(frameBytes, 0, transmissionArray, headerBytes.Length, frameBytes.Length);
+                
+                s.SendTo(transmissionArray, ep);
                 Console.WriteLine($"SENT CHUNK | {sent}/{ustream.Length}");
             }
         }
