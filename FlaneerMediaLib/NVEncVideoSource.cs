@@ -7,6 +7,12 @@ namespace FlaneerMediaLib
         private FrameSettings frameSettings;
         private ICodecSettings codecSettings;
         private VideoCodec codec;
+        private ICodecSettings _codecSettings;
+        private FrameSettings _frameSettings;
+
+        public ICodecSettings CodecSettings => codecSettings;
+
+        public FrameSettings FrameSettings => frameSettings;
 
         public bool Init(FrameSettings frameSettings, ICodecSettings codecSettings)
         {

@@ -22,6 +22,10 @@ namespace FlaneerMediaLib
             groupEP = new IPEndPoint(IPAddress.Any, listenPort);
         }
 
+        public ICodecSettings CodecSettings => codecSettings;
+
+        public FrameSettings FrameSettings => frameSettings;
+
         public bool Init(FrameSettings frameSettings, ICodecSettings codecSettings)
         {
             this.frameSettings = frameSettings;
