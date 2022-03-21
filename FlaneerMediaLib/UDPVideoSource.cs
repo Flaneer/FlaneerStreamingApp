@@ -13,7 +13,7 @@ namespace FlaneerMediaLib
         UdpClient listener;
         IPEndPoint groupEP;
 
-        private ManagedVideoFrame latestFrame;
+        private TransmissionVideoFrame latestFrame;
 
         public UDPVideoSource(int listenPort)
         {
@@ -39,11 +39,11 @@ namespace FlaneerMediaLib
                     throw new ArgumentOutOfRangeException(nameof(codecSettings));
             }
 
-            latestFrame = new ManagedVideoFrame
+            latestFrame = new TransmissionVideoFrame
             {
                 Codec = codec,
-                Height = 1440,
-                Width = 2560
+                Height = (short) frameSettings.Height,
+                Width = (short) frameSettings.Width
             };
             return true;
         }
@@ -52,9 +52,7 @@ namespace FlaneerMediaLib
         {
             byte[] encodedBytes = listener.Receive(ref groupEP);
             
-            var outputStream = new MemoryStream(encodedBytes);
-
-            latestFrame.Stream = outputStream;
+            
             
             return latestFrame;
         }

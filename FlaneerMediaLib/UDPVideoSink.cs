@@ -109,8 +109,8 @@ public class UDPVideoSink : IVideoSink
                 
                 var frameHeader = new TransmissionVideoFrame
                 {
-                    Width = videoSource.FrameSettings.Width,
-                    Height = videoSource.FrameSettings.Height,
+                    Width = (short) videoSource.FrameSettings.Width,
+                    Height = (short) videoSource.FrameSettings.Height,
                     IsPartial = sent == ustream.Length,
                     PacketIdx = itCount,
                     FrameDataSize = sent

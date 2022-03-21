@@ -37,8 +37,8 @@ namespace FlaneerMediaLib
             return new UnmanagedVideoFrame()
             {
                 Codec = codec,
-                Width = frameSettings.Width,
-                Height = frameSettings.Height,
+                Width = (short) frameSettings.Width,
+                Height = (short) frameSettings.Height,
                 FrameData = frame.Data,
                 FrameSize = frame.BufferSize
             };

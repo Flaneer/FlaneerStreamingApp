@@ -19,8 +19,8 @@ namespace LocalMediaFileOut
 
             var frameSettings = new FrameSettings()
             {
-                Height = videoSettings.Height,
-                Width = videoSettings.Width,
+                Height = (short) videoSettings.Height,
+                Width = (short) videoSettings.Width,
                 MaxFPS = videoSettings.MaxFPS
             };
 

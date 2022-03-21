@@ -32,8 +32,8 @@ class Program
         var videoSettings = new VideoSettings();
         var frameSettings = new FrameSettings()
         {
-            Height = videoSettings.Height,
-            Width = videoSettings.Width,
+            Height = (short) videoSettings.Height,
+            Width = (short) videoSettings.Width,
             MaxFPS = videoSettings.MaxFPS
         };
 

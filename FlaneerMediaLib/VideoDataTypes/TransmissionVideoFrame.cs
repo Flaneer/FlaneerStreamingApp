@@ -21,4 +21,19 @@ public class TransmissionVideoFrame : VideoFrame
 
         return stream.GetBuffer();
     }
+    
+    public static TransmissionVideoFrame FromUDPPacket(byte[] packet)
+    {
+        using var stream = new MemoryStream(packet);
+        using var reader = new BinaryReader(stream, Encoding.UTF8, false);
+
+        return new TransmissionVideoFrame()
+        {
+            Width = reader.ReadInt16(),
+            Height = reader.ReadInt16(),
+            IsPartial = reader.ReadBoolean(),
+            PacketIdx = reader.ReadByte(),
+            FrameDataSize = reader.ReadInt32()
+        };
+    }
 }

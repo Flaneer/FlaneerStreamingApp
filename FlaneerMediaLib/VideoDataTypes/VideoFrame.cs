@@ -4,7 +4,7 @@ public class VideoFrame
 {
     public VideoCodec Codec;
 
-    public int Width;
+    public Int16 Width;
 
-    public int Height;
+    public Int16 Height;
 }
