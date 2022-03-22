@@ -4,7 +4,10 @@ namespace FlaneerMediaLib
 {
     internal class Utils
     {
-        public const int UDPHEADERSIZE = 28;
+        /// <summary>
+        /// * plus the current UDP header size
+        /// </summary>
+        public const int UDPHEADERSIZE = 8 + TransmissionVideoFrame.HeaderSize;
         
         public static NvEncWrapper.H264CodecSettings FromCodecSettings(ICodecSettings settings)
         {

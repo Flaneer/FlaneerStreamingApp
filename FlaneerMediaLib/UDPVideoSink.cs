@@ -82,7 +82,7 @@ public class UDPVideoSink : IVideoSink
             }
             catch (Exception e)
             {
-                Console.Error.WriteLine(e);
+                // ignored
             }
         }
         stopWatch.Stop();
@@ -92,42 +92,43 @@ public class UDPVideoSink : IVideoSink
     {
         using (UnmanagedMemoryStream ustream = new UnmanagedMemoryStream((byte*) frame.FrameData, frame.FrameSize))
         {
-            int n = 0;
+            byte[] frameBytes = new byte[frame.FrameSize];
+            ustream.Read(frameBytes, 0, frame.FrameSize);
+            
+            var frameWritableSize = Int16.MaxValue - Utils.UDPHEADERSIZE;
+            var numberOfPackets = (byte) Math.Ceiling((double)frame.FrameSize / frameWritableSize);
+            
+            IPEndPoint ep = new IPEndPoint(broadcast, 11000);
             byte itCount = 0;
-            var writableSize = Int16.MaxValue - Utils.UDPHEADERSIZE;
-            var numberOfPackets = (byte) Math.Ceiling((double)ustream.Length / writableSize);
-            //We loop here in case the frame needs to be split into multiple packets
-            for (int sent = 0; sent <= ustream.Length; sent+=n)
+            int sent = 0;
+            for (byte i = 0; i < numberOfPackets; i++)
             {
-                var packetSize = Math.Min(writableSize, ustream.Length - sent);
-                // Read the source file into a byte array.
-                byte[] frameBytes = new byte[packetSize]; //TODO: make space for frame header 
-                int numBytesToRead = (int) packetSize;
-                // Read may return anything from 0 to numBytesToRead.
-                n = ustream.Read(frameBytes, 0, numBytesToRead);
-                IPEndPoint ep = new IPEndPoint(broadcast, 11000);
-                
                 var frameHeader = new TransmissionVideoFrame
                 {
                     Width = (short) videoSource.FrameSettings.Width,
                     Height = (short) videoSource.FrameSettings.Height,
                     NumberOfPackets = numberOfPackets,
                     PacketIdx = itCount,
-                    FrameDataSize = sent,
+                    FrameDataSize = frame.FrameSize,
                     SequenceIDX = nextframe
                 };
                 
                 itCount++;
-                IncrementNextFrame();
-                var headerBytes = frameHeader.ToUDPPacket();
                 
-                byte[] transmissionArray = new byte[headerBytes.Length + frameBytes.Length];
+                var headerBytes = frameHeader.ToUDPPacket();
+
+                var packetSize = Math.Min(frameWritableSize, frame.FrameSize - sent);
+                byte[] transmissionArray = new byte[headerBytes.Length + packetSize];
                 Array.Copy(headerBytes, transmissionArray, headerBytes.Length);
-                Array.Copy(frameBytes, 0, transmissionArray, headerBytes.Length, frameBytes.Length);
+                Array.Copy(frameBytes, sent, transmissionArray, headerBytes.Length, packetSize);
                 
                 s.SendTo(transmissionArray, ep);
-                Console.WriteLine($"SENT CHUNK | {sent}/{ustream.Length}");
+
+                sent += packetSize;
+                Console.WriteLine($"SENT CHUNK OF {nextframe} | {sent} / {frame.FrameSize}");
             }
+            
+            IncrementNextFrame();
         }
     }
     
