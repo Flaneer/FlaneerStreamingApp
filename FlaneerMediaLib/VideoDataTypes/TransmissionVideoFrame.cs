@@ -14,7 +14,8 @@ public class TransmissionVideoFrame : VideoFrame
     
     public byte[] ToUDPPacket()
     {
-        using MemoryStream stream = new MemoryStream();
+        byte[] ret = new byte[HeaderSize];
+        using MemoryStream stream = new MemoryStream(ret);
         using var writer = new BinaryWriter(stream, Encoding.UTF8, false);
         writer.Write(Width);
         writer.Write(Height);
@@ -23,7 +24,7 @@ public class TransmissionVideoFrame : VideoFrame
         writer.Write(PacketIdx);
         writer.Write(FrameDataSize);
         
-        return stream.GetBuffer();
+        return ret;
     }
     
     public static Tuple<TransmissionVideoFrame, byte[]> FromUDPPacket(byte[] packet)
