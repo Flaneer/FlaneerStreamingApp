@@ -13,8 +13,10 @@ namespace FlaneerMediaLib
         IPEndPoint groupEP;
 
         private Dictionary<int, ManagedVideoFrame> frameBuffer = new();
-        private Dictionary<int, byte[]> partialFrames = new();
-        private byte nextframe = 0;
+        private Dictionary<TransmissionVideoFrame, byte[]> partialFrames = new();
+        private byte nextFrame = 0;
+
+        private bool receiving = false;
 
         public UDPVideoSource(int listenPort)
         {
@@ -42,9 +44,13 @@ namespace FlaneerMediaLib
             //Initialise dictionary, so it can be used as a pool
             for (int i = 0; i < byte.MaxValue; i++)
             {
-                frameBuffer.Add(i, new ManagedVideoFrame());
+                lock (frameBuffer)
+                {
+                    frameBuffer.Add(i, new ManagedVideoFrame());
+                }
             }
-            
+
+            receiving = true;
             BeginReceptionThread();
             
             return true;
@@ -54,28 +60,63 @@ namespace FlaneerMediaLib
         {
             Task.Run(() =>
             {
-                while (true)
+                while (receiving)
                 {
                     byte[] receivedBytes = listener.Receive(ref groupEP);
                     var parsedBroadcast = TransmissionVideoFrame.FromUDPPacket(receivedBytes);
                     TransmissionVideoFrame receivedFrame = parsedBroadcast.Item1;
                     if (receivedFrame.NumberOfPackets == 1)
-                        frameBuffer[receivedFrame.SequenceIDX] = ManagedFrameFromTransmission(receivedFrame);
+                    {
+                        lock (frameBuffer)
+                        {
+                            frameBuffer[receivedFrame.SequenceIDX] = 
+                                ManagedFrameFromTransmission(receivedFrame, parsedBroadcast.Item2);
+                        }
+                    }
                     else
-                        BufferPartialFrame(receivedFrame);
+                    {
+                        BufferPartialFrame(receivedFrame, parsedBroadcast.Item2);
+                    }
                 }
             });
         }
 
-        private void BufferPartialFrame(TransmissionVideoFrame receivedFrame)
+        private ManagedVideoFrame ManagedFrameFromTransmission(TransmissionVideoFrame receivedFrame, byte[] frameData)
         {
-            throw new NotImplementedException();
+            return new ManagedVideoFrame()
+            {
+                Codec = codec,
+                Height = receivedFrame.Height,
+                Width = receivedFrame.Width,
+                Stream = new MemoryStream(frameData)
+            };
+        }
+        
+        //TODO: this is pretty grossly inefficient
+        private void BufferPartialFrame(TransmissionVideoFrame receivedFrame, byte[] frameData)
+        {
+            bool GetMatchingSequencePredicate(KeyValuePair<TransmissionVideoFrame, byte[]> pf) => pf.Key.SequenceIDX == receivedFrame.SequenceIDX;
+
+            partialFrames.Add(receivedFrame, frameData);
+            
+            var parts = partialFrames.Where(GetMatchingSequencePredicate);
+            if (parts.Count() == receivedFrame.NumberOfPackets)
+            {
+                var orderedParts = parts.OrderBy(pair => pair.Key.PacketIdx);
+                var completedPacket = new List<byte>();
+                foreach (var part in orderedParts)
+                {
+                    completedPacket.AddRange(part.Value);
+                }
+
+                lock (frameBuffer)
+                {
+                    frameBuffer[receivedFrame.SequenceIDX] =
+                        ManagedFrameFromTransmission(orderedParts.First().Key, completedPacket.ToArray());
+                }
+            }
         }
 
-        private ManagedVideoFrame ManagedFrameFromTransmission(TransmissionVideoFrame receivedFrame)
-        {
-            throw new NotImplementedException();
-        }
 
         /// <summary>
         ///
@@ -88,25 +129,30 @@ namespace FlaneerMediaLib
         /// <returns></returns>
         public VideoFrame GetFrame()
         {
-            var ret = frameBuffer[nextframe];
-            IncrementNextFrame();
-            return ret;
+            lock (frameBuffer)
+            {
+                var ret = frameBuffer[nextFrame];
+                frameBuffer.Remove(nextFrame);
+                IncrementNextFrame();
+                return ret;
+            }
         }
 
         private void IncrementNextFrame()
         {
-            if (nextframe + 1 > byte.MaxValue)
+            if (nextFrame + 1 > byte.MaxValue)
             {
-                nextframe = 0;
+                nextFrame = 0;
             }
             else
             {
-                nextframe++;
+                nextFrame++;
             }
         }
         
         public void Dispose()
         {
+            receiving = false;
             listener.Dispose();
         }
     }

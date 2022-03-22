@@ -106,7 +106,6 @@ public class UDPVideoSink : IVideoSink
                 int numBytesToRead = (int) packetSize;
                 // Read may return anything from 0 to numBytesToRead.
                 n = ustream.Read(frameBytes, 0, numBytesToRead);
-                sent += n;
                 IPEndPoint ep = new IPEndPoint(broadcast, 11000);
                 
                 var frameHeader = new TransmissionVideoFrame
@@ -118,6 +117,7 @@ public class UDPVideoSink : IVideoSink
                     FrameDataSize = sent,
                     SequenceIDX = nextframe
                 };
+                
                 itCount++;
                 IncrementNextFrame();
                 var headerBytes = frameHeader.ToUDPPacket();
