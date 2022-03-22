@@ -13,11 +13,10 @@ public class UDPVideoSink : IVideoSink
     private readonly IPAddress broadcast;
     private byte nextframe = 0;
 
-    private const int UDPHEADERSIZE = 28;
-
     public UDPVideoSink(string ip)
     {
         broadcast = IPAddress.Parse(ip);
+        s.SendBufferSize = Int16.MaxValue - Utils.UDPHEADERSIZE;
         GetEncoder();
         GetSource();
     }
@@ -95,7 +94,7 @@ public class UDPVideoSink : IVideoSink
         {
             int n = 0;
             byte itCount = 0;
-            var writableSize = Int16.MaxValue - UDPHEADERSIZE;
+            var writableSize = Int16.MaxValue - Utils.UDPHEADERSIZE;
             var numberOfPackets = (byte) Math.Ceiling((double)ustream.Length / writableSize);
             //We loop here in case the frame needs to be split into multiple packets
             for (int sent = 0; sent <= ustream.Length; sent+=n)

@@ -1,9 +1,11 @@
-﻿using FlaneerMediaLib;
+﻿using NvEncWrapper;
 
-namespace NvEncWrapper
+namespace FlaneerMediaLib
 {
     internal class Utils
     {
+        public const int UDPHEADERSIZE = 28;
+        
         public static NvEncWrapper.H264CodecSettings FromCodecSettings(ICodecSettings settings)
         {
             if (settings is FlaneerMediaLib.H264CodecSettings h264CodecSettings)
