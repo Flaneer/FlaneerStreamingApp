@@ -45,4 +45,9 @@ public class TransmissionVideoFrame : VideoFrame
         Array.Copy(packet, HeaderSize, frameData, 0, packet.Length - HeaderSize);
         return new Tuple<TransmissionVideoFrame, byte[]>(frame, frameData);
     }
+
+    public override string ToString()
+    {
+        return $"Partial Frame: SeqIDX: {SequenceIDX} | Packet{PacketIdx+1}/{NumberOfPackets}";
+    }
 }
