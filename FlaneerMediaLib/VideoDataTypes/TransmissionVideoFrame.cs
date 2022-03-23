@@ -41,6 +41,8 @@ public class TransmissionVideoFrame : VideoFrame
             PacketIdx = reader.ReadByte(),
             FrameDataSize = reader.ReadInt32()
         };
-        return new Tuple<TransmissionVideoFrame, byte[]>(frame, packet);
+        var frameData = new byte[packet.Length - HeaderSize];
+        Array.Copy(packet, HeaderSize, frameData, 0, packet.Length - HeaderSize);
+        return new Tuple<TransmissionVideoFrame, byte[]>(frame, frameData);
     }
 }
