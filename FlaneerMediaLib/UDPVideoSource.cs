@@ -132,7 +132,6 @@ namespace FlaneerMediaLib
             lock (frameBuffer)
             {
                 var ret = frameBuffer[nextFrame];
-                frameBuffer.Remove(nextFrame);
                 IncrementNextFrame();
                 return ret;
             }
@@ -140,7 +139,7 @@ namespace FlaneerMediaLib
 
         private void IncrementNextFrame()
         {
-            if (nextFrame + 1 > byte.MaxValue)
+            if (nextFrame + 1 >= byte.MaxValue)
             {
                 nextFrame = 0;
             }
