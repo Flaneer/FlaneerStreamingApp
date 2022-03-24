@@ -8,13 +8,14 @@ namespace FlaneerMediaLib
         private FrameSettings frameSettings;
         private ICodecSettings codecSettings;
         private VideoCodec codec;
+        private CyclicalFrameCounter frameCounter = new CyclicalFrameCounter();
 
         UdpClient listener;
         IPEndPoint groupEP;
 
         private Dictionary<int, ManagedVideoFrame> frameBuffer = new();
         private Dictionary<TransmissionVideoFrame, byte[]> partialFrames = new();
-        private byte nextFrame = 0;
+        private byte nextFrame => frameCounter.GetNext();
 
         private bool receiving = false;
 
@@ -62,7 +63,17 @@ namespace FlaneerMediaLib
             {
                 while (receiving)
                 {
-                    byte[] receivedBytes = listener.Receive(ref groupEP);
+                    byte[] receivedBytes;
+                    try
+                    {
+                        receivedBytes = listener.Receive(ref groupEP);
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine(e);
+                        continue;
+                    }
+                    
                     var parsedBroadcast = TransmissionVideoFrame.FromUDPPacket(receivedBytes);
                     TransmissionVideoFrame receivedFrame = parsedBroadcast.Item1;
                     if (receivedFrame.NumberOfPackets == 1)
@@ -102,21 +113,32 @@ namespace FlaneerMediaLib
             var parts = partialFrames.Where(GetMatchingSequencePredicate);
             if (parts.Count() == receivedFrame.NumberOfPackets)
             {
-                var orderedParts = parts.OrderBy(pair => pair.Key.PacketIdx);
-                var completedPacket = new List<byte>();
-                foreach (var part in orderedParts)
-                {
-                    completedPacket.AddRange(part.Value);
-                }
-
-                lock (frameBuffer)
-                {
-                    frameBuffer[receivedFrame.SequenceIDX] =
-                        ManagedFrameFromTransmission(orderedParts.First().Key, completedPacket.ToArray());
-                }
+                AssembleFrame(receivedFrame.SequenceIDX, parts);
             }
         }
 
+        private void AssembleFrame(int sequenceIDX, IEnumerable<KeyValuePair<TransmissionVideoFrame, byte[]>> parts)
+        {
+            TransmissionVideoFrame receivedFrame;
+            var orderedParts = parts.OrderBy(pair => pair.Key.PacketIdx);
+            var completedPacket = new List<byte>();
+            foreach (var part in orderedParts)
+            {
+                completedPacket.AddRange(part.Value);
+            }
+
+            lock (frameBuffer)
+            {
+                Console.WriteLine($"Assembling packets for sequence {sequenceIDX}");
+                frameBuffer[sequenceIDX] =
+                    ManagedFrameFromTransmission(orderedParts.First().Key, completedPacket.ToArray());
+            }
+
+            foreach (var part in parts)
+            {
+                partialFrames.Remove(part.Key);
+            }
+        }
 
         /// <summary>
         ///
@@ -132,23 +154,12 @@ namespace FlaneerMediaLib
             lock (frameBuffer)
             {
                 var ret = frameBuffer[nextFrame];
-                IncrementNextFrame();
+                if (ret.Stream.Length != 0)
+                    frameCounter.Increment();
                 return ret;
             }
         }
 
-        private void IncrementNextFrame()
-        {
-            if (nextFrame + 1 >= byte.MaxValue)
-            {
-                nextFrame = 0;
-            }
-            else
-            {
-                nextFrame++;
-            }
-        }
-        
         public void Dispose()
         {
             receiving = false;
