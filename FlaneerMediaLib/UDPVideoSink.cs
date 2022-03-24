@@ -99,7 +99,6 @@ public class UDPVideoSink : IVideoSink
             var numberOfPackets = (byte) Math.Ceiling((double)frame.FrameSize / frameWritableSize);
             
             IPEndPoint ep = new IPEndPoint(broadcast, 11000);
-            byte itCount = 0;
             int sent = 0;
             for (byte i = 0; i < numberOfPackets; i++)
             {
@@ -108,12 +107,10 @@ public class UDPVideoSink : IVideoSink
                     Width = (short) videoSource.FrameSettings.Width,
                     Height = (short) videoSource.FrameSettings.Height,
                     NumberOfPackets = numberOfPackets,
-                    PacketIdx = itCount,
+                    PacketIdx = i,
                     FrameDataSize = frame.FrameSize,
                     SequenceIDX = nextframe
                 };
-                
-                itCount++;
                 
                 var headerBytes = frameHeader.ToUDPPacket();
 
