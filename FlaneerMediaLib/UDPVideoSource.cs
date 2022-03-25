@@ -8,7 +8,7 @@ namespace FlaneerMediaLib
         private FrameSettings frameSettings;
         private ICodecSettings codecSettings;
         private VideoCodec codec;
-        private CyclicalFrameCounter frameCounter = new CyclicalFrameCounter();
+        private CyclicalFrameCounter frameCounter = new ();
 
         UdpClient listener;
         IPEndPoint groupEP;
@@ -18,6 +18,10 @@ namespace FlaneerMediaLib
         private byte nextFrame => frameCounter.GetNext();
 
         private bool receiving = false;
+        private bool waitingForPPS_SPS = true;
+        private byte[] PPS_SPS = new byte[34];
+
+        public Action<VideoFrame> FrameReady;
 
         public UDPVideoSource(int listenPort)
         {
@@ -63,44 +67,108 @@ namespace FlaneerMediaLib
             {
                 while (receiving)
                 {
-                    byte[] receivedBytes;
-                    try
-                    {
-                        receivedBytes = listener.Receive(ref groupEP);
-                    }
-                    catch (Exception e)
-                    {
-                        Console.WriteLine(e);
-                        continue;
-                    }
-                    
-                    var parsedBroadcast = TransmissionVideoFrame.FromUDPPacket(receivedBytes);
-                    TransmissionVideoFrame receivedFrame = parsedBroadcast.Item1;
-                    if (receivedFrame.NumberOfPackets == 1)
-                    {
-                        lock (frameBuffer)
-                        {
-                            frameBuffer[receivedFrame.SequenceIDX] = 
-                                ManagedFrameFromTransmission(receivedFrame, parsedBroadcast.Item2);
-                        }
-                    }
-                    else
-                    {
-                        BufferPartialFrame(receivedFrame, parsedBroadcast.Item2);
-                    }
+                    FrameReception();
+                    FrameCleanup();
                 }
             });
         }
 
+        private void FrameReception()
+        {
+            byte[] receivedBytes;
+            try
+            {
+                receivedBytes = listener.Receive(ref groupEP);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return;
+            }
+
+            if (waitingForPPS_SPS)
+            {
+                ScanForPPS_SPS(receivedBytes);
+            }
+            
+            TransmissionVideoFrame receivedFrame = TransmissionVideoFrame.FromUDPPacket(receivedBytes);
+
+            if (frameCounter.IsOlder(receivedFrame.SequenceIDX))
+                return;
+
+            var frameData = new byte[receivedBytes.Length - TransmissionVideoFrame.HeaderSize];
+            Array.Copy(receivedBytes, TransmissionVideoFrame.HeaderSize,
+                frameData, 0, receivedBytes.Length - TransmissionVideoFrame.HeaderSize);
+
+            if (receivedFrame.NumberOfPackets == 1)
+            {
+                lock (frameBuffer)
+                {
+                    frameBuffer[receivedFrame.SequenceIDX] =
+                        ManagedFrameFromTransmission(receivedFrame, frameData);
+                }
+            }
+            else
+            {
+                BufferPartialFrame(receivedFrame, frameData);
+            }
+        }
+
+        private void ScanForPPS_SPS(byte[] receivedBytes)
+        {
+            byte[] marker = {0, 0, 0, 1};
+            var PPS_SPSLength = 34;
+            var markerPos = PPS_SPSLength + TransmissionVideoFrame.HeaderSize;
+            for (int i = markerPos; i < markerPos+4; i++)
+            {
+                if (receivedBytes[i] != marker[i - markerPos])
+                {
+                    return;
+                }
+            }
+            Array.Copy(receivedBytes, TransmissionVideoFrame.HeaderSize, PPS_SPS, 0, PPS_SPSLength);
+            waitingForPPS_SPS = false;
+        }
+
+        private void FrameCleanup()
+        {
+            //TODO: Use FrameCounter to remove old buffered packets
+        }
+
         private ManagedVideoFrame ManagedFrameFromTransmission(TransmissionVideoFrame receivedFrame, byte[] frameData)
         {
-            return new ManagedVideoFrame()
+            if (waitingForPPS_SPS)
+                return new ManagedVideoFrame()
+                {
+                    Codec = codec,
+                    Height = 0,
+                    Width = 0,
+                    Stream = new MemoryStream(0) 
+                };
+            
+            frameCounter.SkipTo(receivedFrame.SequenceIDX);
+
+            MemoryStream frameStream;
+            if(receivedFrame.SequenceIDX == 0)
+            {
+                frameStream = new MemoryStream(frameData);
+            }
+            else
+            {
+                frameStream = new MemoryStream(PPS_SPS.Length + frameData.Length);
+                frameStream.Write(PPS_SPS);
+                frameStream.Write(frameData);
+            }
+            
+            var ret = new ManagedVideoFrame()
             {
                 Codec = codec,
                 Height = receivedFrame.Height,
                 Width = receivedFrame.Width,
-                Stream = new MemoryStream(frameData)
+                Stream = frameStream 
             };
+            FrameReady?.Invoke(ret);
+            return ret;
         }
         
         //TODO: this is pretty grossly inefficient
