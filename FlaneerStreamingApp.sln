@@ -18,6 +18,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UDPTestApp", "UDPTestApp\UD
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UDPTestBroadcaster", "UDPTestBroadcaster\UDPTestBroadcaster.csproj", "{9219054E-A5CD-4F96-A91F-C42ACFAC9417}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UDPToWinFormTest", "UDPToWinFormTest\UDPToWinFormTest.csproj", "{8A6A963B-EDC1-4460-9A1A-5786099D17C5}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -100,6 +102,18 @@ Global
 		{9219054E-A5CD-4F96-A91F-C42ACFAC9417}.Release|x64.Build.0 = Release|Any CPU
 		{9219054E-A5CD-4F96-A91F-C42ACFAC9417}.Release|x86.ActiveCfg = Release|Any CPU
 		{9219054E-A5CD-4F96-A91F-C42ACFAC9417}.Release|x86.Build.0 = Release|Any CPU
+		{8A6A963B-EDC1-4460-9A1A-5786099D17C5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8A6A963B-EDC1-4460-9A1A-5786099D17C5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8A6A963B-EDC1-4460-9A1A-5786099D17C5}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{8A6A963B-EDC1-4460-9A1A-5786099D17C5}.Debug|x64.Build.0 = Debug|Any CPU
+		{8A6A963B-EDC1-4460-9A1A-5786099D17C5}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{8A6A963B-EDC1-4460-9A1A-5786099D17C5}.Debug|x86.Build.0 = Debug|Any CPU
+		{8A6A963B-EDC1-4460-9A1A-5786099D17C5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8A6A963B-EDC1-4460-9A1A-5786099D17C5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8A6A963B-EDC1-4460-9A1A-5786099D17C5}.Release|x64.ActiveCfg = Release|Any CPU
+		{8A6A963B-EDC1-4460-9A1A-5786099D17C5}.Release|x64.Build.0 = Release|Any CPU
+		{8A6A963B-EDC1-4460-9A1A-5786099D17C5}.Release|x86.ActiveCfg = Release|Any CPU
+		{8A6A963B-EDC1-4460-9A1A-5786099D17C5}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
