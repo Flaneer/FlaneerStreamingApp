@@ -14,25 +14,22 @@ public class CyclicalFrameCounter
 
     public byte GetNext()
     {
-        ulong nextFrame = currentFrameTotal % byte.MaxValue;
-        if (nextFrame + 1 > byte.MaxValue)
-            nextFrame = 0;
-        else
-            nextFrame++;
-
-        count[nextFrame]++;
-        currentFrameTotal++;
+        ulong nextFrame = (currentFrameTotal + 1) % byte.MaxValue;
         
         return (byte)nextFrame;
     }
 
-    private ulong cycLicalAsTotal(byte cyclical) => cyclical + (cyclical * count[cyclical]);
+    private ulong CyclicalAsTotal(byte cyclical) => cyclical + (cyclical * count[cyclical]);
 
-    public void Increment() => currentFrameTotal++;
+    public void Increment()
+    {
+        currentFrameTotal++;
+        count[currentFrameTotal % byte.MaxValue]++;
+    }
 
     public void SkipTo(byte skipTo)
     {
-        ulong skipToAsTotal = cycLicalAsTotal(skipTo);
+        ulong skipToAsTotal = CyclicalAsTotal(skipTo);
         for (ulong i = currentFrameTotal; i < skipToAsTotal; i++)
         {
             count[i % 255]++;
@@ -41,11 +38,21 @@ public class CyclicalFrameCounter
 
     public byte Max(byte a, byte b)
     {
-        return (byte)(Math.Max(cycLicalAsTotal(a), cycLicalAsTotal(b)) % byte.MaxValue);
+        return (byte)(Math.Max(CyclicalAsTotal(a), CyclicalAsTotal(b)) % byte.MaxValue);
     }
 
     public byte Min(byte a, byte b)
     {
-        return (byte)(Math.Min(cycLicalAsTotal(a), cycLicalAsTotal(b)) % byte.MaxValue);
+        return (byte)(Math.Min(CyclicalAsTotal(a), CyclicalAsTotal(b)) % byte.MaxValue);
+    }
+
+    public bool IsOlder(byte sequenceIDX)
+    {
+        return CyclicalAsTotal(sequenceIDX) < currentFrameTotal;
+    }
+    
+    public bool IsNewer(byte sequenceIDX)
+    {
+        return CyclicalAsTotal(sequenceIDX) > currentFrameTotal;
     }
 }
