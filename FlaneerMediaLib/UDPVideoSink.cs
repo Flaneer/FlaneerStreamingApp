@@ -8,10 +8,11 @@ public class UDPVideoSink : IVideoSink
 {
     IEncoder encoder;
     private IVideoSource videoSource;
+    private CyclicalFrameCounter frameCounter = new CyclicalFrameCounter();
 
     private readonly Socket s = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
     private readonly IPAddress broadcast;
-    private byte nextframe = 0;
+    private byte nextframe => frameCounter.GetNext();
 
     public UDPVideoSink(string ip)
     {
@@ -125,19 +126,7 @@ public class UDPVideoSink : IVideoSink
                 Console.WriteLine($"SENT CHUNK OF {nextframe} | {sent} / {frame.FrameSize}");
             }
             
-            IncrementNextFrame();
-        }
-    }
-    
-    private void IncrementNextFrame()
-    {
-        if (nextframe + 1 > byte.MaxValue)
-        {
-            nextframe = 0;
-        }
-        else
-        {
-            nextframe++;
+            frameCounter.Increment();
         }
     }
 }
