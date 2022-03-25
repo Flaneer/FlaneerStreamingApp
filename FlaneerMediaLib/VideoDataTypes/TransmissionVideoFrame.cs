@@ -27,12 +27,12 @@ public class TransmissionVideoFrame : VideoFrame
         return ret;
     }
     
-    public static Tuple<TransmissionVideoFrame, byte[]> FromUDPPacket(byte[] packet)
+    public static TransmissionVideoFrame FromUDPPacket(byte[] packet)
     {
-        using var stream = new MemoryStream(packet);
+        using var stream = new MemoryStream(packet, 0, HeaderSize);
         using var reader = new BinaryReader(stream, Encoding.UTF8, false);
 
-        var frame = new TransmissionVideoFrame()
+        return new TransmissionVideoFrame()
         {
             Width = reader.ReadInt16(),
             Height = reader.ReadInt16(),
@@ -41,9 +41,6 @@ public class TransmissionVideoFrame : VideoFrame
             PacketIdx = reader.ReadByte(),
             FrameDataSize = reader.ReadInt32()
         };
-        var frameData = new byte[packet.Length - HeaderSize];
-        Array.Copy(packet, HeaderSize, frameData, 0, packet.Length - HeaderSize);
-        return new Tuple<TransmissionVideoFrame, byte[]>(frame, frameData);
     }
 
     public override string ToString()
