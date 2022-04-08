@@ -12,6 +12,13 @@ public class CyclicalFrameCounter
             count[i] = 0;
     }
 
+    public byte GetCurrent()
+    {
+        ulong nextFrame = (currentFrameTotal) % byte.MaxValue;
+        
+        return (byte)nextFrame;
+    }
+    
     public byte GetNext()
     {
         ulong nextFrame = (currentFrameTotal + 1) % byte.MaxValue;
@@ -19,7 +26,7 @@ public class CyclicalFrameCounter
         return (byte)nextFrame;
     }
 
-    private ulong CyclicalAsTotal(byte cyclical) => cyclical + (cyclical * count[cyclical]);
+    private ulong CyclicalAsTotal(byte cyclical) => cyclical + (byte.MaxValue * count[cyclical]);
 
     public void Increment()
     {
@@ -34,6 +41,7 @@ public class CyclicalFrameCounter
         {
             count[i % 255]++;
         }
+        currentFrameTotal = skipToAsTotal;
     }
 
     public byte Max(byte a, byte b)
