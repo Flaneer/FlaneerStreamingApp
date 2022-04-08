@@ -38,6 +38,22 @@ public class CyclicalFrameCounterTests
     }
     
     [Fact]
+    public void TestIncrementOperator()
+    {
+        var frameCounter = new CyclicalFrameCounter();
+        frameCounter++;
+        var result = frameCounter.GetCurrent();
+        Assert.Equal(1, result);
+
+        for (byte i = 0; i < byte.MaxValue; i++)
+        {
+            frameCounter++;
+        }
+        //Check it cycles correctly
+        Assert.Equal(1, frameCounter.GetCurrent());
+    }
+    
+    [Fact]
     public void TestSkipTo()
     {
         var frameCounter = new CyclicalFrameCounter();
@@ -88,7 +104,7 @@ public class CyclicalFrameCounterTests
         
         for (byte i = 0; i < byte.MaxValue; i++)
         {
-            frameCounter.Increment();
+            frameCounter++;
         }
         
         Assert.True(frameCounter.IsOlder(0));
@@ -103,7 +119,7 @@ public class CyclicalFrameCounterTests
         
         for (byte i = 0; i < byte.MaxValue; i++)
         {
-            frameCounter.Increment();
+            frameCounter++;
         }
         
         Assert.True(frameCounter.IsNewer(2));
