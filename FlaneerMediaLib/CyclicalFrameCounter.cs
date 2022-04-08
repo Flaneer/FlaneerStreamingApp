@@ -34,6 +34,11 @@ public class CyclicalFrameCounter
         count[currentFrameTotal % byte.MaxValue]++;
     }
 
+    public static CyclicalFrameCounter operator ++(CyclicalFrameCounter cfc)
+    {
+        cfc.Increment();
+        return cfc;
+    }
     public void SkipTo(byte skipTo)
     {
         ulong skipToAsTotal = CyclicalAsTotal(skipTo);
