@@ -1,6 +1,6 @@
 ﻿using System.Text;
 
-namespace FlaneerMediaLib;
+namespace FlaneerMediaLib.VideoDataTypes;
 
 public class TransmissionVideoFrame : VideoFrame
 {

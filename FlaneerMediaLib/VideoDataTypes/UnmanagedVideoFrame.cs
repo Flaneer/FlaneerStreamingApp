@@ -1,4 +1,4 @@
-﻿namespace FlaneerMediaLib;
+﻿namespace FlaneerMediaLib.VideoDataTypes;
 
 public class UnmanagedVideoFrame : VideoFrame
 {

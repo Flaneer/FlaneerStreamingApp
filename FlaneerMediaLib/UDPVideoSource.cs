@@ -1,27 +1,28 @@
 ﻿using System.Net;
 using System.Net.Sockets;
+using FlaneerMediaLib.VideoDataTypes;
 
 namespace FlaneerMediaLib
 {
     public class UDPVideoSource : IVideoSource
     {
-        private FrameSettings frameSettings;
-        private ICodecSettings codecSettings;
+        private FrameSettings frameSettings = null!;
+        private ICodecSettings codecSettings = null!;
         private VideoCodec codec;
-        private CyclicalFrameCounter frameCounter = new ();
+        private readonly CyclicalFrameCounter frameCounter = new ();
 
-        UdpClient listener;
-        IPEndPoint groupEP;
+        private readonly UdpClient listener;
+        private IPEndPoint groupEP;
 
-        private Dictionary<int, ManagedVideoFrame> frameBuffer = new();
-        private Dictionary<TransmissionVideoFrame, byte[]> partialFrames = new();
+        private readonly Dictionary<int, ManagedVideoFrame> frameBuffer = new();
+        private readonly Dictionary<TransmissionVideoFrame, byte[]> partialFrames = new();
         private byte nextFrame => frameCounter.GetNext();
 
-        private bool receiving = false;
-        private bool waitingForPPS_SPS = true;
-        private byte[] PPS_SPS = new byte[34];
+        private bool receiving;
+        private bool waitingForPPSSPS = true;
+        private readonly byte[] ppssps = new byte[34];
 
-        public Action<VideoFrame> FrameReady;
+        public Action<VideoFrame> FrameReady = null!;
 
         public UDPVideoSource(int listenPort)
         {
@@ -33,17 +34,17 @@ namespace FlaneerMediaLib
 
         public FrameSettings FrameSettings => frameSettings;
 
-        public bool Init(FrameSettings frameSettings, ICodecSettings codecSettings)
+        public bool Init(FrameSettings frameSettingsIn, ICodecSettings codecSettingsIn)
         {
-            this.frameSettings = frameSettings;
-            this.codecSettings = codecSettings;
-            switch (codecSettings)
+            this.frameSettings = frameSettingsIn;
+            this.codecSettings = codecSettingsIn;
+            switch (codecSettingsIn)
             {
                 case H264CodecSettings:
                     codec = VideoCodec.H264;
                     break;
                 default:
-                    throw new ArgumentOutOfRangeException(nameof(codecSettings));
+                    throw new ArgumentOutOfRangeException(nameof(codecSettingsIn));
             }
 
             //Initialise dictionary, so it can be used as a pool
@@ -86,7 +87,7 @@ namespace FlaneerMediaLib
                 return;
             }
 
-            if (waitingForPPS_SPS)
+            if (waitingForPPSSPS)
             {
                 ScanForPPS_SPS(receivedBytes);
             }
@@ -126,8 +127,8 @@ namespace FlaneerMediaLib
                     return;
                 }
             }
-            Array.Copy(receivedBytes, TransmissionVideoFrame.HeaderSize, PPS_SPS, 0, PPS_SPSLength);
-            waitingForPPS_SPS = false;
+            Array.Copy(receivedBytes, TransmissionVideoFrame.HeaderSize, ppssps, 0, PPS_SPSLength);
+            waitingForPPSSPS = false;
         }
 
         private void FrameCleanup()
@@ -137,7 +138,7 @@ namespace FlaneerMediaLib
 
         private ManagedVideoFrame ManagedFrameFromTransmission(TransmissionVideoFrame receivedFrame, byte[] frameData)
         {
-            if (waitingForPPS_SPS)
+            if (waitingForPPSSPS)
                 return new ManagedVideoFrame()
                 {
                     Codec = codec,
@@ -155,8 +156,8 @@ namespace FlaneerMediaLib
             }
             else
             {
-                frameStream = new MemoryStream(PPS_SPS.Length + frameData.Length);
-                frameStream.Write(PPS_SPS);
+                frameStream = new MemoryStream(ppssps.Length + frameData.Length);
+                frameStream.Write(ppssps);
                 frameStream.Write(frameData);
             }
             
@@ -167,7 +168,7 @@ namespace FlaneerMediaLib
                 Width = receivedFrame.Width,
                 Stream = frameStream 
             };
-            FrameReady?.Invoke(ret);
+            FrameReady(ret);
             return ret;
         }
         

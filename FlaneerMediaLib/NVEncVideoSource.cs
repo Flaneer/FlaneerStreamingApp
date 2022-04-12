@@ -1,32 +1,31 @@
-﻿using NvEncWrapper;
+﻿using FlaneerMediaLib.VideoDataTypes;
+using NvEncWrapper;
 
 namespace FlaneerMediaLib
 {
     internal class NvEncVideoSource : IVideoSource, IEncoder
     {
-        private FrameSettings frameSettings;
-        private ICodecSettings codecSettings;
+        private FrameSettings frameSettings = null!;
+        private ICodecSettings codecSettings = null!;
         private VideoCodec codec;
-        private ICodecSettings _codecSettings;
-        private FrameSettings _frameSettings;
 
         public ICodecSettings CodecSettings => codecSettings;
 
         public FrameSettings FrameSettings => frameSettings;
 
-        public bool Init(FrameSettings frameSettings, ICodecSettings codecSettings)
+        public bool Init(FrameSettings frameSettingsIn, ICodecSettings codecSettingsIn)
         {
-            this.frameSettings = frameSettings;
-            this.codecSettings = codecSettings;
-            switch (codecSettings)
+            frameSettings = frameSettingsIn;
+            codecSettings = codecSettingsIn;
+            switch (codecSettingsIn)
             {
                 case H264CodecSettings:
                     codec = VideoCodec.H264;
                     break;
                 default:
-                    throw new ArgumentOutOfRangeException(nameof(codecSettings));
+                    throw new ArgumentOutOfRangeException(nameof(codecSettingsIn));
             }
-            return Wrapper.Init(Utils.FromFrameSettings(frameSettings), Utils.FromCodecSettings(codecSettings));
+            return Wrapper.Init(Utils.FromFrameSettings(frameSettingsIn), Utils.FromCodecSettings(codecSettingsIn));
         }
 
         public VideoFrame GetFrame()

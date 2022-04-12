@@ -1,18 +1,19 @@
 ﻿using System.Diagnostics;
 using System.Net;
 using System.Net.Sockets;
+using FlaneerMediaLib.VideoDataTypes;
 
 namespace FlaneerMediaLib;
 
 public class UDPVideoSink : IVideoSink
 {
-    IEncoder encoder;
-    private IVideoSource videoSource;
-    private CyclicalFrameCounter frameCounter = new CyclicalFrameCounter();
+    private IEncoder encoder = null!;
+    private IVideoSource videoSource = null!;
+    private readonly CyclicalFrameCounter frameCounter = new();
 
-    private readonly Socket s = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
+    private readonly Socket s = new(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
     private readonly IPAddress broadcast;
-    private byte nextframe => frameCounter.GetNext();
+    private byte nextFrame => frameCounter.GetNext();
 
     public UDPVideoSink(string ip)
     {
@@ -32,8 +33,8 @@ public class UDPVideoSink : IVideoSink
         {
             ServiceRegistry.ServiceAdded += service =>
             {
-                if (service is IEncoder foundEncoder)
-                    encoder = foundEncoder;
+                if (service is IEncoder encoderService)
+                    encoder = encoderService;
             };
         }
     }
@@ -48,8 +49,8 @@ public class UDPVideoSink : IVideoSink
         {
             ServiceRegistry.ServiceAdded += service =>
             {
-                if (service is IVideoSource foundSource)
-                    videoSource = foundSource;
+                if (service is IVideoSource sourceService)
+                    videoSource = sourceService;
             };
         }
     }
@@ -61,7 +62,7 @@ public class UDPVideoSink : IVideoSink
     private void CaptureFrameImpl(int numberOfFrames = 1, int targetFramerate = -1)
     {
         //Return in the case the encoder is not created
-        if(encoder == default || videoSource == default)
+        if(encoder == default! || videoSource == default!)
             return;
         
         Stopwatch stopWatch = new Stopwatch();
@@ -81,7 +82,7 @@ public class UDPVideoSink : IVideoSink
                 if(frame is UnmanagedVideoFrame unmanagedFrame)
                     SendFrame(unmanagedFrame);
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 // ignored
             }
@@ -91,42 +92,40 @@ public class UDPVideoSink : IVideoSink
 
     private unsafe void SendFrame(UnmanagedVideoFrame frame)
     {
-        using (UnmanagedMemoryStream ustream = new UnmanagedMemoryStream((byte*) frame.FrameData, frame.FrameSize))
+        using var uStream = new UnmanagedMemoryStream((byte*) frame.FrameData, frame.FrameSize);
+        var frameBytes = new byte[frame.FrameSize];
+        uStream.Read(frameBytes, 0, frame.FrameSize);
+            
+        var frameWritableSize = Int16.MaxValue - Utils.UDPHEADERSIZE;
+        var numberOfPackets = (byte) Math.Ceiling((double)frame.FrameSize / frameWritableSize);
+            
+        var ep = new IPEndPoint(broadcast, 11000);
+        var sent = 0;
+        for (byte i = 0; i < numberOfPackets; i++)
         {
-            byte[] frameBytes = new byte[frame.FrameSize];
-            ustream.Read(frameBytes, 0, frame.FrameSize);
-            
-            var frameWritableSize = Int16.MaxValue - Utils.UDPHEADERSIZE;
-            var numberOfPackets = (byte) Math.Ceiling((double)frame.FrameSize / frameWritableSize);
-            
-            IPEndPoint ep = new IPEndPoint(broadcast, 11000);
-            int sent = 0;
-            for (byte i = 0; i < numberOfPackets; i++)
+            var frameHeader = new TransmissionVideoFrame
             {
-                var frameHeader = new TransmissionVideoFrame
-                {
-                    Width = (short) videoSource.FrameSettings.Width,
-                    Height = (short) videoSource.FrameSettings.Height,
-                    NumberOfPackets = numberOfPackets,
-                    PacketIdx = i,
-                    FrameDataSize = frame.FrameSize,
-                    SequenceIDX = nextframe
-                };
+                Width = (short) videoSource.FrameSettings.Width,
+                Height = (short) videoSource.FrameSettings.Height,
+                NumberOfPackets = numberOfPackets,
+                PacketIdx = i,
+                FrameDataSize = frame.FrameSize,
+                SequenceIDX = nextFrame
+            };
                 
-                var headerBytes = frameHeader.ToUDPPacket();
+            var headerBytes = frameHeader.ToUDPPacket();
 
-                var packetSize = Math.Min(frameWritableSize, frame.FrameSize - sent);
-                byte[] transmissionArray = new byte[headerBytes.Length + packetSize];
-                Array.Copy(headerBytes, transmissionArray, headerBytes.Length);
-                Array.Copy(frameBytes, sent, transmissionArray, headerBytes.Length, packetSize);
+            var packetSize = Math.Min(frameWritableSize, frame.FrameSize - sent);
+            byte[] transmissionArray = new byte[headerBytes.Length + packetSize];
+            Array.Copy(headerBytes, transmissionArray, headerBytes.Length);
+            Array.Copy(frameBytes, sent, transmissionArray, headerBytes.Length, packetSize);
                 
-                s.SendTo(transmissionArray, ep);
+            s.SendTo(transmissionArray, ep);
 
-                sent += packetSize;
-                Console.WriteLine($"SENT CHUNK OF {nextframe} | {sent} / {frame.FrameSize}");
-            }
-            
-            frameCounter.Increment();
+            sent += packetSize;
+            Console.WriteLine($"SENT CHUNK OF {nextFrame} | {sent} / {frame.FrameSize}");
         }
+            
+        frameCounter.Increment();
     }
 }

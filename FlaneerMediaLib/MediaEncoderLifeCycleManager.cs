@@ -1,8 +1,10 @@
-﻿namespace FlaneerMediaLib;
+﻿using FlaneerMediaLib.VideoDataTypes;
+
+namespace FlaneerMediaLib;
 
 public class MediaEncoderLifeCycleManager : IDisposable
 {
-    private IVideoSource videoSource;
+    private readonly IVideoSource videoSource;
     
     public MediaEncoderLifeCycleManager(VideoSources videoSource)
     {
@@ -14,7 +16,7 @@ public class MediaEncoderLifeCycleManager : IDisposable
                 break;
             case VideoSources.UDPH264:
                 this.videoSource = new UDPVideoSource(11000);
-                ServiceRegistry.AddService<IVideoSource>(this.videoSource);
+                ServiceRegistry.AddService(this.videoSource);
                 break;
             default:
                 throw new ArgumentOutOfRangeException(nameof(videoSource), videoSource, null);

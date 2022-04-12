@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.Net;
 using System.Net.Sockets;
+using FlaneerMediaLib.VideoDataTypes;
 
 namespace LocalMediaFileOut
 {
@@ -18,12 +19,6 @@ namespace LocalMediaFileOut
         {
             if (ServiceRegistry.TryGetService<IEncoder>(out var encoder))
                 this.encoder = encoder;
-            else
-                ServiceRegistry.ServiceAdded += service =>
-                {
-                    if (service is IEncoder encoder)
-                        this.encoder = encoder;
-                };
         }
 
         public unsafe void Capture(int numberOfFrames, int targetFramerate)

@@ -1,4 +1,6 @@
-﻿namespace FlaneerMediaLib
+﻿using FlaneerMediaLib.VideoDataTypes;
+
+namespace FlaneerMediaLib
 {
     public class H264CodecSettings : ICodecSettings
     {

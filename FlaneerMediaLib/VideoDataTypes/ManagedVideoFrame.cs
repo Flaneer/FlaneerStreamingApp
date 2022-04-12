@@ -1,9 +1,9 @@
-﻿namespace FlaneerMediaLib;
+﻿namespace FlaneerMediaLib.VideoDataTypes;
 
 public class ManagedVideoFrame : VideoFrame, IDisposable
 {
     
-    public MemoryStream Stream = new MemoryStream();
+    public MemoryStream Stream = new();
 
     public void Dispose()
     {
