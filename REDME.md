@@ -4,10 +4,10 @@ This repo contains all code related to the Flaneer streaming technology, the low
 
 ## Coding style
 
-For C# follow the MS standards, except around naming with underscores, importantly:
+For C# follow the MS standards, with some changes, importantly:
 
-- Use pascal casing ("PascalCasing") when naming a class, record, or struct.
 - Use camel casing ("camelCasing") when naming private or internal fields.
+- All caps for enum names
 
 https://docs.microsoft.com/en-us/dotnet/csharp/fundamentals/coding-style/coding-conventions#additional-naming-conventions
 
