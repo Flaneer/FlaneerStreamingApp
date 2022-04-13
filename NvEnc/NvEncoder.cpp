@@ -11,17 +11,17 @@
 
 #include "NvEncoder.h"
 
-NvEncoder::NvEncoder(NV_ENC_DEVICE_TYPE eDeviceType, void *pDevice, uint32_t nWidth, uint32_t nHeight, NV_ENC_BUFFER_FORMAT eBufferFormat,
-                            uint32_t nExtraOutputDelay, bool bMotionEstimationOnly) :
-    m_device(pDevice), 
-    m_deviceType(eDeviceType),
-    m_width(nWidth),
-    m_height(nHeight),
-    m_maxEncodeWidth(nWidth),
-    m_maxEncodeHeight(nHeight),
-    m_bufferFormat(eBufferFormat), 
-    m_motionEstimationOnly(bMotionEstimationOnly), 
-    m_extraOutputDelay(nExtraOutputDelay), 
+NvEncoder::NvEncoder(NV_ENC_DEVICE_TYPE deviceType, void *device, uint32_t width, uint32_t height, NV_ENC_BUFFER_FORMAT bufferFormat,
+                            uint32_t extraOutputDelay, bool motionEstimationOnly) :
+    m_device(device), 
+    m_deviceType(deviceType),
+    m_width(width),
+    m_height(height),
+    m_maxEncodeWidth(width),
+    m_maxEncodeHeight(height),
+    m_bufferFormat(bufferFormat), 
+    m_motionEstimationOnly(motionEstimationOnly), 
+    m_extraOutputDelay(extraOutputDelay), 
     m_encoder(nullptr)
 {
     LoadNvEncApi();

@@ -14,13 +14,15 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FlaneerMediaLib", "FlaneerM
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LocalMediaFileOut", "LocalMediaFileOut\LocalMediaFileOut.csproj", "{E543DA67-4228-4586-91F9-B00D5AC951A0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UDPTestApp", "UDPTestApp\UDPTestApp.csproj", "{8A840A3C-42B0-4299-AA64-BD6F906C3378}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UDPTestApp", "UDPTestApp\UDPTestApp.csproj", "{8A840A3C-42B0-4299-AA64-BD6F906C3378}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UDPTestBroadcaster", "UDPTestBroadcaster\UDPTestBroadcaster.csproj", "{9219054E-A5CD-4F96-A91F-C42ACFAC9417}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UDPTestBroadcaster", "UDPTestBroadcaster\UDPTestBroadcaster.csproj", "{9219054E-A5CD-4F96-A91F-C42ACFAC9417}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UDPToWinFormTest", "UDPToWinFormTest\UDPToWinFormTest.csproj", "{8A6A963B-EDC1-4460-9A1A-5786099D17C5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UDPToWinFormTest", "UDPToWinFormTest\UDPToWinFormTest.csproj", "{8A6A963B-EDC1-4460-9A1A-5786099D17C5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MediaLibTests", "MediaLibTests\MediaLibTests.csproj", "{AE764449-7706-46F1-9344-CD613CE4A077}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MediaLibTests", "MediaLibTests\MediaLibTests.csproj", "{AE764449-7706-46F1-9344-CD613CE4A077}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "NativeTests", "NativeTests\NativeTests.vcxproj", "{23D3BD08-5C04-4B0A-8DF2-B43B2CB17A26}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -128,6 +130,18 @@ Global
 		{AE764449-7706-46F1-9344-CD613CE4A077}.Release|x64.Build.0 = Release|Any CPU
 		{AE764449-7706-46F1-9344-CD613CE4A077}.Release|x86.ActiveCfg = Release|Any CPU
 		{AE764449-7706-46F1-9344-CD613CE4A077}.Release|x86.Build.0 = Release|Any CPU
+		{23D3BD08-5C04-4B0A-8DF2-B43B2CB17A26}.Debug|Any CPU.ActiveCfg = Debug|x64
+		{23D3BD08-5C04-4B0A-8DF2-B43B2CB17A26}.Debug|Any CPU.Build.0 = Debug|x64
+		{23D3BD08-5C04-4B0A-8DF2-B43B2CB17A26}.Debug|x64.ActiveCfg = Debug|x64
+		{23D3BD08-5C04-4B0A-8DF2-B43B2CB17A26}.Debug|x64.Build.0 = Debug|x64
+		{23D3BD08-5C04-4B0A-8DF2-B43B2CB17A26}.Debug|x86.ActiveCfg = Debug|Win32
+		{23D3BD08-5C04-4B0A-8DF2-B43B2CB17A26}.Debug|x86.Build.0 = Debug|Win32
+		{23D3BD08-5C04-4B0A-8DF2-B43B2CB17A26}.Release|Any CPU.ActiveCfg = Release|x64
+		{23D3BD08-5C04-4B0A-8DF2-B43B2CB17A26}.Release|Any CPU.Build.0 = Release|x64
+		{23D3BD08-5C04-4B0A-8DF2-B43B2CB17A26}.Release|x64.ActiveCfg = Release|x64
+		{23D3BD08-5C04-4B0A-8DF2-B43B2CB17A26}.Release|x64.Build.0 = Release|x64
+		{23D3BD08-5C04-4B0A-8DF2-B43B2CB17A26}.Release|x86.ActiveCfg = Release|Win32
+		{23D3BD08-5C04-4B0A-8DF2-B43B2CB17A26}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
