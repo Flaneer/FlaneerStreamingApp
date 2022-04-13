@@ -188,7 +188,6 @@ namespace FlaneerMediaLib
 
         private void AssembleFrame(int sequenceIDX, IEnumerable<KeyValuePair<TransmissionVideoFrame, byte[]>> parts)
         {
-            TransmissionVideoFrame receivedFrame;
             var orderedParts = parts.OrderBy(pair => pair.Key.PacketIdx);
             var completedPacket = new List<byte>();
             foreach (var part in orderedParts)

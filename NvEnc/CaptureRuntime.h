@@ -56,8 +56,8 @@ private:
 
     int timeout() const
     {
-        //Come up with something more robust here
-        return (1000.0f / m_maxFPS) * 2.0f;
+        auto timeout = (1000.0f / m_maxFPS) * 2.0f;
+        return (int)std::ceil(timeout);
     }
 
     short m_width;

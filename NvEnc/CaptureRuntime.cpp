@@ -238,7 +238,8 @@ HRESULT CaptureRuntime::FulfilFrameRequest(FrameRequest& frame_request)
         printf("Encode failed with error 0x%08x\n", hr);
         return hr;
     }
-    frame_request.Buffersize = m_packet.back().size();
+    //Casting here because interop is best done with explicit size types
+    frame_request.Buffersize = (INT32)m_packet.back().size();
     frame_request.Data = m_packet.back().data();
     return hr;
 }
