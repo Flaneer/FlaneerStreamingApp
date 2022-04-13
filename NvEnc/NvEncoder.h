@@ -90,7 +90,7 @@ public:
     *  Application must call this function to initialize the encoder, before
     *  starting to encode any frames.
     */
-    void CreateEncoder(const NV_ENC_INITIALIZE_PARAMS* pEncodeParams);
+    void CreateEncoder(const NV_ENC_INITIALIZE_PARAMS* encodeParams);
 
     /**
     *  @brief  This function is used to destroy the encoder session.
@@ -106,7 +106,7 @@ public:
     *  resolution and other QOS parameters. If the application changes the
     *  resolution, it must set NV_ENC_RECONFIGURE_PARAMS::forceIDR.
     */
-    bool Reconfigure(const NV_ENC_RECONFIGURE_PARAMS *pReconfigureParams);
+    bool Reconfigure(const NV_ENC_RECONFIGURE_PARAMS *reconfigureParams);
 
     /**
     *  @brief  This function is used to get the next available input buffer.
@@ -123,7 +123,7 @@ public:
     *  data, which has been copied to an input buffer obtained from the
     *  GetNextInputFrame() function.
     */
-    void EncodeFrame(std::vector<std::vector<uint8_t>> &vPacket, NV_ENC_PIC_PARAMS *pPicParams = nullptr);
+    void EncodeFrame(std::vector<std::vector<uint8_t>> &packet, NV_ENC_PIC_PARAMS *picParams = nullptr);
 
     /**
     *  @brief  This function to flush the encoder queue.
@@ -132,7 +132,7 @@ public:
     *  from the encoder. The application must call this function before destroying
     *  an encoder session.
     */
-    void EndEncode(std::vector<std::vector<uint8_t>> &vPacket);
+    void EndEncode(std::vector<std::vector<uint8_t>> &packet);
 
     /**
     *  @brief  This function is used to query hardware encoder capabilities.
@@ -144,24 +144,24 @@ public:
     /**
     *  @brief  This function is used to get the current device on which encoder is running.
     */
-    void *GetDevice() const { return m_pDevice; }
+    void *GetDevice() const { return m_device; }
 
     /**
     *  @brief  This function is used to get the current device type which encoder is running.
     */
-    NV_ENC_DEVICE_TYPE GetDeviceType() const { return m_eDeviceType; }
+    NV_ENC_DEVICE_TYPE GetDeviceType() const { return m_deviceType; }
 
     /**
     *  @brief  This function is used to get the current encode width.
     *  The encode width can be modified by Reconfigure() function.
     */
-    int GetEncodeWidth() const { return m_nWidth; }
+    int GetEncodeWidth() const { return m_width; }
 
     /**
     *  @brief  This function is used to get the current encode height.
     *  The encode height can be modified by Reconfigure() function.
     */
-    int GetEncodeHeight() const { return m_nHeight; }
+    int GetEncodeHeight() const { return m_height; }
 
     /**
     *   @brief  This function is used to get the current frame size based on pixel format.
@@ -176,7 +176,7 @@ public:
     *  directly or override them with application-specific settings before
     *  using them in CreateEncoder() function.
     */
-    void CreateDefaultEncoderParams(NV_ENC_INITIALIZE_PARAMS* pIntializeParams, GUID codecGuid, GUID presetGuid);
+    void CreateDefaultEncoderParams(NV_ENC_INITIALIZE_PARAMS* intializeParams, GUID codecGuid, GUID presetGuid);
 
     /**
     *  @brief  This function is used to get the current initialization parameters,
@@ -184,7 +184,7 @@ public:
     *  The initialization parameters are modified if the application calls
     *  Reconfigure() function.
     */
-    void GetInitializeParams(NV_ENC_INITIALIZE_PARAMS *pInitializeParams);
+    void GetInitializeParams(NV_ENC_INITIALIZE_PARAMS *initializeParams);
 
     /**
     *  @brief  This function is used to run motion estimation
@@ -255,21 +255,21 @@ protected:
     *  @brief  NvEncoder class constructor.
     *  NvEncoder class constructor cannot be called directly by the application.
     */
-    NvEncoder(NV_ENC_DEVICE_TYPE eDeviceType, void *pDevice, uint32_t nWidth, uint32_t nHeight,
-        NV_ENC_BUFFER_FORMAT eBufferFormat, uint32_t m_nOutputDelay, bool bMotionEstimationOnly);
+    NvEncoder(NV_ENC_DEVICE_TYPE deviceType, void *device, uint32_t width, uint32_t height,
+        NV_ENC_BUFFER_FORMAT bufferFormat, uint32_t outputDelay, bool motionEstimationOnly);
 
     /**
     *  @brief This function is used to check if hardware encoder is properly initialized.
     */
-    bool IsHWEncoderInitialized() const { return m_hEncoder != NULL && m_bEncoderInitialized; }
+    bool IsHWEncoderInitialized() const { return m_encoder != NULL && m_encoderInitialized; }
 
     /**
     *  @brief This function is used to register CUDA, D3D or OpenGL input buffers with NvEncodeAPI.
     *  This is non public function and is called by derived class for allocating
     *  and registering input buffers.
     */
-    void RegisterResources(std::vector<void*> inputframes, NV_ENC_INPUT_RESOURCE_TYPE eResourceType,
-        int width, int height, int pitch, NV_ENC_BUFFER_FORMAT bufferFormat, bool bReferenceFrame = false);
+    void RegisterResources(std::vector<void*> inputframes, NV_ENC_INPUT_RESOURCE_TYPE resourceType,
+        int width, int height, int pitch, NV_ENC_BUFFER_FORMAT bufferFormat, bool referenceFrame = false);
 
     /**
     *  @brief This function is used to unregister resources which had been previously registered for encoding
@@ -280,18 +280,18 @@ protected:
     *  @brief This function returns maximum width used to open the encoder session.
     *  All encode input buffers are allocated using maximum dimensions.
     */
-    uint32_t GetMaxEncodeWidth() const { return m_nMaxEncodeWidth; }
+    uint32_t GetMaxEncodeWidth() const { return m_maxEncodeWidth; }
 
     /**
     *  @brief This function returns maximum height used to open the encoder session.
     *  All encode input buffers are allocated using maximum dimensions.
     */
-    uint32_t GetMaxEncodeHeight() const { return m_nMaxEncodeHeight; }
+    uint32_t GetMaxEncodeHeight() const { return m_maxEncodeHeight; }
 
     /**
     *  @brief This function returns the current pixel format.
     */
-    NV_ENC_BUFFER_FORMAT GetPixelFormat() const { return m_eBufferFormat; }
+    NV_ENC_BUFFER_FORMAT GetPixelFormat() const { return m_bufferFormat; }
 
 private:
     /**
@@ -305,7 +305,7 @@ private:
     *  The encoder generally buffers data to encode B frames or for lookahead
     *  or pipelining.
     */
-    bool IsZeroDelay() { return m_nOutputDelay == 0; }
+    bool IsZeroDelay() { return m_outputDelay == 0; }
 
     /**
     *  @brief This is a private function which is used to load the encode api shared library.
@@ -316,7 +316,7 @@ private:
     *  @brief This is a private function which is used to submit the encode
     *         commands to the NVENC hardware.
     */
-    void DoEncode(NV_ENC_INPUT_PTR inputBuffer, std::vector<std::vector<uint8_t>> &vPacket, NV_ENC_PIC_PARAMS *pPicParams);
+    void DoEncode(NV_ENC_INPUT_PTR inputBuffer, std::vector<std::vector<uint8_t>> &packet, NV_ENC_PIC_PARAMS *picParams);
 
     /**
     *  @brief This is a private function which is used to submit the encode
@@ -330,7 +330,7 @@ private:
     *  This is called by DoEncode() function. If there is buffering enabled,
     *  this may return without any output data.
     */
-    void GetEncodedPacket(std::vector<NV_ENC_OUTPUT_PTR> &vOutputBuffer, std::vector<std::vector<uint8_t>> &vPacket, bool bOutputDelay);
+    void GetEncodedPacket(std::vector<NV_ENC_OUTPUT_PTR> &outputBuffer, std::vector<std::vector<uint8_t>> &packet, bool outputDelay);
 
     /**
     *  @brief This is a private function which is used to initialize the bitstream buffers.
@@ -375,33 +375,33 @@ private:
     virtual void ReleaseInputBuffers() = 0;
 
 protected:
-    bool m_bMotionEstimationOnly = false;
-    void *m_hEncoder = nullptr;
+    bool m_motionEstimationOnly = false;
+    void *m_encoder = nullptr;
     NV_ENCODE_API_FUNCTION_LIST m_nvenc;
-    std::vector<NvEncInputFrame> m_vInputFrames;
-    std::vector<NV_ENC_REGISTERED_PTR> m_vRegisteredResources;
-    std::vector<NvEncInputFrame> m_vReferenceFrames;
-    std::vector<NV_ENC_REGISTERED_PTR> m_vRegisteredResourcesForReference;
+    std::vector<NvEncInputFrame> m_inputFrames;
+    std::vector<NV_ENC_REGISTERED_PTR> m_registeredResources;
+    std::vector<NvEncInputFrame> m_referenceFrames;
+    std::vector<NV_ENC_REGISTERED_PTR> m_registeredResourcesForReference;
 private:
-    uint32_t m_nWidth;
-    uint32_t m_nHeight;
-    NV_ENC_BUFFER_FORMAT m_eBufferFormat;
-    void *m_pDevice;
-    NV_ENC_DEVICE_TYPE m_eDeviceType;
+    uint32_t m_width;
+    uint32_t m_height;
+    NV_ENC_BUFFER_FORMAT m_bufferFormat;
+    void *m_device;
+    NV_ENC_DEVICE_TYPE m_deviceType;
     NV_ENC_INITIALIZE_PARAMS m_initializeParams = {};
     NV_ENC_CONFIG m_encodeConfig = {};
-    bool m_bEncoderInitialized = false;
-    uint32_t m_nExtraOutputDelay = 3;
-    std::vector<NV_ENC_INPUT_PTR> m_vMappedInputBuffers;
-    std::vector<NV_ENC_INPUT_PTR> m_vMappedRefBuffers;
-    std::vector<NV_ENC_OUTPUT_PTR> m_vBitstreamOutputBuffer;
-    std::vector<NV_ENC_OUTPUT_PTR> m_vMVDataOutputBuffer;
-    std::vector<void *> m_vpCompletionEvent;
-    uint32_t m_nMaxEncodeWidth = 0;
-    uint32_t m_nMaxEncodeHeight = 0;
-    void* m_hModule = nullptr;
-    int32_t m_iToSend = 0;
-    int32_t m_iGot = 0;
-    int32_t m_nEncoderBuffer = 0;
-    int32_t m_nOutputDelay = 0;
+    bool m_encoderInitialized = false;
+    uint32_t m_extraOutputDelay = 3;
+    std::vector<NV_ENC_INPUT_PTR> m_mappedInputBuffers;
+    std::vector<NV_ENC_INPUT_PTR> m_mappedRefBuffers;
+    std::vector<NV_ENC_OUTPUT_PTR> m_bitstreamOutputBuffer;
+    std::vector<NV_ENC_OUTPUT_PTR> m_mvDataOutputBuffer;
+    std::vector<void *> m_completionEvent;
+    uint32_t m_maxEncodeWidth = 0;
+    uint32_t m_maxEncodeHeight = 0;
+    void* m_module = nullptr;
+    int32_t m_toSend = 0;
+    int32_t m_got = 0;
+    int32_t m_encoderBuffer = 0;
+    int32_t m_outputDelay = 0;
 };

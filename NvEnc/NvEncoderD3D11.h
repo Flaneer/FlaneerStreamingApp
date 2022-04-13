@@ -21,8 +21,8 @@
 class NvEncoderD3D11 : public NvEncoder
 {
 public:
-    NvEncoderD3D11(ID3D11Device* pD3D11Device, uint32_t nWidth, uint32_t nHeight, NV_ENC_BUFFER_FORMAT eBufferFormat, 
-        uint32_t nExtraOutputDelay = 3, bool bMotionEstimationOnly = false);
+    NvEncoderD3D11(ID3D11Device* d3d11Device, uint32_t width, uint32_t height, NV_ENC_BUFFER_FORMAT bufferFormat, 
+        uint32_t extraOutputDelay = 3, bool motionEstimationOnly = false);
     virtual ~NvEncoderD3D11();
 private:
     /**
@@ -44,6 +44,6 @@ private:
     */
     void ReleaseD3D11Resources();
 private:
-    ID3D11Device *m_pD3D11Device = nullptr;
-    ID3D11DeviceContext* m_pD3D11DeviceContext = nullptr;
+    ID3D11Device *m_d3d11Device = nullptr;
+    ID3D11DeviceContext* m_d3d11DeviceContext = nullptr;
 };

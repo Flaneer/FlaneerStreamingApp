@@ -4,6 +4,11 @@ This repo contains all code related to the Flaneer streaming technology, the low
 
 ## Coding style
 
+In general the following guidelines should be followed:
+- Commented out sections of code should not be in master (that is what Git is for)
+- There should be zero warnings
+    - Warnings that are decided to be acceptable should be commented using a pragma
+
 For C# follow the MS standards, with some changes, importantly:
 
 - Use camel casing ("camelCasing") when naming private or internal fields.
@@ -11,9 +16,12 @@ For C# follow the MS standards, with some changes, importantly:
 
 https://docs.microsoft.com/en-us/dotnet/csharp/fundamentals/coding-style/coding-conventions#additional-naming-conventions
 
-For C++ follow the same style, however these addition rules apply for the C++ specific language features:
+For C++ follow the same style, however these additional rules apply for the C++ specific language features:
 
-http://web.mit.edu/6.s096/www/standards.html
+- Those listed here:
+    - http://web.mit.edu/6.s096/www/standards.html
+- Use `m_` for members of a class, this is because the header is a seperate file. No other form of Hungarian notation should be used.
+- 
 
 ## Git rules
 
