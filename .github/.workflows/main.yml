@@ -17,8 +17,12 @@ jobs:
     steps:
       - name: run-csharp-tests
         run: |
+          ls
+          pushd MediaLibTests
           pwd
-          dotnet test MediaLibTests/MediaLibTests.csproj
+          ls
+          dotnet test *.csproj
+          popd
       
         
         
