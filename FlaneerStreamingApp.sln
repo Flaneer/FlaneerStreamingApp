@@ -26,6 +26,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "NativeTests", "NativeTests\
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SampleProjects", "SampleProjects", "{528C0E90-FAFA-4813-B36D-B2BAD4FE9397}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MSNativeTests", "MSNativeTests\MSNativeTests.vcxproj", "{B77C0807-FA76-4675-9EB7-997F64132E3B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -144,6 +146,18 @@ Global
 		{23D3BD08-5C04-4B0A-8DF2-B43B2CB17A26}.Release|x64.Build.0 = Release|x64
 		{23D3BD08-5C04-4B0A-8DF2-B43B2CB17A26}.Release|x86.ActiveCfg = Release|Win32
 		{23D3BD08-5C04-4B0A-8DF2-B43B2CB17A26}.Release|x86.Build.0 = Release|Win32
+		{B77C0807-FA76-4675-9EB7-997F64132E3B}.Debug|Any CPU.ActiveCfg = Debug|x64
+		{B77C0807-FA76-4675-9EB7-997F64132E3B}.Debug|Any CPU.Build.0 = Debug|x64
+		{B77C0807-FA76-4675-9EB7-997F64132E3B}.Debug|x64.ActiveCfg = Debug|x64
+		{B77C0807-FA76-4675-9EB7-997F64132E3B}.Debug|x64.Build.0 = Debug|x64
+		{B77C0807-FA76-4675-9EB7-997F64132E3B}.Debug|x86.ActiveCfg = Debug|Win32
+		{B77C0807-FA76-4675-9EB7-997F64132E3B}.Debug|x86.Build.0 = Debug|Win32
+		{B77C0807-FA76-4675-9EB7-997F64132E3B}.Release|Any CPU.ActiveCfg = Release|x64
+		{B77C0807-FA76-4675-9EB7-997F64132E3B}.Release|Any CPU.Build.0 = Release|x64
+		{B77C0807-FA76-4675-9EB7-997F64132E3B}.Release|x64.ActiveCfg = Release|x64
+		{B77C0807-FA76-4675-9EB7-997F64132E3B}.Release|x64.Build.0 = Release|x64
+		{B77C0807-FA76-4675-9EB7-997F64132E3B}.Release|x86.ActiveCfg = Release|Win32
+		{B77C0807-FA76-4675-9EB7-997F64132E3B}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
