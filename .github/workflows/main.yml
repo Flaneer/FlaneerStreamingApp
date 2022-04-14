@@ -42,7 +42,7 @@ jobs:
 
         - name: Run MSBuild
           working-directory: $
-          run: msbuild .\FlaneerStreamingApp.sln
+          run: msbuild FlaneerStreamingApp.sln
 
         - name: Setup VSTest and add to PATH
           uses: darenm/Setup-VSTest@v1
