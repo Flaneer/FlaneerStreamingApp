@@ -37,8 +37,8 @@ jobs:
         - name: Checkout code
           uses: actions/checkout@v2
 
-        - name: Setup MSBuild and add to PATH
-          uses: microsoft/setup-msbuild@v1.1
+        - name: Setup MSBuild.exe
+          uses: warrenbuckley/Setup-MSBuild@v1
 
         - name: Run MSBuild
           working-directory: $
