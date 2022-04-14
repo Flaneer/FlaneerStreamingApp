@@ -7,11 +7,11 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <Content Include="..\x64\Debug\NvEncVideoSource.dll">
+        <Content Include="..\x64\Debug\NvEncVideoSource.dll" Condition="Exists('..\x64\Debug\NvEncVideoSource.dll')">
             <Link>NvEncVideoSource.dll</Link>
             <CopyToOutputDirectory>Always</CopyToOutputDirectory>
         </Content>
-	    <Content Include="..\x64\Debug\NvEncVideoSource.pdb">
+	    <Content Include="..\x64\Debug\NvEncVideoSource.pdb" Condition="Exists('..\x64\Debug\NvEncVideoSource.pdb')">
 		    <Link>NvEncVideoSource.pdb</Link>
 		    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	    </Content>
