@@ -10,6 +10,7 @@ on:
         
 env:
   DOTNET_VERSION: '6.0.101' # The .NET SDK version to use
+  ACTIONS_ALLOW_UNSECURE_COMMANDS: 'true' #Live dangerously
 
 jobs:
   test-csharp:
