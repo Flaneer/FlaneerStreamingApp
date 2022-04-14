@@ -9,7 +9,7 @@ namespace UDPToWinFormTest;
 
 public partial class MainForm : Form
 {
-   private Bitmap screenCapture;
+   private Bitmap? screenCapture;
 
    private object lockObject = new object();
    int it = 0;
@@ -35,8 +35,8 @@ public partial class MainForm : Form
             try
             {
                 var frameIn = videoSource.GetFrame();
-                ManagedVideoFrame frame = frameIn as ManagedVideoFrame;
-                if(frame.Stream.Length == 0)
+                ManagedVideoFrame? frame = frameIn as ManagedVideoFrame;
+                if(frame == null || frame.Stream.Length == 0)
                     continue;
 
                 var pathName = $"out-{it}.h264";

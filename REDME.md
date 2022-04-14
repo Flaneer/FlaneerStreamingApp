@@ -7,7 +7,7 @@ This repo contains all code related to the Flaneer streaming technology, the low
 In general the following guidelines should be followed:
 - Commented out sections of code should not be in master (that is what Git is for)
 - There should be zero warnings
-    - Warnings that are decided to be acceptable should be commented using a pragma
+    - Warnings that are decided to be acceptable should be commented using a pragma/resharper comment
 
 For C# follow the MS standards, with some changes, importantly:
 

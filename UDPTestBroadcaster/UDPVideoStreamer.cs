@@ -8,7 +8,7 @@ namespace LocalMediaFileOut
 {
     internal class UDPVideoStreamer
     {
-        IEncoder encoder;
+        readonly IEncoder? encoder;
 
         Socket s = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
         IPAddress broadcast = IPAddress.Parse("212.132.204.217");
@@ -17,13 +17,13 @@ namespace LocalMediaFileOut
         
         public UDPVideoStreamer()
         {
-            if (ServiceRegistry.TryGetService<IEncoder>(out var encoder))
-                this.encoder = encoder;
+            if (ServiceRegistry.TryGetService<IEncoder>(out var encoderOut))
+                encoder = encoderOut;
         }
 
         public unsafe void Capture(int numberOfFrames, int targetFramerate)
         {
-            if(encoder == default)
+            if(encoder == null)
                 return;
             
             Stopwatch stopWatch = new Stopwatch();

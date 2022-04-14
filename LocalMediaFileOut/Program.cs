@@ -15,6 +15,8 @@ namespace LocalMediaFileOut
             Console.WriteLine($"NvEncVideoSource.dll exists: {File.Exists("NvEncVideoSource.dll")}");
 
             var videoSettings = await ProcessVideoSettings();
+            if (videoSettings == null)
+                return;
 
             using MediaEncoderLifeCycleManager encoderLifeCycleManager = new MediaEncoderLifeCycleManager(VideoSources.NvEncH264);
 
@@ -52,13 +54,13 @@ namespace LocalMediaFileOut
             public int GoPLength = 5;
         }
 
-        private static async Task<VideoSettings> ProcessVideoSettings()
+        private static async Task<VideoSettings?> ProcessVideoSettings()
         {
             client.DefaultRequestHeaders.Accept.Clear();
 
             var streamTask = client.GetStreamAsync("https://d5r5xl46i4.execute-api.eu-west-1.amazonaws.com/ConfigDemoStage/");
-            var VideoSettings = await JsonSerializer.DeserializeAsync<VideoSettings>(await streamTask);
-            return VideoSettings;
+            var videoSettings = await JsonSerializer.DeserializeAsync<VideoSettings>(await streamTask);
+            return videoSettings;
         }
     }
 }

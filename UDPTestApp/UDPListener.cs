@@ -15,35 +15,23 @@ public class UDPListener
     {
         IVideoSource videoSourceItfce;
         ServiceRegistry.TryGetService(out videoSourceItfce);
+        
         var videoSource = videoSourceItfce as UDPVideoSource;
-
-        /*var ffMpeg = new FFMpegConverter();
-        ffMpeg.LogLevel = "verbose";
-        ffMpeg.LogReceived += (sender, eventArgs) => { Console.WriteLine(eventArgs.Data); };*/
+        if (videoSource == null)
+            return;
 
         int it = 0;
         videoSource.FrameReady += frameIn =>
         {
             try
             {
-                ManagedVideoFrame frame = frameIn as ManagedVideoFrame;
-                if(frame.Stream.Length == 0)
+                ManagedVideoFrame? frame = frameIn as ManagedVideoFrame;
+                if (frame == null || frame.Stream.Length == 0)
                     return;
 
                 var pathName = $"out-{it}.h264";
                 File.WriteAllBytes(pathName, frame.Stream.ToArray());
-                
-                //MemoryStream outStream = new MemoryStream();
 
-                /*var task = ffMpeg.ConvertLiveMedia(Format.h264, outStream, Format.mjpeg, new ConvertSettings
-                {
-                    CustomInputArgs = $"-video_size {videoSource.FrameSettings.Width}x{videoSource.FrameSettings.Height}"
-                });
-
-                task.Start();
-                var streamArray = frame.Stream.ToArray();
-                task.Write(streamArray, 0, streamArray.Length);*/
-                
                 using (Process myProcess = new Process())
                 {
                     myProcess.StartInfo.FileName = "ffmpeg.exe";
@@ -55,17 +43,17 @@ public class UDPListener
                     myProcess.Start();
 
                     /*StreamWriter myStreamWriter = myProcess.StandardInput;
-                    myStreamWriter.Write(frame.Stream.ToArray());*/
+                myStreamWriter.Write(frame.Stream.ToArray());*/
 
                     myProcess.OutputDataReceived += (sender, args) => Console.WriteLine($"FFPROBE: {args.Data}");
-                    
+
                     //myStreamWriter.Close();
 
                     myProcess.WaitForExit();
                 }
 
                 //File.WriteAllBytes($"{it++}.jpeg", outStream.GetBuffer());
-                
+
                 Console.WriteLine("------------------------------------------------------------");
             }
             catch (SocketException e)
