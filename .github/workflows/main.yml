@@ -12,7 +12,7 @@ env:
   DOTNET_VERSION: '6.0.101' # The .NET SDK version to use
 
 jobs:
-  test:
+  test-csharp:
     strategy:
       matrix:
         platform: [ubuntu-latest, macos-latest, windows-latest]
@@ -28,4 +28,26 @@ jobs:
           dotnet test MediaLibTests/MediaLibTests.csproj
       
         
-        
+  run-msbuild-vstest:
+      runs-on: windows-latest
+      name: Run MSBuild and VSTest
+
+      steps:
+        - name: Checkout code
+          uses: actions/checkout@v2.1.0
+
+        - name: Setup MSBuild and add to PATH
+          uses: microsoft/setup-msbuild@v1.0.0
+
+        - name: Run MSBuild
+          working-directory: $
+          run: msbuild .\FlaneerStreamingApp.sln
+
+        - name: Setup VSTest and add to PATH
+          uses: darenm/Setup-VSTest@v1
+
+        - name: Run VSTest
+          working-directory: $\x64\Debug\
+          run: vstest.console.exe /Platform:x64 .\MSNativeTests.dll
+
+
