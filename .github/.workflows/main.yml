@@ -15,8 +15,9 @@ jobs:
         platform: [ubuntu-latest, macos-latest, windows-latest]
     runs-on: ${{ matrix.platform }}
     steps:
-      - name: install-requirements
+      - name: run-csharp-tests
         run: |
+          pwd
           dotnet test MediaLibTests/MediaLibTests.csproj
       
         
