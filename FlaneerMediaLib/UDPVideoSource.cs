@@ -4,6 +4,9 @@ using FlaneerMediaLib.VideoDataTypes;
 
 namespace FlaneerMediaLib
 {
+    /// <summary>
+    /// A video source that gets video from a UDP channel
+    /// </summary>
     public class UDPVideoSource : IVideoSource
     {
         private FrameSettings frameSettings = null!;
@@ -21,19 +24,28 @@ namespace FlaneerMediaLib
         private bool receiving;
         private bool waitingForPPSSPS = true;
         private readonly byte[] ppssps = new byte[34];
+        
+        /// <summary>
+        /// Fired when a complete frame is received/assembled
+        /// </summary>
+        public Action<IVideoFrame> FrameReady = null!;
 
-        public Action<VideoFrame> FrameReady = null!;
-
+        /// <inheritdoc />
+        public ICodecSettings CodecSettings => codecSettings;
+        /// <inheritdoc />
+        public FrameSettings FrameSettings => frameSettings;
+        
+        /// <summary>
+        /// ctor
+        /// </summary>
         public UDPVideoSource(int listenPort)
         {
             listener = new UdpClient(listenPort);
             groupEP = new IPEndPoint(IPAddress.Any, listenPort);
         }
 
-        public ICodecSettings CodecSettings => codecSettings;
-
-        public FrameSettings FrameSettings => frameSettings;
-
+        
+        /// <inheritdoc />
         public bool Init(FrameSettings frameSettingsIn, ICodecSettings codecSettingsIn)
         {
             this.frameSettings = frameSettingsIn;
@@ -217,7 +229,7 @@ namespace FlaneerMediaLib
         /// </remarks>
         /// </summary>
         /// <returns></returns>
-        public VideoFrame GetFrame()
+        public IVideoFrame GetFrame()
         {
             lock (frameBuffer)
             {
@@ -227,7 +239,8 @@ namespace FlaneerMediaLib
                 return ret;
             }
         }
-
+        
+        /// <inheritdoc />
         public void Dispose()
         {
             receiving = false;

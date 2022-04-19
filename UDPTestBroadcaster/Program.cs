@@ -23,7 +23,7 @@ class Program
 
         IVideoSink videoSink = new UDPVideoSink("212.132.204.217");
         var videoSettings = new VideoSettings();
-        videoSink.CaptureFrames(600, videoSettings.MaxFPS);
+        videoSink.ProcessFrames(600, videoSettings.MaxFPS);
         
         Console.WriteLine("Message sent to the broadcast address");
     }
@@ -43,7 +43,7 @@ class Program
             Format = videoSettings.Format,
             GoPLength = (short)videoSettings.GoPLength
         };
-        MediaEncoderLifeCycleManager encoderLifeCycleManager = new MediaEncoderLifeCycleManager(VideoSources.NvEncH264);
-        encoderLifeCycleManager.InitVideo(frameSettings, codecSettings);
+        MediaEncoderLifeCycleManager encoderLifeCycleManager = new MediaEncoderLifeCycleManager(VideoSource.NvEncH264);
+        encoderLifeCycleManager.InitVideoSource(frameSettings, codecSettings);
     }
 }

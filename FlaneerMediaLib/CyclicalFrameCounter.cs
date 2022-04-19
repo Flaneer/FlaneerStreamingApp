@@ -9,6 +9,9 @@ public class CyclicalFrameCounter
 
     private ulong currentFrameTotal;
     
+    /// <summary>
+    /// ctor
+    /// </summary>
     public CyclicalFrameCounter()
     {
         for (int i = 0; i < byte.MaxValue; i++)

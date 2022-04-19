@@ -18,7 +18,7 @@ namespace LocalMediaFileOut
             if (videoSettings == null)
                 return;
 
-            using MediaEncoderLifeCycleManager encoderLifeCycleManager = new MediaEncoderLifeCycleManager(VideoSources.NvEncH264);
+            using MediaEncoderLifeCycleManager encoderLifeCycleManager = new MediaEncoderLifeCycleManager(VideoSource.NvEncH264);
 
             var frameSettings = new FrameSettings()
             {
@@ -33,10 +33,10 @@ namespace LocalMediaFileOut
                 GoPLength = (short)videoSettings.GoPLength
             };
 
-            if(encoderLifeCycleManager.InitVideo(frameSettings, codecSettings))
+            if(encoderLifeCycleManager.InitVideoSource(frameSettings, codecSettings))
             {
                 MP4VideoSink videoSink = new MP4VideoSink();
-                videoSink.CaptureFrames(600, frameSettings.MaxFPS);
+                videoSink.ProcessFrames(600, frameSettings.MaxFPS);
             }
             else
             {
