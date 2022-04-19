@@ -5,10 +5,13 @@
 /// </summary>
 public class CyclicalFrameCounter
 {
-    private uint[] count = new uint[byte.MaxValue];
+    private readonly uint[] count = new uint[byte.MaxValue];
 
-    private ulong currentFrameTotal = 0;
+    private ulong currentFrameTotal;
     
+    /// <summary>
+    /// ctor
+    /// </summary>
     public CyclicalFrameCounter()
     {
         for (int i = 0; i < byte.MaxValue; i++)

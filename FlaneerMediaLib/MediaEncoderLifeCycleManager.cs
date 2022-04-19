@@ -1,31 +1,44 @@
-﻿namespace FlaneerMediaLib;
+﻿using FlaneerMediaLib.VideoDataTypes;
 
+namespace FlaneerMediaLib;
+
+/// <summary>
+/// Controls the lifecycle (creation/deletion) of media encoders
+/// <remarks>This is named "media" since it should handle both video and audio</remarks>
+/// </summary>
 public class MediaEncoderLifeCycleManager : IDisposable
 {
-    private IVideoSource videoSource;
+    private readonly IVideoSource videoSource;
     
-    public MediaEncoderLifeCycleManager(VideoSources videoSource)
+    /// <summary>
+    /// ctor
+    /// </summary>
+    public MediaEncoderLifeCycleManager(VideoSource videoSource)
     {
         switch (videoSource)
         {
-            case VideoSources.NvEncH264:
+            case VideoSource.NvEncH264:
                 this.videoSource = new NvEncVideoSource();
                 ServiceRegistry.AddService(this.videoSource);
                 break;
-            case VideoSources.UDPH264:
+            case VideoSource.UDPH264:
                 this.videoSource = new UDPVideoSource(11000);
-                ServiceRegistry.AddService<IVideoSource>(this.videoSource);
+                ServiceRegistry.AddService(this.videoSource);
                 break;
             default:
                 throw new ArgumentOutOfRangeException(nameof(videoSource), videoSource, null);
         }
     }
 
-    public bool InitVideo(FrameSettings frameSettings, ICodecSettings codecSettings)
+    /// <summary>
+    /// Initialises the video source
+    /// </summary>
+    public bool InitVideoSource(FrameSettings frameSettings, ICodecSettings codecSettings)
     {
         return videoSource.Init(frameSettings, codecSettings);
     }
 
+    /// <inheritdoc/>
     public void Dispose()
     {
         videoSource.Dispose();

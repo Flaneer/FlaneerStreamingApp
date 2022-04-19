@@ -7,39 +7,67 @@
 
 class CaptureRuntime
 {
-    /// DDA wrapper object, defined in DDAImpl.h
-    DDAImpl* ddaWrapper = nullptr;
-    /// NVENCODE API wrapper. Defined in NvEncoderD3D11.h. This class is imported from NVIDIA Video SDK
-    NvEncoderD3D11* encoder = nullptr;
-    /// D3D11 device context used for the operations demonstrated in this application
-    ID3D11Device* D3DDevice = nullptr;
-    /// D3D11 device context
-    ID3D11DeviceContext* deviceContext = nullptr;
-    /// D3D11 RGB Texture2D object that recieves the captured image from DDA
-    ID3D11Texture2D* dupTex2D = nullptr;
-    /// D3D11 YUV420 Texture2D object that sends the image to NVENC for video encoding
-    ID3D11Texture2D* encBuf = nullptr;
-    /// NVENCODEAPI session intialization parameters
-    NV_ENC_INITIALIZE_PARAMS encInitParams = { 0 };
-    /// NVENCODEAPI video encoding configuration parameters
-    NV_ENC_CONFIG encConfig = { 0 };
+public:
+    
+    CaptureRuntime() = default;
+    
+    CaptureRuntime(VideoCaptureSettings capture_settings, H264CodecSettings codec_settings);
+    HRESULT FulfilFrameRequest(FrameRequest & frame_request);
+    void Cleanup();
+    ~CaptureRuntime();
 
-    std::vector<std::vector<uint8_t>> vPacket;
+    HRESULT Init();
+
+private:
+    /// <summary>
+    /// DDA wrapper object, defined in DDAImpl.h
+    /// </summary>
+    DDAImpl* m_ddaWrapper = nullptr;
+    /// <summary>
+    /// NVENCODE API wrapper. Defined in NvEncoderD3D11.h. This class is imported from NVIDIA Video SDK
+    /// </summary>
+    NvEncoderD3D11* m_encoder = nullptr;
+    /// <summary>
+    /// D3D11 device context used for the operations demonstrated in this application
+    /// </summary>
+    ID3D11Device* m_d3dDevice = nullptr;
+    /// <summary>
+    /// D3D11 device context
+    /// </summary>
+    ID3D11DeviceContext* m_deviceContext = nullptr;
+    /// <summary>
+    /// D3D11 RGB Texture2D object that recieves the captured image from DDA
+    /// </summary>
+    ID3D11Texture2D* m_dupTex2D = nullptr;
+    /// <summary>
+    /// D3D11 YUV420 Texture2D object that sends the image to NVENC for video encoding
+    /// </summary>
+    ID3D11Texture2D* m_encBuf = nullptr;
+    /// <summary>
+    /// NVENCODEAPI session intialization parameters
+    /// </summary>
+    NV_ENC_INITIALIZE_PARAMS m_encInitParams = { 0 };
+    /// <summary>
+    /// NVENCODEAPI video encoding configuration parameters
+    /// </summary>
+    NV_ENC_CONFIG m_encConfig = { 0 };
+
+    std::vector<std::vector<uint8_t>> m_packet;
 
     int timeout() const
     {
-        //Come up with something more robust here
-        return (1000.0f / MaxFPS) * 2.0f;
+        auto timeout = (1000.0f / m_maxFPS) * 2.0f;
+        return (int)std::ceil(timeout);
     }
 
-    short Width;
-    short Height;
-    short MaxFPS;
+    short m_width;
+    short m_height;
+    short m_maxFPS;
 
-    NV_ENC_BUFFER_FORMAT BufferFormat;
-    short GoPLength;
-    short CRF;
-    GUID Codec_Id;
+    NV_ENC_BUFFER_FORMAT m_bufferFormat;
+    short m_gopLength;
+    short m_crf;
+    GUID m_codecId;
 
     HRESULT InitDXGI();
 	HRESULT InitDup();
@@ -47,14 +75,5 @@ class CaptureRuntime
     HRESULT Capture();
     HRESULT Preproc();
     HRESULT Encode();
-
-public:
-    CaptureRuntime() = default;
-    CaptureRuntime(VideoCaptureSettings capture_settings, H264CodecSettings codec_settings);
-    HRESULT FulfilFrameRequest(FrameRequest& frame_request);
-    void Cleanup();
-    ~CaptureRuntime();
-
-    HRESULT Init();
 };
 

@@ -7,13 +7,13 @@
 
 CaptureRuntime::CaptureRuntime(const VideoCaptureSettings capture_settings, const H264CodecSettings codec_settings)
 {
-    Width = capture_settings.Width;
-    Height = capture_settings.Height;
-    MaxFPS = capture_settings.MaxFPS;
+    m_width = capture_settings.Width;
+    m_height = capture_settings.Height;
+    m_maxFPS = capture_settings.MaxFPS;
 
-    Codec_Id = NV_ENC_CODEC_H264_GUID;
-    BufferFormat = codec_settings.Format;
-    GoPLength = codec_settings.GoPLength;
+    m_codecId = NV_ENC_CODEC_H264_GUID;
+    m_bufferFormat = codec_settings.Format;
+    m_gopLength = codec_settings.GoPLength;
 }
 
 CaptureRuntime::~CaptureRuntime()
@@ -23,30 +23,30 @@ CaptureRuntime::~CaptureRuntime()
 
 std::vector <IDXGIAdapter*> GetNVidiaAdapter(void)
 {
-    IDXGIAdapter* pAdapter;
-    std::vector <IDXGIAdapter*> vAdapters;
-    IDXGIFactory* pFactory = nullptr;
+    IDXGIAdapter* adapter;
+    std::vector <IDXGIAdapter*> adapters;
+    IDXGIFactory* factory = nullptr;
 
     // Create a DXGIFactory object.
-    if (FAILED(CreateDXGIFactory(__uuidof(IDXGIFactory), reinterpret_cast<void**>(&pFactory))))
+    if (FAILED(CreateDXGIFactory(__uuidof(IDXGIFactory), reinterpret_cast<void**>(&factory))))
     {
-        return vAdapters;
+        return adapters;
     }
 
-    for (UINT i = 0; pFactory->EnumAdapters(i, &pAdapter) != DXGI_ERROR_NOT_FOUND; ++i)
+    for (UINT i = 0; factory->EnumAdapters(i, &adapter) != DXGI_ERROR_NOT_FOUND; ++i)
     {
 	    DXGI_ADAPTER_DESC desc;
-        pAdapter->GetDesc(&desc);
+        adapter->GetDesc(&desc);
         if(desc.VendorId == 4318)//4318 is NVidia's vendor ID
-        vAdapters.push_back(pAdapter);
+        adapters.push_back(adapter);
     }
 
-    if (pFactory)
+    if (factory)
     {
-        pFactory->Release();
+        factory->Release();
     }
 
-    return vAdapters;
+    return adapters;
 }
 
 /// Initialize DXGI pipeline
@@ -101,7 +101,7 @@ HRESULT CaptureRuntime::InitDXGI()
             FeatureLevels,
             NumFeatureLevels,
             D3D11_SDK_VERSION,
-            &D3DDevice, &FeatureLevel, &deviceContext);
+            &m_d3dDevice, &FeatureLevel, &m_deviceContext);
         
 	    if (SUCCEEDED(hr))
 	    {
@@ -116,10 +116,10 @@ HRESULT CaptureRuntime::InitDXGI()
 HRESULT CaptureRuntime::InitDup()
 {
     HRESULT hr = S_OK;
-    if (!ddaWrapper)
+    if (!m_ddaWrapper)
     {
-        ddaWrapper = new DDAImpl(D3DDevice, deviceContext);
-        hr = ddaWrapper->Init();
+        m_ddaWrapper = new DDAImpl(m_d3dDevice, m_deviceContext);
+        hr = m_ddaWrapper->Init();
         returnIfError(hr);
     }
     return hr;
@@ -128,32 +128,32 @@ HRESULT CaptureRuntime::InitDup()
 /// Initialize NVENCODEAPI wrapper
 HRESULT CaptureRuntime::InitEnc()
 {
-    if (!encoder)
+    if (!m_encoder)
     {
         //std::cout << "Video details: Width:" << w << " Height:" << h << " Format:" << fmt << "\n";
 
-        encoder = new NvEncoderD3D11(D3DDevice, Width, Height, BufferFormat);
-        if (!encoder)
+        m_encoder = new NvEncoderD3D11(m_d3dDevice, m_width, m_height, m_bufferFormat);
+        if (!m_encoder)
         {
             returnIfError(E_FAIL);
         }
 
-        ZeroMemory(&encInitParams, sizeof(encInitParams));
-        encInitParams.encodeConfig = &encConfig;
-        encInitParams.encodeWidth = Width;
-        encInitParams.encodeHeight = Height;
-        encInitParams.maxEncodeWidth = UHD_W;
-        encInitParams.maxEncodeHeight = UHD_H;
-        encInitParams.frameRateNum = MaxFPS;
-        encInitParams.frameRateDen = 1;
+        ZeroMemory(&m_encInitParams, sizeof(m_encInitParams));
+        m_encInitParams.encodeConfig = &m_encConfig;
+        m_encInitParams.encodeWidth = m_width;
+        m_encInitParams.encodeHeight = m_height;
+        m_encInitParams.maxEncodeWidth = UHD_W;
+        m_encInitParams.maxEncodeHeight = UHD_H;
+        m_encInitParams.frameRateNum = m_maxFPS;
+        m_encInitParams.frameRateDen = 1;
 
-        ZeroMemory(&encConfig, sizeof(encConfig));
-        encConfig.gopLength = GoPLength;
+        ZeroMemory(&m_encConfig, sizeof(m_encConfig));
+        m_encConfig.gopLength = m_gopLength;
 
         try
         {
-            encoder->CreateDefaultEncoderParams(&encInitParams, Codec_Id, NV_ENC_PRESET_LOW_LATENCY_HP_GUID);
-            encoder->CreateEncoder(&encInitParams);
+            m_encoder->CreateDefaultEncoderParams(&m_encInitParams, m_codecId, NV_ENC_PRESET_LOW_LATENCY_HP_GUID);
+            m_encoder->CreateEncoder(&m_encInitParams);
         }
         catch (...)
         {
@@ -182,8 +182,8 @@ HRESULT CaptureRuntime::Init()
 /// Capture a frame using DDA
 HRESULT CaptureRuntime::Capture()
 {
-    if (ddaWrapper)
-        return ddaWrapper->GetCapturedFrame(&dupTex2D, timeout()); // Release after preproc
+    if (m_ddaWrapper)
+        return m_ddaWrapper->GetCapturedFrame(&m_dupTex2D, timeout()); // Release after preproc
     else
         return 1;
 }
@@ -192,13 +192,13 @@ HRESULT CaptureRuntime::Capture()
 HRESULT CaptureRuntime::Preproc()
 {
     HRESULT hr = S_OK;
-    const NvEncInputFrame* pEncInput = encoder->GetNextInputFrame();
-    encBuf = (ID3D11Texture2D*)pEncInput->inputPtr;
-    deviceContext->CopySubresourceRegion(encBuf, D3D11CalcSubresource(0, 0, 1), 0, 0, 0, dupTex2D, 0, NULL);
-    SAFE_RELEASE(dupTex2D);
+    const NvEncInputFrame* pEncInput = m_encoder->GetNextInputFrame();
+    m_encBuf = (ID3D11Texture2D*)pEncInput->inputPtr;
+    m_deviceContext->CopySubresourceRegion(m_encBuf, D3D11CalcSubresource(0, 0, 1), 0, 0, 0, m_dupTex2D, 0, NULL);
+    SAFE_RELEASE(m_dupTex2D);
     returnIfError(hr);
 
-    encBuf->AddRef();  // Release after encode
+    m_encBuf->AddRef();  // Release after encode
     return hr;
 }
 
@@ -208,13 +208,13 @@ HRESULT CaptureRuntime::Encode()
     HRESULT hr = S_OK;
     try
     {
-        encoder->EncodeFrame(vPacket);
+        m_encoder->EncodeFrame(m_packet);
     }
     catch (...)
     {
         hr = E_FAIL;
     }
-    SAFE_RELEASE(encBuf);
+    SAFE_RELEASE(m_encBuf);
     return hr;
 }
 
@@ -238,28 +238,29 @@ HRESULT CaptureRuntime::FulfilFrameRequest(FrameRequest& frame_request)
         printf("Encode failed with error 0x%08x\n", hr);
         return hr;
     }
-    frame_request.Buffersize = vPacket.back().size();
-    frame_request.Data = vPacket.back().data();
+    //Casting here because interop is best done with explicit size types
+    frame_request.Buffersize = (INT32)m_packet.back().size();
+    frame_request.Data = m_packet.back().data();
     return hr;
 }
 
 void CaptureRuntime::Cleanup()
 {
-    if (ddaWrapper)
+    if (m_ddaWrapper)
     {
-        ddaWrapper->Cleanup();
-        delete ddaWrapper;
-        ddaWrapper = nullptr;
+        m_ddaWrapper->Cleanup();
+        delete m_ddaWrapper;
+        m_ddaWrapper = nullptr;
     }
 
-    if (encoder)
+    if (m_encoder)
     {
-        ZeroMemory(&encInitParams, sizeof(NV_ENC_INITIALIZE_PARAMS));
-        ZeroMemory(&encConfig, sizeof(NV_ENC_CONFIG));
+        ZeroMemory(&m_encInitParams, sizeof(NV_ENC_INITIALIZE_PARAMS));
+        ZeroMemory(&m_encConfig, sizeof(NV_ENC_CONFIG));
     }
 
-    SAFE_RELEASE(dupTex2D);
-    if (encoder)
+    SAFE_RELEASE(m_dupTex2D);
+    if (m_encoder)
     {
         /// Flush the encoder and write all output to file before destroying the encoder
         /*encoder->EndEncode(vPacket);
@@ -271,10 +272,10 @@ void CaptureRuntime::Cleanup()
             encoder = nullptr;
         }*/
 
-        ZeroMemory(&encInitParams, sizeof(NV_ENC_INITIALIZE_PARAMS));
-        ZeroMemory(&encConfig, sizeof(NV_ENC_CONFIG));
+        ZeroMemory(&m_encInitParams, sizeof(NV_ENC_INITIALIZE_PARAMS));
+        ZeroMemory(&m_encConfig, sizeof(NV_ENC_CONFIG));
     }
 
-    SAFE_RELEASE(D3DDevice);
-    SAFE_RELEASE(deviceContext);
+    SAFE_RELEASE(m_d3dDevice);
+    SAFE_RELEASE(m_deviceContext);
 }

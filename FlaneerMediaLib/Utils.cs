@@ -1,4 +1,5 @@
-﻿using NvEncWrapper;
+﻿using FlaneerMediaLib.VideoDataTypes;
+using NvEncWrapper;
 
 namespace FlaneerMediaLib
 {

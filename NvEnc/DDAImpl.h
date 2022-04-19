@@ -42,25 +42,25 @@ class DDAImpl
 
 private:
     /// The DDA object
-    IDXGIOutputDuplication* pDup = nullptr;
+    IDXGIOutputDuplication *m_outputDuplication = nullptr;
     /// The D3D11 device used by the DDA session
-    ID3D11Device* pD3DDev = nullptr;
+    ID3D11Device *m_d3dDev = nullptr;
     /// The D3D11 Device Context used by the DDA session
-    ID3D11DeviceContext* pCtx = nullptr;
+    ID3D11DeviceContext *m_devCtx = nullptr;
     /// The resource used to acquire a new captured frame from DDA
-    IDXGIResource *pResource = nullptr;
+    IDXGIResource *m_resource = nullptr;
     /// Output width obtained from DXGI_OUTDUPL_DESC
-    DWORD width = 0;
+    DWORD m_width = 0;
     /// Output height obtained from DXGI_OUTDUPL_DESC
-    DWORD height = 0;
+    DWORD m_height = 0;
     /// Running count of no. of accumulated desktop updates
-    int frameno = 0;
+    int m_framenum = 0;
     /// output file stream to dump timestamps
-    ofstream ofs;
+    ofstream m_ofs;
     /// DXGI_OUTDUPL_FRAME_INFO::latPresentTime from the last Acquired frame
-    LARGE_INTEGER lastPTS = { 0 };
+    LARGE_INTEGER m_lastPTS = { 0 };
     /// Clock frequency from QueryPerformaceFrequency()
-    LARGE_INTEGER qpcFreq = { 0 };
+    LARGE_INTEGER m_qpcFreq = { 0 };
     /// Default constructor
     DDAImpl() {}
     
@@ -69,24 +69,24 @@ public:
     HRESULT Init();
     /// Acquire a new frame from DDA, and return it as a Texture2D object.
     /// 'wait' specifies the time in milliseconds that DDA shoulo wait for a new screen update.
-    HRESULT GetCapturedFrame(ID3D11Texture2D **pTex2D, int wait);
+    HRESULT GetCapturedFrame(ID3D11Texture2D **tex2D, int wait);
     /// Release all resources
     int Cleanup();
     /// Return output height to caller
-    inline DWORD getWidth() { return width; }
+    inline DWORD getWidth() { return m_width; }
     /// Return output width to caller
-    inline DWORD getHeight() { return height; }
+    inline DWORD getHeight() { return m_height; }
 
 
     /// Constructor
-    DDAImpl(ID3D11Device *pDev, ID3D11DeviceContext* pDevCtx)
-        :   pD3DDev(pDev)
-        ,   pCtx(pDevCtx)
+    DDAImpl(ID3D11Device *devIn, ID3D11DeviceContext* devCtxIn)
+        :   m_d3dDev(devIn)
+        ,   m_devCtx(devCtxIn)
     {
-        pD3DDev->AddRef();
-        pCtx->AddRef();
-        ofs = ofstream("PresentTSLog.txt");
-        QueryPerformanceFrequency(&qpcFreq);
+        m_d3dDev->AddRef();
+        m_devCtx->AddRef();
+        m_ofs = ofstream("PresentTSLog.txt");
+        QueryPerformanceFrequency(&m_qpcFreq);
     }
     /// Destructor. Release all resources before destroying the object
     ~DDAImpl() { Cleanup(); }

@@ -1,5 +1,6 @@
 ﻿using FlaneerMediaLib;
 using System.Diagnostics;
+using FlaneerMediaLib.VideoDataTypes;
 
 namespace LocalMediaFileOut
 {
@@ -52,12 +53,12 @@ namespace LocalMediaFileOut
                 stopWatch.Stop();
             }
         }
-        public void CaptureFrames(int numberOfFrames, int targetFramerate)
+        public void ProcessFrames(int numberOfFrames, int targetFramerate)
         {
             CaptureFramesImpl(numberOfFrames, targetFramerate);
         }
 
-        public void CaptureFrame()
+        public void ProcessFrame()
         {
             throw new NotImplementedException();
         }

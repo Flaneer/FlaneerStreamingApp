@@ -13,27 +13,19 @@
         /// <summary>
         /// Event that is fired when a new service is added into the registry
         /// </summary>
-        public static Action<IService> ServiceAdded;
+        internal static Action<IService>? ServiceAdded;
 
-        private Dictionary<Type, IService> registry = new();
+        private readonly Dictionary<Type, IService> registry = new();
 
-        private static ServiceRegistry instance = null;
+        private static ServiceRegistry instance = null!;
 
         private ServiceRegistry()
         {
         }
 
-        private static ServiceRegistry Instance
-        {
-            get
-            {
-                if (instance == null)
-                {
-                    instance = new ServiceRegistry();
-                }
-                return instance;
-            }
-        }
+        // 
+        // ReSharper disable once ConstantNullCoalescingCondition
+        private static ServiceRegistry Instance => instance ??= new ServiceRegistry();
 
         /// <summary>
         /// Add a new service to the registry
@@ -52,17 +44,14 @@
         /// </summary>
         public static bool TryGetService<T>(out T service) where T : IService
         {
-            IService ret;
-            if (Instance.registry.TryGetValue(typeof(T), out ret))
+            if (Instance.registry.TryGetValue(typeof(T), out var ret))
             {
                 service = (T) ret;
                 return true;
             }
-            else
-            {
-                service = default;
-                return false;
-            }
+
+            service = default!;
+            return false;
         }
     }
 }

@@ -16,9 +16,9 @@
 #define MAKEFOURCC(a,b,c,d) (((unsigned int)a) | (((unsigned int)b)<< 8) | (((unsigned int)c)<<16) | (((unsigned int)d)<<24) )
 #endif
 
-DXGI_FORMAT GetD3D11Format(NV_ENC_BUFFER_FORMAT eBufferFormat)
+DXGI_FORMAT GetD3D11Format(NV_ENC_BUFFER_FORMAT bufferFormat)
 {
-    switch (eBufferFormat)
+    switch (bufferFormat)
     {
     case NV_ENC_BUFFER_FORMAT_NV12:
         return DXGI_FORMAT_NV12;
@@ -29,11 +29,11 @@ DXGI_FORMAT GetD3D11Format(NV_ENC_BUFFER_FORMAT eBufferFormat)
     }
 }
 
-NvEncoderD3D11::NvEncoderD3D11(ID3D11Device* pD3D11Device, uint32_t nWidth, uint32_t nHeight,
-    NV_ENC_BUFFER_FORMAT eBufferFormat,  uint32_t nExtraOutputDelay, bool bMotionEstimationOnly) :
-    NvEncoder(NV_ENC_DEVICE_TYPE_DIRECTX, pD3D11Device, nWidth, nHeight, eBufferFormat, nExtraOutputDelay, bMotionEstimationOnly)
+NvEncoderD3D11::NvEncoderD3D11(ID3D11Device* D3D11Device, uint32_t width, uint32_t height,
+    NV_ENC_BUFFER_FORMAT bufferFormat,  uint32_t extraOutputDelay, bool motionEstimationOnly) :
+    NvEncoder(NV_ENC_DEVICE_TYPE_DIRECTX, D3D11Device, width, height, bufferFormat, extraOutputDelay, motionEstimationOnly)
 {
-    if (!pD3D11Device)
+    if (!D3D11Device)
     {
         NVENC_THROW_ERROR("Bad d3d11device ptr", NV_ENC_ERR_INVALID_PTR);
         return;
@@ -44,14 +44,14 @@ NvEncoderD3D11::NvEncoderD3D11(ID3D11Device* pD3D11Device, uint32_t nWidth, uint
         NVENC_THROW_ERROR("Unsupported Buffer format", NV_ENC_ERR_INVALID_PARAM);
     }
 
-    if (!m_hEncoder)
+    if (!m_encoder)
     {
         NVENC_THROW_ERROR("Encoder Initialization failed", NV_ENC_ERR_INVALID_DEVICE);
     }
 
-    m_pD3D11Device = pD3D11Device;
-    m_pD3D11Device->AddRef();
-    m_pD3D11Device->GetImmediateContext(&m_pD3D11DeviceContext);
+    m_d3d11Device = D3D11Device;
+    m_d3d11Device->AddRef();
+    m_d3d11Device->GetImmediateContext(&m_d3d11DeviceContext);
 }
 
 NvEncoderD3D11::~NvEncoderD3D11() 
@@ -67,7 +67,7 @@ void NvEncoderD3D11::AllocateInputBuffers(int32_t numInputBuffers)
     }
 
     // for MEOnly mode we need to allocate seperate set of buffers for reference frame
-    int numCount = m_bMotionEstimationOnly ? 2 : 1;
+    int numCount = m_motionEstimationOnly ? 2 : 1;
     for (int count = 0; count < numCount; count++)
     {
         std::vector<void*> inputFrames;
@@ -85,7 +85,7 @@ void NvEncoderD3D11::AllocateInputBuffers(int32_t numInputBuffers)
             desc.Usage = D3D11_USAGE_DEFAULT;
             desc.BindFlags = D3D11_BIND_RENDER_TARGET;
             desc.CPUAccessFlags = 0;
-            if (m_pD3D11Device->CreateTexture2D(&desc, NULL, &pInputTextures) != S_OK)
+            if (m_d3d11Device->CreateTexture2D(&desc, NULL, &pInputTextures) != S_OK)
             {
                 NVENC_THROW_ERROR("Failed to create d3d11textures", NV_ENC_ERR_OUT_OF_MEMORY);
             }
@@ -103,41 +103,41 @@ void NvEncoderD3D11::ReleaseInputBuffers()
 
 void NvEncoderD3D11::ReleaseD3D11Resources()
 {
-    if (!m_hEncoder)
+    if (!m_encoder)
     {
         return;
     }
 
     UnregisterResources();
 
-    for (uint32_t i = 0; i < m_vInputFrames.size(); ++i)
+    for (uint32_t i = 0; i < m_inputFrames.size(); ++i)
     {
-        if (m_vInputFrames[i].inputPtr)
+        if (m_inputFrames[i].inputPtr)
         {
-            reinterpret_cast<ID3D11Texture2D*>(m_vInputFrames[i].inputPtr)->Release();
+            reinterpret_cast<ID3D11Texture2D*>(m_inputFrames[i].inputPtr)->Release();
         }
     }
-    m_vInputFrames.clear();
+    m_inputFrames.clear();
 
-    for (uint32_t i = 0; i < m_vReferenceFrames.size(); ++i)
+    for (uint32_t i = 0; i < m_referenceFrames.size(); ++i)
     {
-        if (m_vReferenceFrames[i].inputPtr)
+        if (m_referenceFrames[i].inputPtr)
         {
-            reinterpret_cast<ID3D11Texture2D*>(m_vReferenceFrames[i].inputPtr)->Release();
+            reinterpret_cast<ID3D11Texture2D*>(m_referenceFrames[i].inputPtr)->Release();
         }
     }
-    m_vReferenceFrames.clear();
+    m_referenceFrames.clear();
 
-    if (m_pD3D11DeviceContext)
+    if (m_d3d11DeviceContext)
     {
-        m_pD3D11DeviceContext->Release();
-        m_pD3D11DeviceContext = nullptr;
+        m_d3d11DeviceContext->Release();
+        m_d3d11DeviceContext = nullptr;
     }
 
-    if (m_pD3D11Device)
+    if (m_d3d11Device)
     {
-        m_pD3D11Device->Release();
-        m_pD3D11Device = nullptr;
+        m_d3d11Device->Release();
+        m_d3d11Device = nullptr;
     }
 }
 

@@ -1,49 +1,62 @@
 ﻿using System.Net;
 using System.Net.Sockets;
+using FlaneerMediaLib.VideoDataTypes;
 
 namespace FlaneerMediaLib
 {
+    /// <summary>
+    /// A video source that gets video from a UDP channel
+    /// </summary>
     public class UDPVideoSource : IVideoSource
     {
-        private FrameSettings frameSettings;
-        private ICodecSettings codecSettings;
+        private FrameSettings frameSettings = null!;
+        private ICodecSettings codecSettings = null!;
         private VideoCodec codec;
-        private CyclicalFrameCounter frameCounter = new ();
+        private readonly CyclicalFrameCounter frameCounter = new ();
 
-        UdpClient listener;
-        IPEndPoint groupEP;
+        private readonly UdpClient listener;
+        private IPEndPoint groupEP;
 
-        private Dictionary<int, ManagedVideoFrame> frameBuffer = new();
-        private Dictionary<TransmissionVideoFrame, byte[]> partialFrames = new();
+        private readonly Dictionary<int, ManagedVideoFrame> frameBuffer = new();
+        private readonly Dictionary<TransmissionVideoFrame, byte[]> partialFrames = new();
         private byte nextFrame => frameCounter.GetNext();
 
-        private bool receiving = false;
-        private bool waitingForPPS_SPS = true;
-        private byte[] PPS_SPS = new byte[34];
+        private bool receiving;
+        private bool waitingForPPSSPS = true;
+        private readonly byte[] ppssps = new byte[34];
+        
+        /// <summary>
+        /// Fired when a complete frame is received/assembled
+        /// </summary>
+        public Action<IVideoFrame> FrameReady = null!;
 
-        public Action<VideoFrame> FrameReady;
-
+        /// <inheritdoc />
+        public ICodecSettings CodecSettings => codecSettings;
+        /// <inheritdoc />
+        public FrameSettings FrameSettings => frameSettings;
+        
+        /// <summary>
+        /// ctor
+        /// </summary>
         public UDPVideoSource(int listenPort)
         {
             listener = new UdpClient(listenPort);
             groupEP = new IPEndPoint(IPAddress.Any, listenPort);
         }
 
-        public ICodecSettings CodecSettings => codecSettings;
-
-        public FrameSettings FrameSettings => frameSettings;
-
-        public bool Init(FrameSettings frameSettings, ICodecSettings codecSettings)
+        
+        /// <inheritdoc />
+        public bool Init(FrameSettings frameSettingsIn, ICodecSettings codecSettingsIn)
         {
-            this.frameSettings = frameSettings;
-            this.codecSettings = codecSettings;
-            switch (codecSettings)
+            this.frameSettings = frameSettingsIn;
+            this.codecSettings = codecSettingsIn;
+            switch (codecSettingsIn)
             {
                 case H264CodecSettings:
                     codec = VideoCodec.H264;
                     break;
                 default:
-                    throw new ArgumentOutOfRangeException(nameof(codecSettings));
+                    throw new ArgumentOutOfRangeException(nameof(codecSettingsIn));
             }
 
             //Initialise dictionary, so it can be used as a pool
@@ -86,7 +99,7 @@ namespace FlaneerMediaLib
                 return;
             }
 
-            if (waitingForPPS_SPS)
+            if (waitingForPPSSPS)
             {
                 ScanForPPS_SPS(receivedBytes);
             }
@@ -126,8 +139,8 @@ namespace FlaneerMediaLib
                     return;
                 }
             }
-            Array.Copy(receivedBytes, TransmissionVideoFrame.HeaderSize, PPS_SPS, 0, PPS_SPSLength);
-            waitingForPPS_SPS = false;
+            Array.Copy(receivedBytes, TransmissionVideoFrame.HeaderSize, ppssps, 0, PPS_SPSLength);
+            waitingForPPSSPS = false;
         }
 
         private void FrameCleanup()
@@ -137,7 +150,7 @@ namespace FlaneerMediaLib
 
         private ManagedVideoFrame ManagedFrameFromTransmission(TransmissionVideoFrame receivedFrame, byte[] frameData)
         {
-            if (waitingForPPS_SPS)
+            if (waitingForPPSSPS)
                 return new ManagedVideoFrame()
                 {
                     Codec = codec,
@@ -155,8 +168,8 @@ namespace FlaneerMediaLib
             }
             else
             {
-                frameStream = new MemoryStream(PPS_SPS.Length + frameData.Length);
-                frameStream.Write(PPS_SPS);
+                frameStream = new MemoryStream(ppssps.Length + frameData.Length);
+                frameStream.Write(ppssps);
                 frameStream.Write(frameData);
             }
             
@@ -167,7 +180,7 @@ namespace FlaneerMediaLib
                 Width = receivedFrame.Width,
                 Stream = frameStream 
             };
-            FrameReady?.Invoke(ret);
+            FrameReady(ret);
             return ret;
         }
         
@@ -187,7 +200,6 @@ namespace FlaneerMediaLib
 
         private void AssembleFrame(int sequenceIDX, IEnumerable<KeyValuePair<TransmissionVideoFrame, byte[]>> parts)
         {
-            TransmissionVideoFrame receivedFrame;
             var orderedParts = parts.OrderBy(pair => pair.Key.PacketIdx);
             var completedPacket = new List<byte>();
             foreach (var part in orderedParts)
@@ -217,7 +229,7 @@ namespace FlaneerMediaLib
         /// </remarks>
         /// </summary>
         /// <returns></returns>
-        public VideoFrame GetFrame()
+        public IVideoFrame GetFrame()
         {
             lock (frameBuffer)
             {
@@ -227,7 +239,8 @@ namespace FlaneerMediaLib
                 return ret;
             }
         }
-
+        
+        /// <inheritdoc />
         public void Dispose()
         {
             receiving = false;

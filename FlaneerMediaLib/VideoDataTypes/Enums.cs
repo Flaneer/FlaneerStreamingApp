@@ -1,17 +1,32 @@
-﻿namespace FlaneerMediaLib;
+﻿//Disabling the normal naming/commenting rules since this file contains a lot of self explanatory acronyms that set off all the warnings
 
-public enum VideoSources
+// ReSharper disable InconsistentNaming
+// ReSharper disable IdentifierTypo
+#pragma warning disable CS1591
+
+namespace FlaneerMediaLib.VideoDataTypes;
+
+/// <summary>
+/// Potential video sources to inform the factory
+/// </summary>
+public enum VideoSource
 {
     NvEncH264,
     UDPH264
 }
 
+/// <summary>
+/// Usable video codecs
+/// </summary>
 public enum VideoCodec
 {
     H264,
     H265
 }
 
+/// <summary>
+/// The colour format of the video buffer
+/// </summary>
 public enum BufferFormat
 {
     UNDEFINED,

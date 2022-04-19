@@ -1,4 +1,5 @@
 ﻿using FlaneerMediaLib;
+using FlaneerMediaLib.VideoDataTypes;
 
 namespace UDPTestApp
 {
@@ -40,8 +41,8 @@ namespace UDPTestApp
                 Format = videoSettings.Format,
                 GoPLength = (short)videoSettings.GoPLength
             };
-            MediaEncoderLifeCycleManager encoderLifeCycleManager = new MediaEncoderLifeCycleManager(VideoSources.UDPH264);
-            encoderLifeCycleManager.InitVideo(frameSettings, codecSettings);
+            MediaEncoderLifeCycleManager encoderLifeCycleManager = new MediaEncoderLifeCycleManager(VideoSource.UDPH264);
+            encoderLifeCycleManager.InitVideoSource(frameSettings, codecSettings);
         }
     }
 }

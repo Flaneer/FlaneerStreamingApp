@@ -1,8 +1,17 @@
 ﻿namespace FlaneerMediaLib
 {
+    /// <summary>
+    /// Base interface for all video sinks
+    /// </summary>
     public interface IVideoSink
     {
-        void CaptureFrame();
-        void CaptureFrames(int numberOfFrames, int targetFramerate);
+        /// <summary>
+        /// Process a single frame
+        /// </summary>
+        void ProcessFrame();
+        /// <summary>
+        /// Process a number of frames at a given rate
+        /// </summary>
+        void ProcessFrames(int numberOfFrames, int targetFramerate);
     }
 }

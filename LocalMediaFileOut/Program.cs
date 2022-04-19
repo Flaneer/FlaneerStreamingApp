@@ -1,6 +1,7 @@
 ﻿using FlaneerMediaLib;
 using System.Text.Json;
 using System.Windows;
+using FlaneerMediaLib.VideoDataTypes;
 
 namespace LocalMediaFileOut
 {
@@ -14,8 +15,10 @@ namespace LocalMediaFileOut
             Console.WriteLine($"NvEncVideoSource.dll exists: {File.Exists("NvEncVideoSource.dll")}");
 
             var videoSettings = await ProcessVideoSettings();
+            if (videoSettings == null)
+                return;
 
-            using MediaEncoderLifeCycleManager encoderLifeCycleManager = new MediaEncoderLifeCycleManager(VideoSources.NvEncH264);
+            using MediaEncoderLifeCycleManager encoderLifeCycleManager = new MediaEncoderLifeCycleManager(VideoSource.NvEncH264);
 
             var frameSettings = new FrameSettings()
             {
@@ -30,10 +33,10 @@ namespace LocalMediaFileOut
                 GoPLength = (short)videoSettings.GoPLength
             };
 
-            if(encoderLifeCycleManager.InitVideo(frameSettings, codecSettings))
+            if(encoderLifeCycleManager.InitVideoSource(frameSettings, codecSettings))
             {
                 MP4VideoSink videoSink = new MP4VideoSink();
-                videoSink.CaptureFrames(600, frameSettings.MaxFPS);
+                videoSink.ProcessFrames(600, frameSettings.MaxFPS);
             }
             else
             {
@@ -51,13 +54,13 @@ namespace LocalMediaFileOut
             public int GoPLength = 5;
         }
 
-        private static async Task<VideoSettings> ProcessVideoSettings()
+        private static async Task<VideoSettings?> ProcessVideoSettings()
         {
             client.DefaultRequestHeaders.Accept.Clear();
 
             var streamTask = client.GetStreamAsync("https://d5r5xl46i4.execute-api.eu-west-1.amazonaws.com/ConfigDemoStage/");
-            var VideoSettings = await JsonSerializer.DeserializeAsync<VideoSettings>(await streamTask);
-            return VideoSettings;
+            var videoSettings = await JsonSerializer.DeserializeAsync<VideoSettings>(await streamTask);
+            return videoSettings;
         }
     }
 }
