@@ -5,6 +5,9 @@ using FlaneerMediaLib.VideoDataTypes;
 
 namespace FlaneerMediaLib;
 
+/// <summary>
+/// Video sink that broadcasts frames over UDP
+/// </summary>
 public class UDPVideoSink : IVideoSink
 {
     private IEncoder encoder = null!;
@@ -15,6 +18,9 @@ public class UDPVideoSink : IVideoSink
     private readonly IPAddress broadcast;
     private byte nextFrame => frameCounter.GetNext();
 
+    /// <summary>
+    /// ctor
+    /// </summary>
     public UDPVideoSink(string ip)
     {
         broadcast = IPAddress.Parse(ip);
@@ -54,10 +60,11 @@ public class UDPVideoSink : IVideoSink
             };
         }
     }
-
-    public void CaptureFrame() => CaptureFrameImpl();
-
-    public void CaptureFrames(int numberOfFrames, int targetFramerate) => CaptureFrameImpl(numberOfFrames, targetFramerate);
+    
+    /// <inheritdoc />
+    public void ProcessFrame() => CaptureFrameImpl();
+    /// <inheritdoc />
+    public void ProcessFrames(int numberOfFrames, int targetFramerate) => CaptureFrameImpl(numberOfFrames, targetFramerate);
 
     private void CaptureFrameImpl(int numberOfFrames = 1, int targetFramerate = -1)
     {

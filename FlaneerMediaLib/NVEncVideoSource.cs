@@ -28,7 +28,7 @@ namespace FlaneerMediaLib
             return Wrapper.Init(Utils.FromFrameSettings(frameSettingsIn), Utils.FromCodecSettings(codecSettingsIn));
         }
 
-        public VideoFrame GetFrame()
+        public IVideoFrame GetFrame()
         {
             var frame = Wrapper.RequestNewFrame(frameSettings.Width, frameSettings.Height);
             if (frame.Data == IntPtr.Zero)
