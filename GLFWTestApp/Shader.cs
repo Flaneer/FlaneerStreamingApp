@@ -4,67 +4,67 @@ namespace GLFWTestApp;
 
 public class Shader
 {
-    private uint _handle;
-    private GL _gl;
+    private readonly uint handle;
+    private readonly GL gl;
 
-    public Shader(GL gl, string vertexPath, string fragmentPath)
+    public Shader(GLEnv gl, string vertexPath, string fragmentPath)
     {
-        _gl = gl;
+        this.gl = gl.Gl;
 
         uint vertex = LoadShader(ShaderType.VertexShader, vertexPath);
         uint fragment = LoadShader(ShaderType.FragmentShader, fragmentPath);
-        _handle = _gl.CreateProgram();
-        _gl.AttachShader(_handle, vertex);
-        _gl.AttachShader(_handle, fragment);
-        _gl.LinkProgram(_handle);
-        _gl.GetProgram(_handle, GLEnum.LinkStatus, out var status);
+        handle = this.gl.CreateProgram();
+        this.gl.AttachShader(handle, vertex);
+        this.gl.AttachShader(handle, fragment);
+        this.gl.LinkProgram(handle);
+        this.gl.GetProgram(handle, GLEnum.LinkStatus, out var status);
         if (status == 0)
         {
-            throw new Exception($"Program failed to link with error: {_gl.GetProgramInfoLog(_handle)}");
+            throw new Exception($"Program failed to link with error: {this.gl.GetProgramInfoLog(handle)}");
         }
-        _gl.DetachShader(_handle, vertex);
-        _gl.DetachShader(_handle, fragment);
-        _gl.DeleteShader(vertex);
-        _gl.DeleteShader(fragment);
+        this.gl.DetachShader(handle, vertex);
+        this.gl.DetachShader(handle, fragment);
+        this.gl.DeleteShader(vertex);
+        this.gl.DeleteShader(fragment);
     }
 
     public void Use()
     {
-        _gl.UseProgram(_handle);
+        gl.UseProgram(handle);
     }
 
     public void SetUniform(string name, int value)
     {
-        int location = _gl.GetUniformLocation(_handle, name);
+        int location = gl.GetUniformLocation(handle, name);
         if (location == -1)
         {
             throw new Exception($"{name} uniform not found on shader.");
         }
-        _gl.Uniform1(location, value);
+        gl.Uniform1(location, value);
     }
 
     public void SetUniform(string name, float value)
     {
-        int location = _gl.GetUniformLocation(_handle, name);
+        int location = gl.GetUniformLocation(handle, name);
         if (location == -1)
         {
             throw new Exception($"{name} uniform not found on shader.");
         }
-        _gl.Uniform1(location, value);
+        gl.Uniform1(location, value);
     }
 
     public void Dispose()
     {
-        _gl.DeleteProgram(_handle);
+        gl.DeleteProgram(handle);
     }
 
     private uint LoadShader(ShaderType type, string path)
     {
         string src = File.ReadAllText(path);
-        uint handle = _gl.CreateShader(type);
-        _gl.ShaderSource(handle, src);
-        _gl.CompileShader(handle);
-        string infoLog = _gl.GetShaderInfoLog(handle);
+        uint handle = gl.CreateShader(type);
+        gl.ShaderSource(handle, src);
+        gl.CompileShader(handle);
+        string infoLog = gl.GetShaderInfoLog(handle);
         if (!string.IsNullOrWhiteSpace(infoLog))
         {
             throw new Exception($"Error compiling shader of type {type}, failed with error {infoLog}");

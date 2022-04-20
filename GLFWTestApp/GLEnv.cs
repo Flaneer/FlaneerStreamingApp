@@ -6,7 +6,7 @@ namespace GLFWTestApp;
 
 public class GLEnv
 {
-    private static GL Gl;
+    internal GL Gl;
 
     private static BufferObject<float> Vbo;
     private static BufferObject<uint> Ebo;
@@ -17,22 +17,6 @@ public class GLEnv
     private static Texture Texture;
     private static Shader Shader;
 
-    /*//Vertex data, uploaded to the VBO.
-    private static readonly float[] ScreenSpaceQuadVertices =
-    {
-        //X    Y      Z
-        1.0f,  1.0f, 0.0f,
-        1.0f, -1.0f, 0.0f,
-        -1.0f, -1.0f, 0.0f,
-        -1.0f,  1.0f, 1.0f
-    };
-
-    //Index data, uploaded to the EBO.
-    private static readonly uint[] ScreenSpaceQuadIndices =
-    {
-        0, 1, 3,
-        1, 2, 3
-    };*/
 
     // OpenGL has image origin in the bottom-left corner.
     private static readonly float[] ScreenSpaceQuadVertices =
@@ -74,10 +58,10 @@ public class GLEnv
         Vao.VertexAttributePointer(0, 3, VertexAttribPointerType.Float, 5, 0);
         Vao.VertexAttributePointer(1, 2, VertexAttribPointerType.Float, 5, 3);
 
-        Shader = new Shader(Gl, "shader.vert", "shader.frag");
+        Shader = new Shader(this, "shader.vert", "shader.frag");
 
         //Loading a texture.
-        Texture = new Texture(Gl, "testImage.png");
+        Texture = new Texture(this, "testImage.png");
     }
 
     private unsafe void OnRender(double obj) //Method needs to be unsafe due to draw elements.
