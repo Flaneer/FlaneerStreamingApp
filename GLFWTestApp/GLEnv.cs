@@ -16,7 +16,13 @@ public class GLEnv
     //Create a texture object.
     private static Texture Texture;
     private static Shader Shader;
-
+    
+    private int imageIdx = 1;
+    private const int imageCount = 1199;
+    private DateTime lastDisplay = DateTime.Now;
+    
+    private DateTime StartTime = DateTime.Now;
+    private int framesDisplayed = 0;
 
     // OpenGL has image origin in the bottom-left corner.
     private static readonly float[] ScreenSpaceQuadVertices =
@@ -62,6 +68,7 @@ public class GLEnv
 
         //Loading a texture.
         Texture = new Texture(this, "testImage.png");
+        StartTime = DateTime.Now;
     }
 
     private unsafe void OnRender(double obj) //Method needs to be unsafe due to draw elements.
@@ -69,6 +76,15 @@ public class GLEnv
         //Clear the color channel.
         Gl.Clear((uint) ClearBufferMask.ColorBufferBit);
         
+        if((DateTime.Now - lastDisplay).Milliseconds > 128)
+        {
+            Texture.SetTextureFromImage($"TestImageSequence/out4k{imageIdx}.png");
+            lastDisplay = DateTime.Now;
+            imageIdx+=8;
+            if (imageIdx > imageCount)
+                imageIdx = 1;
+        }
+
         Vao.Bind();
         Shader.Use();
         //Bind a texture and and set the uTexture0 to use texture0.
@@ -77,6 +93,9 @@ public class GLEnv
 
         //Draw the geometry.
         Gl.DrawElements(PrimitiveType.Triangles, (uint) ScreenSpaceQuadIndices.Length, DrawElementsType.UnsignedInt, null);
+        framesDisplayed++;
+        var averageFrameTime = (DateTime.Now - StartTime) / framesDisplayed;
+        Console.WriteLine($"AverageFrameTime = {averageFrameTime} | FPS = {1000/averageFrameTime.Milliseconds}");
     }
 
     private void OnUpdate(double obj)
