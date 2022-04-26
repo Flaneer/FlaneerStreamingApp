@@ -2,6 +2,14 @@
 
 This repo contains all code related to the Flaneer streaming technology, the low level capture and encoding as well as the application code.
 
+## Install Requirements
+
+### Windows
+
+The install requirements for the non-native code are in the file `FlaneerStreamingApp.vsconfig`. Simply install Visual Studio 2022 and import them into the installer app, [full instructions here](https://docs.microsoft.com/en-us/visualstudio/install/import-export-installation-configurations?view=vs-2022#import-a-configuration).
+
+For the native code you must be using an NVidia graphics device with the latest drivers.
+
 ## Coding style
 
 In general the following guidelines should be followed:
