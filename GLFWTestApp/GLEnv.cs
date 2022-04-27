@@ -18,7 +18,7 @@ public class GLEnv
     private static Shader Shader;
     
     private int imageIdx = 1;
-    private const int imageCount = 1199;
+    private const int imageCount = 120;
     private DateTime lastDisplay = DateTime.Now;
     
     private DateTime StartTime = DateTime.Now;
@@ -76,11 +76,11 @@ public class GLEnv
         //Clear the color channel.
         Gl.Clear((uint) ClearBufferMask.ColorBufferBit);
         
-        if((DateTime.Now - lastDisplay).Milliseconds > 128)
+        if((DateTime.Now - lastDisplay).Milliseconds > 33)
         {
-            Texture.SetTextureFromImage($"TestImageSequence/out4k{imageIdx}.png");
+            Texture.SetTextureFromImage($"TestImageSequence/out{imageIdx}.png");
             lastDisplay = DateTime.Now;
-            imageIdx+=8;
+            imageIdx++;
             if (imageIdx > imageCount)
                 imageIdx = 1;
         }
