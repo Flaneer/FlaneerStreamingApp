@@ -12,14 +12,13 @@ namespace FlaneerMediaLib
         private FrameSettings frameSettings = null!;
         private ICodecSettings codecSettings = null!;
         private VideoCodec codec;
-        private readonly CyclicalFrameCounter frameCounter = new ();
 
         private readonly UdpClient listener;
         private IPEndPoint groupEP;
 
-        private readonly Dictionary<int, ManagedVideoFrame> frameBuffer = new();
+        private readonly Dictionary<UInt32, ManagedVideoFrame> frameBuffer = new();
         private readonly Dictionary<TransmissionVideoFrame, byte[]> partialFrames = new();
-        private byte nextFrame => frameCounter.GetNext();
+        private UInt32 nextFrame = 0;
 
         private bool receiving;
         private bool waitingForPPSSPS = true;
@@ -62,7 +61,7 @@ namespace FlaneerMediaLib
             }
 
             //Initialise dictionary, so it can be used as a pool
-            for (int i = 0; i < byte.MaxValue; i++)
+            for (UInt32 i = 0; i < byte.MaxValue; i++)
             {
                 lock (frameBuffer)
                 {
@@ -108,7 +107,7 @@ namespace FlaneerMediaLib
             
             TransmissionVideoFrame receivedFrame = TransmissionVideoFrame.FromUDPPacket(receivedBytes);
 
-            if (frameCounter.IsOlder(receivedFrame.SequenceIDX))
+            if (nextFrame < receivedFrame.SequenceIDX)
                 return;
 
             var frameData = new byte[receivedBytes.Length - TransmissionVideoFrame.HeaderSize];
@@ -162,7 +161,7 @@ namespace FlaneerMediaLib
                     Stream = new MemoryStream(0) 
                 };
             
-            frameCounter.SkipTo(receivedFrame.SequenceIDX);
+            nextFrame = receivedFrame.SequenceIDX;
 
             MemoryStream frameStream;
             if(receivedFrame.SequenceIDX == 0)
@@ -206,7 +205,7 @@ namespace FlaneerMediaLib
             }
         }
 
-        private void AssembleFrame(int sequenceIDX, IEnumerable<KeyValuePair<TransmissionVideoFrame, byte[]>> parts)
+        private void AssembleFrame(UInt32 sequenceIDX, IEnumerable<KeyValuePair<TransmissionVideoFrame, byte[]>> parts)
         {
             var orderedParts = parts.OrderBy(pair => pair.Key.PacketIdx);
             var completedPacket = new List<byte>();
@@ -220,6 +219,7 @@ namespace FlaneerMediaLib
                 Console.WriteLine($"Assembling packets for sequence {sequenceIDX}");
                 frameBuffer[sequenceIDX] =
                     ManagedFrameFromTransmission(orderedParts.First().Key, completedPacket.ToArray());
+                nextFrame = sequenceIDX;
             }
 
             foreach (var part in parts)
@@ -241,10 +241,7 @@ namespace FlaneerMediaLib
         {
             lock (frameBuffer)
             {
-                var ret = frameBuffer[nextFrame];
-                if (ret.Stream.Length != 0)
-                    frameCounter.Increment();
-                return ret;
+                return frameBuffer[nextFrame];
             }
         }
         

@@ -12,11 +12,10 @@ public class UDPVideoSink : IVideoSink
 {
     private IEncoder encoder = null!;
     private IVideoSource videoSource = null!;
-    private readonly CyclicalFrameCounter frameCounter = new();
 
     private readonly Socket s = new(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
     private readonly IPAddress broadcast;
-    private byte nextFrame => frameCounter.GetNext();
+    private UInt32 nextFrame = 0;
 
     /// <summary>
     /// ctor
@@ -131,8 +130,8 @@ public class UDPVideoSink : IVideoSink
 
             sent += packetSize;
             Console.WriteLine($"SENT CHUNK OF {nextFrame} | {sent} / {frame.FrameSize}");
-        }
             
-        frameCounter.Increment();
+        }
+        nextFrame++;
     }
 }
