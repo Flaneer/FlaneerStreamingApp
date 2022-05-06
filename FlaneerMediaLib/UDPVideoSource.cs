@@ -30,6 +30,8 @@ namespace FlaneerMediaLib
         /// </summary>
         public Action<IVideoFrame> FrameReady = null!;
 
+        private bool frameWithPPSSP = false;
+
         /// <inheritdoc />
         public ICodecSettings CodecSettings => codecSettings;
         /// <inheritdoc />
@@ -141,6 +143,7 @@ namespace FlaneerMediaLib
             }
             Array.Copy(receivedBytes, TransmissionVideoFrame.HeaderSize, ppssps, 0, PPS_SPSLength);
             waitingForPPSSPS = false;
+            frameWithPPSSP = true;
         }
 
         private void FrameCleanup()
@@ -169,7 +172,10 @@ namespace FlaneerMediaLib
             else
             {
                 frameStream = new MemoryStream(ppssps.Length + frameData.Length);
-                frameStream.Write(ppssps);
+                if (!frameWithPPSSP)
+                    frameStream.Write(ppssps);
+                else
+                    frameWithPPSSP = false;
                 frameStream.Write(frameData);
             }
             
@@ -180,7 +186,7 @@ namespace FlaneerMediaLib
                 Width = receivedFrame.Width,
                 Stream = frameStream 
             };
-            FrameReady(ret);
+            //FrameReady(ret);
             return ret;
         }
         
@@ -190,6 +196,8 @@ namespace FlaneerMediaLib
             bool GetMatchingSequencePredicate(KeyValuePair<TransmissionVideoFrame, byte[]> pf) => pf.Key.SequenceIDX == receivedFrame.SequenceIDX;
 
             partialFrames.Add(receivedFrame, frameData);
+            
+            Console.WriteLine($"Received ({receivedFrame.PacketIdx+1}/{receivedFrame.NumberOfPackets}) of frame {receivedFrame.SequenceIDX}");
             
             var parts = partialFrames.Where(GetMatchingSequencePredicate);
             if (parts.Count() == receivedFrame.NumberOfPackets)
