@@ -1,0 +1,73 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <OutputType>Exe</OutputType>
+        <TargetFramework>net6.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <None Update="shader.frag">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+        <None Update="shader.vert">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="NReco.VideoConverter.LT" Version="1.1.4" />
+      <PackageReference Include="Silk.NET.Core" Version="2.15.0" />
+      <PackageReference Include="Silk.NET.GLFW" Version="2.15.0" />
+      <PackageReference Include="Silk.NET.Input" Version="2.15.0" />
+      <PackageReference Include="Silk.NET.OpenGL" Version="2.15.0" />
+      <PackageReference Include="Silk.NET.Windowing" Version="2.15.0" />
+      <PackageReference Include="Silk.NET.Windowing.Common" Version="2.15.0" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\FlaneerMediaLib\FlaneerMediaLib.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Content Include="..\ffmpeg\avcodec-58.dll">
+        <Link>ffmpeg\avcodec-58.dll</Link>
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </Content>
+      <Content Include="..\ffmpeg\avdevice-58.dll">
+        <Link>ffmpeg\avdevice-58.dll</Link>
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </Content>
+      <Content Include="..\ffmpeg\avfilter-7.dll">
+        <Link>ffmpeg\avfilter-7.dll</Link>
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </Content>
+      <Content Include="..\ffmpeg\avformat-58.dll">
+        <Link>ffmpeg\avformat-58.dll</Link>
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </Content>
+      <Content Include="..\ffmpeg\avutil-56.dll">
+        <Link>ffmpeg\avutil-56.dll</Link>
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </Content>
+      <Content Include="..\ffmpeg\ffmpeg.exe">
+        <Link>ffmpeg\ffmpeg.exe</Link>
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </Content>
+      <Content Include="..\ffmpeg\postproc-55.dll">
+        <Link>ffmpeg\postproc-55.dll</Link>
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </Content>
+      <Content Include="..\ffmpeg\swresample-3.dll">
+        <Link>ffmpeg\swresample-3.dll</Link>
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </Content>
+      <Content Include="..\ffmpeg\swscale-5.dll">
+        <Link>ffmpeg\swscale-5.dll</Link>
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </Content>
+    </ItemGroup>
+
+</Project>
