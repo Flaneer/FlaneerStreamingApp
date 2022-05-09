@@ -16,9 +16,6 @@ public class UDPImageSource
         ServiceRegistry.TryGetService(out videoSource);
         videoConv = new FFMpegDecoder();
     }
-
-    private int counter = 1;
-    private string NextFrame => $"{counter * (1.0f/30)}";
     
     public ManagedVideoFrame GetImage()
     {

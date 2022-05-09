@@ -14,7 +14,7 @@ public class FFMpegDecoder : IDisposable
         ffmpegProcess.StartInfo.RedirectStandardOutput = true;
         ffmpegProcess.StartInfo.RedirectStandardInput = true;
         
-        var logLevel = "-loglevel info";
+        var logLevel = "-loglevel quiet";
         var inputFormat = "-f h264";
         var input = "-i pipe:0";
         var pixFmt = "-pix_fmt rgba";

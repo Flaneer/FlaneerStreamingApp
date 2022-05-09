@@ -43,6 +43,7 @@ public class GLEnv
     };
 
     private readonly UDPImageSource imageSource;
+    private byte[] pixels = new byte[1920*1080*32];
 
     public GLEnv(GLWindow windowIn)
     {
@@ -107,28 +108,11 @@ public class GLEnv
         unsafe
         {
             var frame = imageSource.GetImage();
-            var pixels = frame.Stream.ToArray();
-
-            fixed (void* p = pixels)
+            fixed (void* p = frame.Stream.ToArray())
             {
                 Gl.TexImage2D(TextureTarget.Texture2D, 0, InternalFormat.Rgba, (uint) frame.Width, (uint) frame.Height, 0,
                                 PixelFormat.Rgba, PixelType.UnsignedByte, p);
             }
-            
-
-            /*img.ProcessPixelRows(accessor =>
-            {
-                //ImageSharp 2 does not store images in contiguous memory by default, so we must send the image row by row
-                for (int y = 0; y < accessor.Height; y++)
-                {
-                    fixed (void* data = accessor.GetRowSpan(y))
-                    {
-                        //Loading the actual image.
-                        gl.TexSubImage2D(TextureTarget.Texture2D, 0, 0, y, (uint) accessor.Width, 1, PixelFormat.Rgba,
-                            PixelType.UnsignedByte, data);
-                    }
-                }
-            });*/
         }
     }
 

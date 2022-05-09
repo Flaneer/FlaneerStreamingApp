@@ -18,7 +18,7 @@ namespace FlaneerMediaLib
 
         private readonly Dictionary<UInt32, ManagedVideoFrame> frameBuffer = new();
         private readonly Dictionary<TransmissionVideoFrame, byte[]> partialFrames = new();
-        private UInt32 nextFrame = 0;
+        private UInt32 lastFrame = 0;
 
         private bool receiving;
         private bool waitingForPPSSPS = true;
@@ -49,8 +49,8 @@ namespace FlaneerMediaLib
         /// <inheritdoc />
         public bool Init(FrameSettings frameSettingsIn, ICodecSettings codecSettingsIn)
         {
-            this.frameSettings = frameSettingsIn;
-            this.codecSettings = codecSettingsIn;
+            frameSettings = frameSettingsIn;
+            codecSettings = codecSettingsIn;
             switch (codecSettingsIn)
             {
                 case H264CodecSettings:
@@ -107,7 +107,7 @@ namespace FlaneerMediaLib
             
             TransmissionVideoFrame receivedFrame = TransmissionVideoFrame.FromUDPPacket(receivedBytes);
 
-            if (nextFrame < receivedFrame.SequenceIDX)
+            if (lastFrame > receivedFrame.SequenceIDX)
                 return;
 
             var frameData = new byte[receivedBytes.Length - TransmissionVideoFrame.HeaderSize];
@@ -147,7 +147,13 @@ namespace FlaneerMediaLib
 
         private void FrameCleanup()
         {
-            //TODO: Use FrameCounter to remove old buffered packets
+            for (uint i = 0; i < lastFrame; i++)
+            {
+                if (frameBuffer.TryGetValue(i, out var oldFrame))
+                {
+                    frameBuffer.Remove(i);
+                }
+            }
         }
 
         private ManagedVideoFrame ManagedFrameFromTransmission(TransmissionVideoFrame receivedFrame, byte[] frameData)
@@ -161,7 +167,7 @@ namespace FlaneerMediaLib
                     Stream = new MemoryStream(0) 
                 };
             
-            nextFrame = receivedFrame.SequenceIDX;
+            lastFrame = receivedFrame.SequenceIDX;
 
             MemoryStream frameStream;
             if(receivedFrame.SequenceIDX == 0)
@@ -216,16 +222,15 @@ namespace FlaneerMediaLib
 
             lock (frameBuffer)
             {
-                Console.WriteLine($"Assembling packets for sequence {sequenceIDX}");
                 frameBuffer[sequenceIDX] =
                     ManagedFrameFromTransmission(orderedParts.First().Key, completedPacket.ToArray());
-                nextFrame = sequenceIDX;
             }
 
             foreach (var part in parts)
             {
                 partialFrames.Remove(part.Key);
             }
+            Console.WriteLine($"Assembled packets for sequence {sequenceIDX}");
         }
 
         /// <summary>
@@ -241,7 +246,7 @@ namespace FlaneerMediaLib
         {
             lock (frameBuffer)
             {
-                return frameBuffer[nextFrame];
+                return frameBuffer[lastFrame];
             }
         }
         
