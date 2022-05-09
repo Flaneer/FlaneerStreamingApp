@@ -7,14 +7,14 @@ public class FFMpegDecoder : IDisposable
     private Process ffmpegProcess = new Process();
     private MemoryStream frameOut;
 
-    public FFMpegDecoder()
+    public FFMpegDecoder(string logLevelIn = "quiet")
     {
         ffmpegProcess.StartInfo.FileName = "ffmpeg.exe";
         ffmpegProcess.StartInfo.UseShellExecute = false;
         ffmpegProcess.StartInfo.RedirectStandardOutput = true;
         ffmpegProcess.StartInfo.RedirectStandardInput = true;
         
-        var logLevel = "-loglevel quiet";
+        var logLevel = $"-loglevel {logLevelIn}";
         var inputFormat = "-f h264";
         var input = "-i pipe:0";
         var pixFmt = "-pix_fmt rgba";

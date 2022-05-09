@@ -7,10 +7,6 @@ internal static class Program
 {
     private static void Main(string[] args)
     {
-        NReco.VideoConverter.License.SetLicenseKey(
-            "Video_Converter_Bin_Examples_Pack_252489380218",
-            "S/Q/c7WKOxHMTcFThcDRSiZHFghpLIAZQGgjdlQLdUmPIDYwgaQUUtjZ2mQeBMLJw/8Hqqt2J8d/wOydqyIAF/tpy/baitBPegJ6Js9CCl6JfImW/fDLmbE8IJcxT2APwRjmWfXJi+Qxc3RZLO/Lna0dCPCEcMoeH9zMLN9veeU="
-        );
         InitialiseMediaEncoder();
         GLWindow window = new GLWindow(1920, 1080);
         GLEnv env = new GLEnv(window);
