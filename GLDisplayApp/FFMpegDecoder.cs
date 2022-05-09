@@ -28,6 +28,9 @@ public class FFMpegDecoder : IDisposable
         frameOut = new MemoryStream(1920*1080*32);
     }
 
+    /// <summary>
+    /// Decodes a new frame
+    /// </summary>
     public MemoryStream DecodeFrame(MemoryStream encodedFrame)
     {
         frameOut.Position = 0;

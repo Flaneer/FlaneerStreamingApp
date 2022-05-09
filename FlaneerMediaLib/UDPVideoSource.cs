@@ -18,18 +18,13 @@ namespace FlaneerMediaLib
 
         private readonly Dictionary<UInt32, ManagedVideoFrame> frameBuffer = new();
         private readonly Dictionary<TransmissionVideoFrame, byte[]> partialFrames = new();
-        private UInt32 lastFrame = 0;
+        private UInt32 lastFrame;
 
         private bool receiving;
         private bool waitingForPPSSPS = true;
         private readonly byte[] ppssps = new byte[34];
-        
-        /// <summary>
-        /// Fired when a complete frame is received/assembled
-        /// </summary>
-        public Action<IVideoFrame> FrameReady = null!;
 
-        private bool frameWithPPSSP = false;
+        private bool frameWithPPSSP;
 
         /// <inheritdoc />
         public ICodecSettings CodecSettings => codecSettings;
@@ -149,9 +144,12 @@ namespace FlaneerMediaLib
         {
             for (uint i = 0; i < lastFrame; i++)
             {
-                if (frameBuffer.TryGetValue(i, out var oldFrame))
+                lock (frameBuffer)
                 {
-                    frameBuffer.Remove(i);
+                    if (frameBuffer.TryGetValue(i, out _))
+                    {
+                        frameBuffer.Remove(i);
+                    }
                 }
             }
         }
@@ -233,15 +231,7 @@ namespace FlaneerMediaLib
             Console.WriteLine($"Assembled packets for sequence {sequenceIDX}");
         }
 
-        /// <summary>
-        ///
-        /// <remarks>
-        /// This must ensure we:
-        /// - Assemble frames from multiple packets
-        /// - Provide frames in order
-        /// </remarks>
-        /// </summary>
-        /// <returns></returns>
+        /// <inheritdoc />
         public IVideoFrame GetFrame()
         {
             lock (frameBuffer)
