@@ -12,23 +12,19 @@ namespace FlaneerMediaLib
         private FrameSettings frameSettings = null!;
         private ICodecSettings codecSettings = null!;
         private VideoCodec codec;
-        private readonly CyclicalFrameCounter frameCounter = new ();
 
         private readonly UdpClient listener;
         private IPEndPoint groupEP;
 
-        private readonly Dictionary<int, ManagedVideoFrame> frameBuffer = new();
+        private readonly Dictionary<UInt32, ManagedVideoFrame> frameBuffer = new();
         private readonly Dictionary<TransmissionVideoFrame, byte[]> partialFrames = new();
-        private byte nextFrame => frameCounter.GetNext();
+        private UInt32 lastFrame;
 
         private bool receiving;
         private bool waitingForPPSSPS = true;
         private readonly byte[] ppssps = new byte[34];
-        
-        /// <summary>
-        /// Fired when a complete frame is received/assembled
-        /// </summary>
-        public Action<IVideoFrame> FrameReady = null!;
+
+        private bool frameWithPPSSP;
 
         /// <inheritdoc />
         public ICodecSettings CodecSettings => codecSettings;
@@ -48,8 +44,8 @@ namespace FlaneerMediaLib
         /// <inheritdoc />
         public bool Init(FrameSettings frameSettingsIn, ICodecSettings codecSettingsIn)
         {
-            this.frameSettings = frameSettingsIn;
-            this.codecSettings = codecSettingsIn;
+            frameSettings = frameSettingsIn;
+            codecSettings = codecSettingsIn;
             switch (codecSettingsIn)
             {
                 case H264CodecSettings:
@@ -60,7 +56,7 @@ namespace FlaneerMediaLib
             }
 
             //Initialise dictionary, so it can be used as a pool
-            for (int i = 0; i < byte.MaxValue; i++)
+            for (UInt32 i = 0; i < byte.MaxValue; i++)
             {
                 lock (frameBuffer)
                 {
@@ -106,7 +102,7 @@ namespace FlaneerMediaLib
             
             TransmissionVideoFrame receivedFrame = TransmissionVideoFrame.FromUDPPacket(receivedBytes);
 
-            if (frameCounter.IsOlder(receivedFrame.SequenceIDX))
+            if (lastFrame > receivedFrame.SequenceIDX)
                 return;
 
             var frameData = new byte[receivedBytes.Length - TransmissionVideoFrame.HeaderSize];
@@ -141,11 +137,21 @@ namespace FlaneerMediaLib
             }
             Array.Copy(receivedBytes, TransmissionVideoFrame.HeaderSize, ppssps, 0, PPS_SPSLength);
             waitingForPPSSPS = false;
+            frameWithPPSSP = true;
         }
 
         private void FrameCleanup()
         {
-            //TODO: Use FrameCounter to remove old buffered packets
+            for (uint i = 0; i < lastFrame; i++)
+            {
+                lock (frameBuffer)
+                {
+                    if (frameBuffer.TryGetValue(i, out _))
+                    {
+                        frameBuffer.Remove(i);
+                    }
+                }
+            }
         }
 
         private ManagedVideoFrame ManagedFrameFromTransmission(TransmissionVideoFrame receivedFrame, byte[] frameData)
@@ -159,7 +165,7 @@ namespace FlaneerMediaLib
                     Stream = new MemoryStream(0) 
                 };
             
-            frameCounter.SkipTo(receivedFrame.SequenceIDX);
+            lastFrame = receivedFrame.SequenceIDX;
 
             MemoryStream frameStream;
             if(receivedFrame.SequenceIDX == 0)
@@ -169,7 +175,10 @@ namespace FlaneerMediaLib
             else
             {
                 frameStream = new MemoryStream(ppssps.Length + frameData.Length);
-                frameStream.Write(ppssps);
+                if (!frameWithPPSSP)
+                    frameStream.Write(ppssps);
+                else
+                    frameWithPPSSP = false;
                 frameStream.Write(frameData);
             }
             
@@ -180,7 +189,7 @@ namespace FlaneerMediaLib
                 Width = receivedFrame.Width,
                 Stream = frameStream 
             };
-            FrameReady(ret);
+            //FrameReady(ret);
             return ret;
         }
         
@@ -191,6 +200,8 @@ namespace FlaneerMediaLib
 
             partialFrames.Add(receivedFrame, frameData);
             
+            Console.WriteLine($"Received ({receivedFrame.PacketIdx+1}/{receivedFrame.NumberOfPackets}) of frame {receivedFrame.SequenceIDX}");
+            
             var parts = partialFrames.Where(GetMatchingSequencePredicate);
             if (parts.Count() == receivedFrame.NumberOfPackets)
             {
@@ -198,7 +209,7 @@ namespace FlaneerMediaLib
             }
         }
 
-        private void AssembleFrame(int sequenceIDX, IEnumerable<KeyValuePair<TransmissionVideoFrame, byte[]>> parts)
+        private void AssembleFrame(UInt32 sequenceIDX, IEnumerable<KeyValuePair<TransmissionVideoFrame, byte[]>> parts)
         {
             var orderedParts = parts.OrderBy(pair => pair.Key.PacketIdx);
             var completedPacket = new List<byte>();
@@ -209,7 +220,6 @@ namespace FlaneerMediaLib
 
             lock (frameBuffer)
             {
-                Console.WriteLine($"Assembling packets for sequence {sequenceIDX}");
                 frameBuffer[sequenceIDX] =
                     ManagedFrameFromTransmission(orderedParts.First().Key, completedPacket.ToArray());
             }
@@ -218,25 +228,15 @@ namespace FlaneerMediaLib
             {
                 partialFrames.Remove(part.Key);
             }
+            Console.WriteLine($"Assembled packets for sequence {sequenceIDX}");
         }
 
-        /// <summary>
-        ///
-        /// <remarks>
-        /// This must ensure we:
-        /// - Assemble frames from multiple packets
-        /// - Provide frames in order
-        /// </remarks>
-        /// </summary>
-        /// <returns></returns>
+        /// <inheritdoc />
         public IVideoFrame GetFrame()
         {
             lock (frameBuffer)
             {
-                var ret = frameBuffer[nextFrame];
-                if (ret.Stream.Length != 0)
-                    frameCounter.Increment();
-                return ret;
+                return frameBuffer[lastFrame];
             }
         }
         

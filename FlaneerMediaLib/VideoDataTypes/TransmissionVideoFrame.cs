@@ -17,7 +17,7 @@ public class TransmissionVideoFrame : IVideoFrame
     /// <summary>
     /// The index of the frame in the sequence of frames
     /// </summary>
-    public byte SequenceIDX;
+    public UInt32 SequenceIDX = UInt32.MaxValue;
     /// <summary>
     /// The total number of packets this frame has been split into
     /// </summary>
@@ -35,7 +35,7 @@ public class TransmissionVideoFrame : IVideoFrame
     /// The size of the header in bytes
     /// <remarks>This is manually calculated</remarks>
     /// </summary>
-    public const int HeaderSize = 11;
+    public const int HeaderSize = 14;
     
     /// <summary>
     /// Converts the data in this class to a byte array that can be decoded
@@ -67,7 +67,7 @@ public class TransmissionVideoFrame : IVideoFrame
         {
             Width = reader.ReadInt16(),
             Height = reader.ReadInt16(),
-            SequenceIDX = reader.ReadByte(),
+            SequenceIDX = reader.ReadUInt32(),
             NumberOfPackets = reader.ReadByte(),
             PacketIdx = reader.ReadByte(),
             FrameDataSize = reader.ReadInt32()

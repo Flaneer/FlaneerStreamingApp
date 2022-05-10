@@ -1,10 +1,7 @@
 ﻿using System;
-using System.Diagnostics;
 using System.Net;
-using System.Net.Sockets;
 using System.Text;
 using FlaneerMediaLib;
-using FlaneerMediaLib.VideoDataTypes;
 using NReco.VideoConverter;
 
 public class UDPListener
@@ -21,46 +18,6 @@ public class UDPListener
             return;
 
         int it = 0;
-        videoSource.FrameReady += frameIn =>
-        {
-            try
-            {
-                ManagedVideoFrame? frame = frameIn as ManagedVideoFrame;
-                if (frame == null || frame.Stream.Length == 0)
-                    return;
-
-                var pathName = $"out-{it}.h264";
-                File.WriteAllBytes(pathName, frame.Stream.ToArray());
-
-                using (Process myProcess = new Process())
-                {
-                    myProcess.StartInfo.FileName = "ffmpeg.exe";
-                    myProcess.StartInfo.Arguments = $" -i {pathName} test-{it++}.jpeg";
-                    myProcess.StartInfo.UseShellExecute = false;
-                    //myProcess.StartInfo.RedirectStandardInput = true;
-                    myProcess.StartInfo.RedirectStandardOutput = true;
-
-                    myProcess.Start();
-
-                    /*StreamWriter myStreamWriter = myProcess.StandardInput;
-                myStreamWriter.Write(frame.Stream.ToArray());*/
-
-                    myProcess.OutputDataReceived += (sender, args) => Console.WriteLine($"FFPROBE: {args.Data}");
-
-                    //myStreamWriter.Close();
-
-                    myProcess.WaitForExit();
-                }
-
-                //File.WriteAllBytes($"{it++}.jpeg", outStream.GetBuffer());
-
-                Console.WriteLine("------------------------------------------------------------");
-            }
-            catch (SocketException e)
-            {
-                Console.WriteLine(e);
-            }
-        };
 
         /*int it = 0;
         while (it < 3)
