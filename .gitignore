@@ -35,7 +35,6 @@ riderModule.iml
 *.lib
 
 # Executables
-*.exe
 *.out
 *.app
 
