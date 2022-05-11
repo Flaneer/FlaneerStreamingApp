@@ -10,6 +10,7 @@ public class TransmissionVideoFrame : IVideoFrame
 {
     /// <inheritdoc/>
     public VideoCodec Codec { get; set; }
+    
     /// <inheritdoc/>
     public short Width { get; set; }
     /// <inheritdoc/>
@@ -31,6 +32,7 @@ public class TransmissionVideoFrame : IVideoFrame
     /// <remarks>Int32 will always be sufficient since it will fit into UDP packet</remarks>
     /// </summary>
     public Int32 FrameDataSize;
+    
     /// <summary>
     /// The size of the header in bytes
     /// <remarks>This is manually calculated</remarks>
