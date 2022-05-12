@@ -2,6 +2,9 @@
 
 namespace FlaneerMediaLib;
 
+/// <summary>
+/// Media decoder using ffmpeg
+/// </summary>
 public class FFMpegDecoder : IDisposable
 {
     /// <summary>
