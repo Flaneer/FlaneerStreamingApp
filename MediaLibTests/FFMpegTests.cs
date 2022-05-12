@@ -43,11 +43,15 @@ public class FFMpegTests
         Process ffmpegProcess = new Process();
         ffmpegProcess.StartInfo.FileName = FFMpegDecoder.FFMPEGPATH;
         ffmpegProcess.StartInfo.UseShellExecute = false;
+        ffmpegProcess.StartInfo.RedirectStandardOutput = true;
 
         var testFilePath = "TestResources/sunflower_1080p25-0.webm";
         ffmpegProcess.StartInfo.Arguments = $"-i {testFilePath} {outputPath}";
 
         ffmpegProcess.Start();
+        
+        ffmpegProcess.OutputDataReceived += (sender, args) => Console.WriteLine($"{args.Data}");
+        
         ffmpegProcess.WaitForExit();
 
         Assert.True(File.Exists(outputPath));
