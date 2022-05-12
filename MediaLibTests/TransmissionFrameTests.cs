@@ -8,7 +8,7 @@ namespace MediaLibTests;
 public class TransmissionFrameTests
 {
     [Fact]
-    public void DummyTest()
+    public void TestHeaderSizeConstIsAccurate()
     {
         TransmissionVideoFrame frame = new TransmissionVideoFrame();
         var frameAsBytes = frame.ToUDPPacket();

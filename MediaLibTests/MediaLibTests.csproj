@@ -24,4 +24,373 @@
       <ProjectReference Include="..\FlaneerMediaLib\FlaneerMediaLib.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Content Include="..\TestResources\Netflix_RollerCoaster_4096x2160_60fps_10bit_420-gpu-0.mp4">
+        <Link>TestResources\Netflix_RollerCoaster_4096x2160_60fps_10bit_420-gpu-0.mp4</Link>
+      </Content>
+      <Content Include="..\TestResources\sunflower_1080p25-0.webm">
+        <Link>TestResources\sunflower_1080p25-0.webm</Link>
+      </Content>
+      <Content Include="..\TestResources\TestImageSequence\out1.png">
+        <Link>TestResources\TestImageSequence\out1.png</Link>
+      </Content>
+      <Content Include="..\TestResources\TestImageSequence\out10.png">
+        <Link>TestResources\TestImageSequence\out10.png</Link>
+      </Content>
+      <Content Include="..\TestResources\TestImageSequence\out100.png">
+        <Link>TestResources\TestImageSequence\out100.png</Link>
+      </Content>
+      <Content Include="..\TestResources\TestImageSequence\out101.png">
+        <Link>TestResources\TestImageSequence\out101.png</Link>
+      </Content>
+      <Content Include="..\TestResources\TestImageSequence\out102.png">
+        <Link>TestResources\TestImageSequence\out102.png</Link>
+      </Content>
+      <Content Include="..\TestResources\TestImageSequence\out103.png">
+        <Link>TestResources\TestImageSequence\out103.png</Link>
+      </Content>
+      <Content Include="..\TestResources\TestImageSequence\out104.png">
+        <Link>TestResources\TestImageSequence\out104.png</Link>
+      </Content>
+      <Content Include="..\TestResources\TestImageSequence\out105.png">
+        <Link>TestResources\TestImageSequence\out105.png</Link>
+      </Content>
+      <Content Include="..\TestResources\TestImageSequence\out106.png">
+        <Link>TestResources\TestImageSequence\out106.png</Link>
+      </Content>
+      <Content Include="..\TestResources\TestImageSequence\out107.png">
+        <Link>TestResources\TestImageSequence\out107.png</Link>
+      </Content>
+      <Content Include="..\TestResources\TestImageSequence\out108.png">
+        <Link>TestResources\TestImageSequence\out108.png</Link>
+      </Content>
+      <Content Include="..\TestResources\TestImageSequence\out109.png">
+        <Link>TestResources\TestImageSequence\out109.png</Link>
+      </Content>
+      <Content Include="..\TestResources\TestImageSequence\out11.png">
+        <Link>TestResources\TestImageSequence\out11.png</Link>
+      </Content>
+      <Content Include="..\TestResources\TestImageSequence\out110.png">
+        <Link>TestResources\TestImageSequence\out110.png</Link>
+      </Content>
+      <Content Include="..\TestResources\TestImageSequence\out111.png">
+        <Link>TestResources\TestImageSequence\out111.png</Link>
+      </Content>
+      <Content Include="..\TestResources\TestImageSequence\out112.png">
+        <Link>TestResources\TestImageSequence\out112.png</Link>
+      </Content>
+      <Content Include="..\TestResources\TestImageSequence\out113.png">
+        <Link>TestResources\TestImageSequence\out113.png</Link>
+      </Content>
+      <Content Include="..\TestResources\TestImageSequence\out114.png">
+        <Link>TestResources\TestImageSequence\out114.png</Link>
+      </Content>
+      <Content Include="..\TestResources\TestImageSequence\out115.png">
+        <Link>TestResources\TestImageSequence\out115.png</Link>
+      </Content>
+      <Content Include="..\TestResources\TestImageSequence\out116.png">
+        <Link>TestResources\TestImageSequence\out116.png</Link>
+      </Content>
+      <Content Include="..\TestResources\TestImageSequence\out117.png">
+        <Link>TestResources\TestImageSequence\out117.png</Link>
+      </Content>
+      <Content Include="..\TestResources\TestImageSequence\out118.png">
+        <Link>TestResources\TestImageSequence\out118.png</Link>
+      </Content>
+      <Content Include="..\TestResources\TestImageSequence\out119.png">
+        <Link>TestResources\TestImageSequence\out119.png</Link>
+      </Content>
+      <Content Include="..\TestResources\TestImageSequence\out12.png">
+        <Link>TestResources\TestImageSequence\out12.png</Link>
+      </Content>
+      <Content Include="..\TestResources\TestImageSequence\out120.png">
+        <Link>TestResources\TestImageSequence\out120.png</Link>
+      </Content>
+      <Content Include="..\TestResources\TestImageSequence\out13.png">
+        <Link>TestResources\TestImageSequence\out13.png</Link>
+      </Content>
+      <Content Include="..\TestResources\TestImageSequence\out14.png">
+        <Link>TestResources\TestImageSequence\out14.png</Link>
+      </Content>
+      <Content Include="..\TestResources\TestImageSequence\out15.png">
+        <Link>TestResources\TestImageSequence\out15.png</Link>
+      </Content>
+      <Content Include="..\TestResources\TestImageSequence\out16.png">
+        <Link>TestResources\TestImageSequence\out16.png</Link>
+      </Content>
+      <Content Include="..\TestResources\TestImageSequence\out17.png">
+        <Link>TestResources\TestImageSequence\out17.png</Link>
+      </Content>
+      <Content Include="..\TestResources\TestImageSequence\out18.png">
+        <Link>TestResources\TestImageSequence\out18.png</Link>
+      </Content>
+      <Content Include="..\TestResources\TestImageSequence\out19.png">
+        <Link>TestResources\TestImageSequence\out19.png</Link>
+      </Content>
+      <Content Include="..\TestResources\TestImageSequence\out2.png">
+        <Link>TestResources\TestImageSequence\out2.png</Link>
+      </Content>
+      <Content Include="..\TestResources\TestImageSequence\out20.png">
+        <Link>TestResources\TestImageSequence\out20.png</Link>
+      </Content>
+      <Content Include="..\TestResources\TestImageSequence\out21.png">
+        <Link>TestResources\TestImageSequence\out21.png</Link>
+      </Content>
+      <Content Include="..\TestResources\TestImageSequence\out22.png">
+        <Link>TestResources\TestImageSequence\out22.png</Link>
+      </Content>
+      <Content Include="..\TestResources\TestImageSequence\out23.png">
+        <Link>TestResources\TestImageSequence\out23.png</Link>
+      </Content>
+      <Content Include="..\TestResources\TestImageSequence\out24.png">
+        <Link>TestResources\TestImageSequence\out24.png</Link>
+      </Content>
+      <Content Include="..\TestResources\TestImageSequence\out25.png">
+        <Link>TestResources\TestImageSequence\out25.png</Link>
+      </Content>
+      <Content Include="..\TestResources\TestImageSequence\out26.png">
+        <Link>TestResources\TestImageSequence\out26.png</Link>
+      </Content>
+      <Content Include="..\TestResources\TestImageSequence\out27.png">
+        <Link>TestResources\TestImageSequence\out27.png</Link>
+      </Content>
+      <Content Include="..\TestResources\TestImageSequence\out28.png">
+        <Link>TestResources\TestImageSequence\out28.png</Link>
+      </Content>
+      <Content Include="..\TestResources\TestImageSequence\out29.png">
+        <Link>TestResources\TestImageSequence\out29.png</Link>
+      </Content>
+      <Content Include="..\TestResources\TestImageSequence\out3.png">
+        <Link>TestResources\TestImageSequence\out3.png</Link>
+      </Content>
+      <Content Include="..\TestResources\TestImageSequence\out30.png">
+        <Link>TestResources\TestImageSequence\out30.png</Link>
+      </Content>
+      <Content Include="..\TestResources\TestImageSequence\out31.png">
+        <Link>TestResources\TestImageSequence\out31.png</Link>
+      </Content>
+      <Content Include="..\TestResources\TestImageSequence\out32.png">
+        <Link>TestResources\TestImageSequence\out32.png</Link>
+      </Content>
+      <Content Include="..\TestResources\TestImageSequence\out33.png">
+        <Link>TestResources\TestImageSequence\out33.png</Link>
+      </Content>
+      <Content Include="..\TestResources\TestImageSequence\out34.png">
+        <Link>TestResources\TestImageSequence\out34.png</Link>
+      </Content>
+      <Content Include="..\TestResources\TestImageSequence\out35.png">
+        <Link>TestResources\TestImageSequence\out35.png</Link>
+      </Content>
+      <Content Include="..\TestResources\TestImageSequence\out36.png">
+        <Link>TestResources\TestImageSequence\out36.png</Link>
+      </Content>
+      <Content Include="..\TestResources\TestImageSequence\out37.png">
+        <Link>TestResources\TestImageSequence\out37.png</Link>
+      </Content>
+      <Content Include="..\TestResources\TestImageSequence\out38.png">
+        <Link>TestResources\TestImageSequence\out38.png</Link>
+      </Content>
+      <Content Include="..\TestResources\TestImageSequence\out39.png">
+        <Link>TestResources\TestImageSequence\out39.png</Link>
+      </Content>
+      <Content Include="..\TestResources\TestImageSequence\out4.png">
+        <Link>TestResources\TestImageSequence\out4.png</Link>
+      </Content>
+      <Content Include="..\TestResources\TestImageSequence\out40.png">
+        <Link>TestResources\TestImageSequence\out40.png</Link>
+      </Content>
+      <Content Include="..\TestResources\TestImageSequence\out41.png">
+        <Link>TestResources\TestImageSequence\out41.png</Link>
+      </Content>
+      <Content Include="..\TestResources\TestImageSequence\out42.png">
+        <Link>TestResources\TestImageSequence\out42.png</Link>
+      </Content>
+      <Content Include="..\TestResources\TestImageSequence\out43.png">
+        <Link>TestResources\TestImageSequence\out43.png</Link>
+      </Content>
+      <Content Include="..\TestResources\TestImageSequence\out44.png">
+        <Link>TestResources\TestImageSequence\out44.png</Link>
+      </Content>
+      <Content Include="..\TestResources\TestImageSequence\out45.png">
+        <Link>TestResources\TestImageSequence\out45.png</Link>
+      </Content>
+      <Content Include="..\TestResources\TestImageSequence\out46.png">
+        <Link>TestResources\TestImageSequence\out46.png</Link>
+      </Content>
+      <Content Include="..\TestResources\TestImageSequence\out47.png">
+        <Link>TestResources\TestImageSequence\out47.png</Link>
+      </Content>
+      <Content Include="..\TestResources\TestImageSequence\out48.png">
+        <Link>TestResources\TestImageSequence\out48.png</Link>
+      </Content>
+      <Content Include="..\TestResources\TestImageSequence\out49.png">
+        <Link>TestResources\TestImageSequence\out49.png</Link>
+      </Content>
+      <Content Include="..\TestResources\TestImageSequence\out5.png">
+        <Link>TestResources\TestImageSequence\out5.png</Link>
+      </Content>
+      <Content Include="..\TestResources\TestImageSequence\out50.png">
+        <Link>TestResources\TestImageSequence\out50.png</Link>
+      </Content>
+      <Content Include="..\TestResources\TestImageSequence\out51.png">
+        <Link>TestResources\TestImageSequence\out51.png</Link>
+      </Content>
+      <Content Include="..\TestResources\TestImageSequence\out52.png">
+        <Link>TestResources\TestImageSequence\out52.png</Link>
+      </Content>
+      <Content Include="..\TestResources\TestImageSequence\out53.png">
+        <Link>TestResources\TestImageSequence\out53.png</Link>
+      </Content>
+      <Content Include="..\TestResources\TestImageSequence\out54.png">
+        <Link>TestResources\TestImageSequence\out54.png</Link>
+      </Content>
+      <Content Include="..\TestResources\TestImageSequence\out55.png">
+        <Link>TestResources\TestImageSequence\out55.png</Link>
+      </Content>
+      <Content Include="..\TestResources\TestImageSequence\out56.png">
+        <Link>TestResources\TestImageSequence\out56.png</Link>
+      </Content>
+      <Content Include="..\TestResources\TestImageSequence\out57.png">
+        <Link>TestResources\TestImageSequence\out57.png</Link>
+      </Content>
+      <Content Include="..\TestResources\TestImageSequence\out58.png">
+        <Link>TestResources\TestImageSequence\out58.png</Link>
+      </Content>
+      <Content Include="..\TestResources\TestImageSequence\out59.png">
+        <Link>TestResources\TestImageSequence\out59.png</Link>
+      </Content>
+      <Content Include="..\TestResources\TestImageSequence\out6.png">
+        <Link>TestResources\TestImageSequence\out6.png</Link>
+      </Content>
+      <Content Include="..\TestResources\TestImageSequence\out60.png">
+        <Link>TestResources\TestImageSequence\out60.png</Link>
+      </Content>
+      <Content Include="..\TestResources\TestImageSequence\out61.png">
+        <Link>TestResources\TestImageSequence\out61.png</Link>
+      </Content>
+      <Content Include="..\TestResources\TestImageSequence\out62.png">
+        <Link>TestResources\TestImageSequence\out62.png</Link>
+      </Content>
+      <Content Include="..\TestResources\TestImageSequence\out63.png">
+        <Link>TestResources\TestImageSequence\out63.png</Link>
+      </Content>
+      <Content Include="..\TestResources\TestImageSequence\out64.png">
+        <Link>TestResources\TestImageSequence\out64.png</Link>
+      </Content>
+      <Content Include="..\TestResources\TestImageSequence\out65.png">
+        <Link>TestResources\TestImageSequence\out65.png</Link>
+      </Content>
+      <Content Include="..\TestResources\TestImageSequence\out66.png">
+        <Link>TestResources\TestImageSequence\out66.png</Link>
+      </Content>
+      <Content Include="..\TestResources\TestImageSequence\out67.png">
+        <Link>TestResources\TestImageSequence\out67.png</Link>
+      </Content>
+      <Content Include="..\TestResources\TestImageSequence\out68.png">
+        <Link>TestResources\TestImageSequence\out68.png</Link>
+      </Content>
+      <Content Include="..\TestResources\TestImageSequence\out69.png">
+        <Link>TestResources\TestImageSequence\out69.png</Link>
+      </Content>
+      <Content Include="..\TestResources\TestImageSequence\out7.png">
+        <Link>TestResources\TestImageSequence\out7.png</Link>
+      </Content>
+      <Content Include="..\TestResources\TestImageSequence\out70.png">
+        <Link>TestResources\TestImageSequence\out70.png</Link>
+      </Content>
+      <Content Include="..\TestResources\TestImageSequence\out71.png">
+        <Link>TestResources\TestImageSequence\out71.png</Link>
+      </Content>
+      <Content Include="..\TestResources\TestImageSequence\out72.png">
+        <Link>TestResources\TestImageSequence\out72.png</Link>
+      </Content>
+      <Content Include="..\TestResources\TestImageSequence\out73.png">
+        <Link>TestResources\TestImageSequence\out73.png</Link>
+      </Content>
+      <Content Include="..\TestResources\TestImageSequence\out74.png">
+        <Link>TestResources\TestImageSequence\out74.png</Link>
+      </Content>
+      <Content Include="..\TestResources\TestImageSequence\out75.png">
+        <Link>TestResources\TestImageSequence\out75.png</Link>
+      </Content>
+      <Content Include="..\TestResources\TestImageSequence\out76.png">
+        <Link>TestResources\TestImageSequence\out76.png</Link>
+      </Content>
+      <Content Include="..\TestResources\TestImageSequence\out77.png">
+        <Link>TestResources\TestImageSequence\out77.png</Link>
+      </Content>
+      <Content Include="..\TestResources\TestImageSequence\out78.png">
+        <Link>TestResources\TestImageSequence\out78.png</Link>
+      </Content>
+      <Content Include="..\TestResources\TestImageSequence\out79.png">
+        <Link>TestResources\TestImageSequence\out79.png</Link>
+      </Content>
+      <Content Include="..\TestResources\TestImageSequence\out8.png">
+        <Link>TestResources\TestImageSequence\out8.png</Link>
+      </Content>
+      <Content Include="..\TestResources\TestImageSequence\out80.png">
+        <Link>TestResources\TestImageSequence\out80.png</Link>
+      </Content>
+      <Content Include="..\TestResources\TestImageSequence\out81.png">
+        <Link>TestResources\TestImageSequence\out81.png</Link>
+      </Content>
+      <Content Include="..\TestResources\TestImageSequence\out82.png">
+        <Link>TestResources\TestImageSequence\out82.png</Link>
+      </Content>
+      <Content Include="..\TestResources\TestImageSequence\out83.png">
+        <Link>TestResources\TestImageSequence\out83.png</Link>
+      </Content>
+      <Content Include="..\TestResources\TestImageSequence\out84.png">
+        <Link>TestResources\TestImageSequence\out84.png</Link>
+      </Content>
+      <Content Include="..\TestResources\TestImageSequence\out85.png">
+        <Link>TestResources\TestImageSequence\out85.png</Link>
+      </Content>
+      <Content Include="..\TestResources\TestImageSequence\out86.png">
+        <Link>TestResources\TestImageSequence\out86.png</Link>
+      </Content>
+      <Content Include="..\TestResources\TestImageSequence\out87.png">
+        <Link>TestResources\TestImageSequence\out87.png</Link>
+      </Content>
+      <Content Include="..\TestResources\TestImageSequence\out88.png">
+        <Link>TestResources\TestImageSequence\out88.png</Link>
+      </Content>
+      <Content Include="..\TestResources\TestImageSequence\out89.png">
+        <Link>TestResources\TestImageSequence\out89.png</Link>
+      </Content>
+      <Content Include="..\TestResources\TestImageSequence\out9.png">
+        <Link>TestResources\TestImageSequence\out9.png</Link>
+      </Content>
+      <Content Include="..\TestResources\TestImageSequence\out90.png">
+        <Link>TestResources\TestImageSequence\out90.png</Link>
+      </Content>
+      <Content Include="..\TestResources\TestImageSequence\out91.png">
+        <Link>TestResources\TestImageSequence\out91.png</Link>
+      </Content>
+      <Content Include="..\TestResources\TestImageSequence\out92.png">
+        <Link>TestResources\TestImageSequence\out92.png</Link>
+      </Content>
+      <Content Include="..\TestResources\TestImageSequence\out93.png">
+        <Link>TestResources\TestImageSequence\out93.png</Link>
+      </Content>
+      <Content Include="..\TestResources\TestImageSequence\out94.png">
+        <Link>TestResources\TestImageSequence\out94.png</Link>
+      </Content>
+      <Content Include="..\TestResources\TestImageSequence\out95.png">
+        <Link>TestResources\TestImageSequence\out95.png</Link>
+      </Content>
+      <Content Include="..\TestResources\TestImageSequence\out96.png">
+        <Link>TestResources\TestImageSequence\out96.png</Link>
+      </Content>
+      <Content Include="..\TestResources\TestImageSequence\out97.png">
+        <Link>TestResources\TestImageSequence\out97.png</Link>
+      </Content>
+      <Content Include="..\TestResources\TestImageSequence\out98.png">
+        <Link>TestResources\TestImageSequence\out98.png</Link>
+      </Content>
+      <Content Include="..\TestResources\TestImageSequence\out99.png">
+        <Link>TestResources\TestImageSequence\out99.png</Link>
+      </Content>
+    </ItemGroup>
+
 </Project>
