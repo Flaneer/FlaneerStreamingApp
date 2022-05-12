@@ -10,14 +10,6 @@ namespace MediaLibTests;
 
 public class FFMpegTests
 {
-    private readonly ITestOutputHelper testOutputHelper;
-
-    public FFMpegTests(ITestOutputHelper testOutputHelper)
-    {
-        this.testOutputHelper = testOutputHelper;
-    }
-
-
     [Fact]
     public void TestFFMpegIsPresent()
     {
