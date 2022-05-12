@@ -24,6 +24,8 @@ jobs:
         with:
             dotnet-version: ${{ env.DOTNET_VERSION }}
       - name: run-csharp-tests
+        env:
+            CI: true
         run: |
           dotnet test MediaLibTests/MediaLibTests.csproj
       
