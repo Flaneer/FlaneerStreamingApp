@@ -34,6 +34,15 @@ public class FFMpegTests
     }
 
     [Fact]
+    public void TestIfICanWriteAFile()
+    {
+        var outputPath = "testfile.mp4";
+        File.Create(outputPath);
+        Assert.True(File.Exists(outputPath));
+    }
+    
+    
+    /*[Fact]
     public void TestSampleFileConversion()
     {
         var outputPath = "testOutput.mp4";
@@ -58,5 +67,5 @@ public class FFMpegTests
         
         var fileInfo = new FileInfo(outputPath);
         Assert.Equal(7432921,fileInfo.Length);
-    }
+    }*/
 }
