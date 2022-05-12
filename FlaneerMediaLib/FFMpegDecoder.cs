@@ -4,12 +4,21 @@ namespace FlaneerMediaLib;
 
 public class FFMpegDecoder : IDisposable
 {
+    /// <summary>
+    /// The currently used version of ffmpeg
+    /// </summary>
     public const string FFMPEGVERSION  = "4.4.1";
+    /// <summary>
+    /// The location of the ffmpeg exe in the bin folder
+    /// </summary>
     public const string FFMPEGPATH = "ffmpeg/ffmpeg.exe";
     
     private Process ffmpegProcess = new Process();
     private MemoryStream frameOut;
 
+    /// <summary>
+    /// ctor
+    /// </summary>
     public FFMpegDecoder(string logLevelIn = "quiet")
     {
         ffmpegProcess.StartInfo.FileName = FFMPEGPATH;
@@ -52,6 +61,7 @@ public class FFMpegDecoder : IDisposable
         return frameOut;
     }
 
+    /// <inheritdoc />
     public void Dispose()
     {
         ffmpegProcess.Dispose();
