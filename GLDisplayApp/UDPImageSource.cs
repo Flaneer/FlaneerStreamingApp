@@ -1,8 +1,7 @@
-﻿using System.Diagnostics;
-using System.Net.Sockets;
+﻿using System.Net.Sockets;
 using FlaneerMediaLib;
 using FlaneerMediaLib.VideoDataTypes;
-using NReco.VideoConverter;
+using NLog;
 
 namespace GLDisplayApp;
 
@@ -10,6 +9,8 @@ public class UDPImageSource
 {
     private readonly IVideoSource videoSource;
     private readonly FFMpegDecoder videoConv;
+    
+    private Logger logger = LogManager.GetCurrentClassLogger();
 
     public UDPImageSource()
     {
@@ -40,7 +41,7 @@ public class UDPImageSource
         }
         catch (SocketException e)
         {
-            Console.WriteLine(e);
+            logger.Error(e);
         }
 
         return new ManagedVideoFrame();

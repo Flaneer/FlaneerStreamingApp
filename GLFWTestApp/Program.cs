@@ -1,10 +1,4 @@
-﻿
-using Silk.NET.Input;
-using Silk.NET.Maths;
-using Silk.NET.OpenGL;
-using Silk.NET.Windowing;
-
-namespace GLFWTestApp;
+﻿namespace GLFWTestApp;
 
 internal static class Program
 {

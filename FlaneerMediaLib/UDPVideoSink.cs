@@ -2,6 +2,7 @@
 using System.Net;
 using System.Net.Sockets;
 using FlaneerMediaLib.VideoDataTypes;
+using NLog;
 
 namespace FlaneerMediaLib;
 
@@ -16,6 +17,8 @@ public class UDPVideoSink : IVideoSink
     private readonly Socket s = new(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
     private readonly IPAddress broadcast;
     private UInt32 nextFrame = 0;
+    
+    private Logger logger = LogManager.GetCurrentClassLogger();
 
     /// <summary>
     /// ctor
@@ -129,7 +132,7 @@ public class UDPVideoSink : IVideoSink
             s.SendTo(transmissionArray, ep);
 
             sent += packetSize;
-            Console.WriteLine($"SENT CHUNK OF {nextFrame} | {sent} / {frame.FrameSize}");
+            logger.Debug($"SENT CHUNK OF {nextFrame} | {sent} / {frame.FrameSize}");
             
         }
         nextFrame++;
