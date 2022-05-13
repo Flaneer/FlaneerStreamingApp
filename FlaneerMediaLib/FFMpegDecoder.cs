@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using NLog;
 
 namespace FlaneerMediaLib;
 
@@ -18,6 +19,8 @@ public class FFMpegDecoder : IDisposable
     
     private Process ffmpegProcess = new Process();
     private MemoryStream frameOut;
+    
+    private Logger logger = LogManager.GetCurrentClassLogger();
 
     /// <summary>
     /// ctor
@@ -55,7 +58,7 @@ public class FFMpegDecoder : IDisposable
         ffmpegProcess.StandardInput.BaseStream.Write(encodedFrame.ToArray());
         ffmpegProcess.StandardInput.Close();
 
-        ffmpegProcess.OutputDataReceived += (sender, args) => Console.WriteLine($"{args.Data}");
+        ffmpegProcess.OutputDataReceived += (sender, args) => logger.Info($"{args.Data}");
         
         ffmpegProcess.StandardOutput.BaseStream.CopyTo(frameOut);
             

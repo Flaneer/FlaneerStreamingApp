@@ -1,4 +1,5 @@
 ﻿using GLDisplayApp;
+using NLog;
 using Silk.NET.OpenGL;
 using Silk.NET.Windowing;
 
@@ -23,6 +24,8 @@ public class GLEnv
     
     private DateTime StartTime = DateTime.Now;
     private int framesDisplayed = 0;
+
+    private Logger logger = LogManager.GetCurrentClassLogger();
 
     // OpenGL has image origin in the bottom-left corner.
     private static readonly float[] ScreenSpaceQuadVertices =
@@ -98,7 +101,7 @@ public class GLEnv
         Gl.DrawElements(PrimitiveType.Triangles, (uint) ScreenSpaceQuadIndices.Length, DrawElementsType.UnsignedInt, null);
         framesDisplayed++;
         var averageFrameTime = (DateTime.Now - StartTime) / framesDisplayed;
-        //Console.WriteLine($"AverageFrameTime = {averageFrameTime} | FPS = {1000/averageFrameTime.Milliseconds}");
+        logger.Debug($"AverageFrameTime = {averageFrameTime} | FPS = {1000/averageFrameTime.Milliseconds}");
     }
 
     private void OnUpdate(double obj)

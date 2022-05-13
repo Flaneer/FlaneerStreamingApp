@@ -1,6 +1,7 @@
 ﻿using System.Net;
 using System.Net.Sockets;
 using FlaneerMediaLib.VideoDataTypes;
+using NLog;
 
 namespace FlaneerMediaLib
 {
@@ -25,6 +26,8 @@ namespace FlaneerMediaLib
         private readonly byte[] ppssps = new byte[34];
 
         private bool frameWithPPSSP;
+        
+        private Logger logger = LogManager.GetCurrentClassLogger();
 
         /// <inheritdoc />
         public ICodecSettings CodecSettings => codecSettings;
@@ -91,7 +94,7 @@ namespace FlaneerMediaLib
             }
             catch (Exception e)
             {
-                Console.WriteLine(e);
+                logger.Error(e.ToString());
                 return;
             }
 
@@ -200,7 +203,7 @@ namespace FlaneerMediaLib
 
             partialFrames.Add(receivedFrame, frameData);
             
-            Console.WriteLine($"Received ({receivedFrame.PacketIdx+1}/{receivedFrame.NumberOfPackets}) of frame {receivedFrame.SequenceIDX}");
+            logger.Debug($"Received ({receivedFrame.PacketIdx+1}/{receivedFrame.NumberOfPackets}) of frame {receivedFrame.SequenceIDX}");
             
             var parts = partialFrames.Where(GetMatchingSequencePredicate);
             if (parts.Count() == receivedFrame.NumberOfPackets)
@@ -228,7 +231,7 @@ namespace FlaneerMediaLib
             {
                 partialFrames.Remove(part.Key);
             }
-            Console.WriteLine($"Assembled packets for sequence {sequenceIDX}");
+            logger.Debug($"Assembled packets for sequence {sequenceIDX}");
         }
 
         /// <inheritdoc />
