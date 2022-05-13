@@ -1,8 +1,6 @@
-﻿using System.Diagnostics;
-using System.Net.Sockets;
+﻿using System.Net.Sockets;
 using FlaneerMediaLib;
 using FlaneerMediaLib.VideoDataTypes;
-using NReco.VideoConverter;
 
 namespace GLDisplayApp;
 

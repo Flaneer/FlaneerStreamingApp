@@ -1,6 +1,4 @@
-﻿using System.Runtime.InteropServices;
-using GLDisplayApp;
-using Silk.NET.Input;
+﻿using GLDisplayApp;
 using Silk.NET.OpenGL;
 using Silk.NET.Windowing;
 
