@@ -5,7 +5,7 @@
 /// </summary>
 public class CommandLineArguementStore : IService
 {
-    Dictionary<string, List<string>> arguments = new();
+    private Dictionary<string, List<string>> arguments = new();
 
     /// <summary>
     /// ctor
