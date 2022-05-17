@@ -17,26 +17,19 @@ public class CommandLineArguementStore : IService
     /// <summary>
     /// Parse command line arguments and put them in the store
     /// </summary>
-    public void ParseArguements(string commandLineArgs)
+    public void ParseArguements(string[] commandLineArgs)
     {
-        var args = commandLineArgs.Split("-");
-        foreach (var arg in args)
+        var lastArg = "";
+        foreach (var arg in commandLineArgs)
         {
-            var splitArgs = arg.Split();
-            if (splitArgs.Length == 0)
+            if (arg.First() == '-')
             {
-                continue;
+                lastArg = arg.Substring(1);
+                arguments.Add(lastArg, new List<string>());
             }
-            if(splitArgs.Length > 0)
+            else
             {
-                arguments.Add(splitArgs[0], new List<string>());
-            }
-            if (splitArgs.Length > 1)
-            {
-                for (int i = 1; i < splitArgs.Length; i++)
-                {
-                    arguments[splitArgs[0]].Add(splitArgs[i]);
-                }
+                arguments[lastArg].Add(arg);
             }
         }
     }
@@ -54,7 +47,7 @@ public class CommandLineArguementStore : IService
     /// <summary>
     /// Creates a new arg store 
     /// </summary>
-    public static void CreateAndRegister(string commandLineArgs)
+    public static void CreateAndRegister(string[] commandLineArgs)
     {
         var clas = new CommandLineArguementStore();
         clas.ParseArguements(commandLineArgs);
