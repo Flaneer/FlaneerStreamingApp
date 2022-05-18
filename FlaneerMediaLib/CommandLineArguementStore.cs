@@ -8,13 +8,6 @@ public class CommandLineArguementStore : IService
     private Dictionary<string, List<string>> arguments = new();
 
     /// <summary>
-    /// ctor
-    /// </summary>
-    public CommandLineArguementStore()
-    {
-    }
-
-    /// <summary>
     /// Parse command line arguments and put them in the store
     /// </summary>
     public void ParseArguements(string[] commandLineArgs)

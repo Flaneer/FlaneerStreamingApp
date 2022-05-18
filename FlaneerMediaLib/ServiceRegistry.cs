@@ -34,7 +34,7 @@
         {
             Instance.registry.Add(service.GetType(), service);
             ServiceAdded?.Invoke(service);
-            foreach (var ifce in service.GetType().GetInterfaces())
+            foreach (var ifce in service.GetType().GetInterfaces().Where(type => type != typeof(IService)))
             {
                 Instance.registry.Add(ifce, service);
                 ServiceAdded?.Invoke(service);

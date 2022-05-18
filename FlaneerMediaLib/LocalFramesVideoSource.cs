@@ -7,10 +7,12 @@ namespace FlaneerMediaLib;
 /// </summary>
 public class LocalFramesVideoSource : IVideoSource
 {
-    private string framesPath;
-    private string frameNameTemplate;
-
-    private string FileNameFromIdx(int idx) => frameNameTemplate.Replace("{}", $"{idx}");
+    private string framesPath = "";
+    private string frameNameTemplate = "";
+    private int numberOfLocalFrames;
+    private int currentFrame = 0;
+    
+    private string FileNameFromIdx(int idx) => framesPath + frameNameTemplate.Replace("{}", $"{idx}");
 
     /// <inheritdoc />
     public ICodecSettings CodecSettings { get; private set; }
@@ -40,6 +42,7 @@ public class LocalFramesVideoSource : IVideoSource
         {
             framesPath = clParams[0];
             frameNameTemplate = clParams[1];
+            numberOfLocalFrames = int.Parse(clParams[2]);
         }
         catch (Exception e)
         {
@@ -49,15 +52,26 @@ public class LocalFramesVideoSource : IVideoSource
         return true;
     }
 
-    /// <inheritdoc />
-    public IVideoFrame GetFrame()
+    private void IterateCurrentFrame()
     {
-        throw new NotImplementedException();
+        currentFrame++;
+        if (currentFrame == numberOfLocalFrames)
+            currentFrame = 0;
     }
     
     /// <inheritdoc />
-    public void Dispose()
+    public IVideoFrame GetFrame()
     {
-        throw new NotImplementedException();
+        IterateCurrentFrame();
+        return new ManagedVideoFrame
+        {
+            Codec = VideoCodec.H264,
+            Height = 1920,
+            Width = 1080,
+            Stream = new MemoryStream(File.ReadAllBytes(FileNameFromIdx(currentFrame)))
+        };
     }
+    
+    /// <inheritdoc />
+    public void Dispose() { }
 }
