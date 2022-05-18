@@ -4,9 +4,9 @@ using System.Net.Sockets;
 namespace FlaneerMediaLib;
 
 /// <summary>
-/// 
+/// Receives packets over tcp connection.
 /// </summary>
-public class VideoHeaderSource: ITcpSource
+public class VideoHeaderSource: ITcpSource 
 {
     /// <summary>
     /// The size of the header in bytes
@@ -18,7 +18,6 @@ public class VideoHeaderSource: ITcpSource
     public int Port { get; private set; }
     /// <inheritdoc />
     public IPAddress Address { get; private set; }
-
 
     /// <inheritdoc />
     public event EventHandler<byte[]>? ReceivedData;
@@ -39,8 +38,7 @@ public class VideoHeaderSource: ITcpSource
     {
         Byte[] bytes = new Byte[PacketSize];
         
-        
-        while (true)
+        while (listener.Server.IsBound)
         {
             // Perform a blocking call to accept requests.
             // You could also use server.AcceptSocket() here.

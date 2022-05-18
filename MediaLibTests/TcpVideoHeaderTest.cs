@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿using System;
+using System.Threading;
 using FlaneerMediaLib;
 using Xunit;
 
@@ -22,12 +23,11 @@ public class TcpVideoHeaderTest
 
         var waitingForReception = true;
 
-        void OnSourceReceivedData(object sender, byte[] bytes)
+        source.ReceivedData += (o, b) =>
         {
-            receivedBytes = bytes;
+            receivedBytes = b;
             waitingForReception = false;
-        }
-        source.ReceivedData += OnSourceReceivedData;
+        }; 
         
 
         Assert.True(sink.SendData(packet));
