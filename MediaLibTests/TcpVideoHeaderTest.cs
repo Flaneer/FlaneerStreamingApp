@@ -32,7 +32,7 @@ public class TcpVideoHeaderTest
 
         Assert.True(sink.SendData(packet));
         int i = 0;
-        while (waitingForReception && i < 5)
+        while (waitingForReception && i < 5000)
         {
             Thread.Sleep(1);
             i++;
