@@ -12,7 +12,7 @@ public class LocalFramesVideoSource : IVideoSource
     private int numberOfLocalFrames;
     private int currentFrame = 0;
     
-    private string FileNameFromIdx(int idx) => framesPath + frameNameTemplate.Replace("{}", $"{idx}");
+    private string FileNameFromIdx(int idx) => Path.Join(framesPath, frameNameTemplate.Replace("{}", $"{idx}"));
 
     /// <inheritdoc />
     public ICodecSettings CodecSettings { get; private set; }
@@ -46,6 +46,7 @@ public class LocalFramesVideoSource : IVideoSource
         }
         catch (Exception e)
         {
+            //TODO: Log the error here!
             return false;
         }
 

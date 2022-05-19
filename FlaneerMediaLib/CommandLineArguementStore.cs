@@ -10,7 +10,7 @@ public class CommandLineArguementStore : IService
     /// <summary>
     /// Parse command line arguments and put them in the store
     /// </summary>
-    public void ParseArguements(string[] commandLineArgs)
+    public void ParseArguments(string[] commandLineArgs)
     {
         var lastArg = "";
         foreach (var arg in commandLineArgs)
@@ -43,7 +43,7 @@ public class CommandLineArguementStore : IService
     public static void CreateAndRegister(string[] commandLineArgs)
     {
         var clas = new CommandLineArguementStore();
-        clas.ParseArguements(commandLineArgs);
+        clas.ParseArguments(commandLineArgs);
         ServiceRegistry.AddService(clas);
     }
 }
