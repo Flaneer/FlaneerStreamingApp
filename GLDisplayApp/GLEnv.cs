@@ -1,5 +1,5 @@
-﻿using GLDisplayApp;
-using NLog;
+﻿using FlaneerMediaLib;
+using GLDisplayApp;
 using Silk.NET.OpenGL;
 using Silk.NET.Windowing;
 
@@ -25,7 +25,7 @@ public class GLEnv
     private DateTime StartTime = DateTime.Now;
     private int framesDisplayed = 0;
 
-    private Logger logger = LogManager.GetCurrentClassLogger();
+    private Logger logger = Logger.GetCurrentClassLogger();
 
     // OpenGL has image origin in the bottom-left corner.
     private static readonly float[] ScreenSpaceQuadVertices =

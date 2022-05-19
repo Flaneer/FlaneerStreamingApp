@@ -1,7 +1,6 @@
 ﻿using System.Net;
 using System.Net.Sockets;
 using FlaneerMediaLib.VideoDataTypes;
-using NLog;
 
 namespace FlaneerMediaLib
 {
@@ -27,7 +26,7 @@ namespace FlaneerMediaLib
 
         private bool frameWithPPSSP;
         
-        private Logger logger = LogManager.GetCurrentClassLogger();
+        private Logger logger = Logger.GetCurrentClassLogger();
 
         /// <inheritdoc />
         public ICodecSettings CodecSettings => codecSettings;
