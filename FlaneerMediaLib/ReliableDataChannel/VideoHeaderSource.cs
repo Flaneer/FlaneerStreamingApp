@@ -6,12 +6,14 @@ namespace FlaneerMediaLib;
 /// <summary>
 /// Receives packets over tcp connection.
 /// </summary>
-public class VideoHeaderSource: ITcpSource 
+public class VideoHeaderSource: ITcpSource, IDisposable 
 {
     /// <summary>
     /// The size of the header in bytes
     /// </summary>
     private const int PacketSize = 5;
+
+    private bool isConnected = true;
         
     private readonly TcpListener listener;
     /// <inheritdoc />
@@ -39,7 +41,7 @@ public class VideoHeaderSource: ITcpSource
         Byte[] bytes = new Byte[PacketSize];
         
         TcpClient client = listener.AcceptTcpClient();
-        while (client.Connected)
+        while (isConnected)
         {
             // Get a stream object for reading and writing
             NetworkStream stream = client.GetStream();
@@ -49,5 +51,13 @@ public class VideoHeaderSource: ITcpSource
             client.Close();
             ReceivedData?.Invoke(this, bytes);
         }
+    }
+
+    /// <summary>
+    /// switches the boolean to false when the object is disposed. 
+    /// </summary>
+    public void Dispose()
+    {
+        isConnected = false;
     }
 }
