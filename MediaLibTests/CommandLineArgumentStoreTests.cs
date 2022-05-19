@@ -5,12 +5,10 @@ using Xunit;
 
 namespace MediaLibTests;
 
-[CollectionDefinition("Sequential", DisableParallelization = true)]
-[Collection("Sequential")]
-public class CommandLineArgumentStoreTests
+public class CommandLineArgumentStoreTests1
 {
     private static readonly string[] INPUT = new[] {"-arg1", "-arg2", "param", "-arg3", "param1", "param2", "param3"};
-    
+
     [Fact]
     public void TestArgParse()
     {
@@ -19,6 +17,12 @@ public class CommandLineArgumentStoreTests
 
         Assert.True(clas.HasArgument("arg1"));
     }
+}
+
+
+public class CommandLineArgumentStoreTests2
+{
+    private static readonly string[] INPUT = new[] {"-arg1", "-arg2", "param", "-arg3", "param1", "param2", "param3"};
     
     [Fact]
     public void TestParamParse()
