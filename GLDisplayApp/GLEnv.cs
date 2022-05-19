@@ -25,7 +25,7 @@ public class GLEnv
     private DateTime StartTime = DateTime.Now;
     private int framesDisplayed = 0;
 
-    private Logger logger = Logger.GetCurrentClassLogger();
+    private Logger logger;
 
     // OpenGL has image origin in the bottom-left corner.
     private static readonly float[] ScreenSpaceQuadVertices =
@@ -48,10 +48,12 @@ public class GLEnv
 
     public GLEnv(GLWindow windowIn)
     {
+        logger = Logger.GetLogger(this);
+        
         window = windowIn.window;
 
         imageSource = new UDPImageSource();
-        
+
         window.Load += OnLoad;
         window.Render += OnRender;
         window.Update += OnUpdate;

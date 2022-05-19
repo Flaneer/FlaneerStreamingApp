@@ -19,13 +19,15 @@ public class FFMpegDecoder : IDisposable
     private Process ffmpegProcess = new Process();
     private MemoryStream frameOut;
     
-    private Logger logger = Logger.GetCurrentClassLogger();
+    private Logger logger;
 
     /// <summary>
     /// ctor
     /// </summary>
     public FFMpegDecoder(string logLevelIn = "quiet")
     {
+        logger = Logger.GetLogger(this);
+        
         ffmpegProcess.StartInfo.FileName = FFMPEGPATH;
         ffmpegProcess.StartInfo.UseShellExecute = false;
         ffmpegProcess.StartInfo.RedirectStandardOutput = true;

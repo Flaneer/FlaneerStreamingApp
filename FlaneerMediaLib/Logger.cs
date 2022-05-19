@@ -1,4 +1,4 @@
-﻿using System.Net.Sockets;
+﻿using Spectre.Console;
 
 namespace FlaneerMediaLib;
 
@@ -7,51 +7,52 @@ namespace FlaneerMediaLib;
 /// </summary>
 public class Logger
 {
-    /// <summary>
-    /// 
-    /// </summary>
-    public static Logger GetCurrentClassLogger()
+    private Type loggerType;
+    private string typeString;
+
+    private Logger(Type loggerType)
     {
-        return new Logger();
+        this.loggerType = loggerType;
+        typeString = loggerType.ToString().Split('.').Last();
     }
 
     /// <summary>
     /// 
     /// </summary>
-    /// <param name="s"></param>
-    /// <exception cref="NotImplementedException"></exception>
+    public static Logger GetLogger(object obj)
+    {
+        return new Logger(obj.GetType());
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>
     public void Info(string s)
     {
-        throw new NotImplementedException();
+        AnsiConsole.Markup($"[bold green](INFO :{typeString})[/] {s}\n");
     }
 
     /// <summary>
     /// 
     /// </summary>
-    /// <param name="socketException"></param>
-    /// <exception cref="NotImplementedException"></exception>
-    public void Error(Exception exception)
-    {
-        throw new NotImplementedException();
-    }
-
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <param name="s"></param>
-    /// <exception cref="NotImplementedException"></exception>
     public void Debug(string s)
     {
-        throw new NotImplementedException();
+        AnsiConsole.Markup($"[bold yellow](DEBUG:{typeString})[/] {s}\n");
+    }
+    
+    /// <summary>
+    /// 
+    /// </summary>
+    public void Error(Exception exception)
+    {
+        AnsiConsole.Markup($"[bold red](ERROR:{typeString})[/] {exception}\n");
     }
 
     /// <summary>
     /// 
     /// </summary>
-    /// <param name="socketException"></param>
-    /// <exception cref="NotImplementedException"></exception>
-    public void Error(string socketException)
+    public void Error(string exception)
     {
-        throw new NotImplementedException();
+        AnsiConsole.Markup($"[bold red](ERROR:{typeString})[/] {exception}\n");
     }
 }

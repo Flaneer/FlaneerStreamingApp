@@ -17,13 +17,15 @@ public class UDPVideoSink : IVideoSink
     private readonly IPAddress broadcast;
     private UInt32 nextFrame = 0;
     
-    private Logger logger = Logger.GetCurrentClassLogger();
+    private Logger logger;
 
     /// <summary>
     /// ctor
     /// </summary>
     public UDPVideoSink(string ip)
     {
+        logger = Logger.GetLogger(this);
+        
         broadcast = IPAddress.Parse(ip);
         s.SendBufferSize = Int16.MaxValue - Utils.UDPHEADERSIZE;
         GetEncoder();

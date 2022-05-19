@@ -9,10 +9,12 @@ public class UDPImageSource
     private readonly IVideoSource videoSource;
     private readonly FFMpegDecoder videoConv;
     
-    private Logger logger = Logger.GetCurrentClassLogger();
+    private Logger logger;
 
     public UDPImageSource()
     {
+        logger = Logger.GetLogger(this);
+        
         ServiceRegistry.TryGetService(out videoSource);
         videoConv = new FFMpegDecoder();
     }

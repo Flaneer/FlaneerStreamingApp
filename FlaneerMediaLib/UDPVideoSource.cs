@@ -26,7 +26,7 @@ namespace FlaneerMediaLib
 
         private bool frameWithPPSSP;
         
-        private Logger logger = Logger.GetCurrentClassLogger();
+        private Logger logger;
 
         /// <inheritdoc />
         public ICodecSettings CodecSettings => codecSettings;
@@ -38,6 +38,8 @@ namespace FlaneerMediaLib
         /// </summary>
         public UDPVideoSource(int listenPort)
         {
+            logger = Logger.GetLogger(this);
+            
             listener = new UdpClient(listenPort);
             groupEP = new IPEndPoint(IPAddress.Any, listenPort);
         }

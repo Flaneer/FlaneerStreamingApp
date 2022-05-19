@@ -1,36 +1,29 @@
-﻿using System;
-using System.Diagnostics;
-using System.Reflection;
+﻿using FlaneerMediaLib;
 using Xunit;
 
 namespace MediaLibTests;
 
 public class LoggerTests
 {
-    [Fact]
-    public void TestLogger()
+    [Fact(Skip = "Only used to test formatting")]
+    public void TestLogInfo()
     {
-        string NameOfCallingClass()
-        {
-            string fullName;
-            Type declaringType;
-            int skipFrames = 2;
-            do
-            {
-                MethodBase method = new StackFrame(skipFrames, false).GetMethod();
-                declaringType = method.DeclaringType;
-                if (declaringType == null)
-                {
-                    return method.Name;
-                }
-                skipFrames++;
-                fullName = declaringType.FullName;
-            }
-            while (declaringType.Module.Name.Equals("mscorlib.dll", StringComparison.OrdinalIgnoreCase));
-
-            return fullName;
-        }
-
-        var x = NameOfCallingClass();
+        var logger = Logger.GetLogger(this);
+        logger.Info("Hello 123 ?%&");
     }
+
+    [Fact(Skip = "Only used to test formatting")]
+    public void TestLogDebug()
+    {
+        var logger = Logger.GetLogger(this);
+        logger.Debug("Hello 123 ?%&");
+    }
+
+    [Fact(Skip = "Only used to test formatting")]
+    public void TestLogError()
+    {
+        var logger = Logger.GetLogger(this);
+        logger.Error("Hello 123 ?%&");
+    }
+
 }
