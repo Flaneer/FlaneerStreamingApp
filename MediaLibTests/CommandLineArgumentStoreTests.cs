@@ -5,22 +5,7 @@ using Xunit;
 
 namespace MediaLibTests;
 
-public class CommandLineArgumentStoreTests1
-{
-    private static readonly string[] INPUT = new[] {"-arg1", "-arg2", "param", "-arg3", "param1", "param2", "param3"};
-
-    [Fact]
-    public void TestArgParse()
-    {
-        CommandLineArguementStore.CreateAndRegister(INPUT);
-        ServiceRegistry.TryGetService<CommandLineArguementStore>(out var clas);
-
-        Assert.True(clas.HasArgument("arg1"));
-    }
-}
-
-
-public class CommandLineArgumentStoreTests2
+public class CommandLineArgumentStoreTests
 {
     private static readonly string[] INPUT = new[] {"-arg1", "-arg2", "param", "-arg3", "param1", "param2", "param3"};
     
@@ -29,7 +14,9 @@ public class CommandLineArgumentStoreTests2
     {
         CommandLineArguementStore.CreateAndRegister(INPUT);
         ServiceRegistry.TryGetService<CommandLineArguementStore>(out var clas);
-
+        
+        Assert.True(clas.HasArgument("arg1"));
+        
         var arg1Params = clas.GetParams("arg1");
         Assert.Equal(new string[]{}, arg1Params);
         
