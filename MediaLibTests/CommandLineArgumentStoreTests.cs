@@ -1,8 +1,12 @@
-﻿using FlaneerMediaLib;
+﻿using System.Net;
+using System.Net.Sockets;
+using FlaneerMediaLib;
 using Xunit;
 
 namespace MediaLibTests;
 
+[CollectionDefinition("Sequential", DisableParallelization = true)]
+[Collection("Sequential")]
 public class CommandLineArgumentStoreTests
 {
     private static readonly string[] INPUT = new[] {"-arg1", "-arg2", "param", "-arg3", "param1", "param2", "param3"};
@@ -15,7 +19,7 @@ public class CommandLineArgumentStoreTests
 
         Assert.True(clas.HasArgument("arg1"));
     }
-
+    
     [Fact]
     public void TestParamParse()
     {
