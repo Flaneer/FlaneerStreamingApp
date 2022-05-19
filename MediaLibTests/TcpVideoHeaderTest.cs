@@ -31,9 +31,11 @@ public class TcpVideoHeaderTest
         
 
         Assert.True(sink.SendData(packet));
-        while (waitingForReception)
+        int i = 0;
+        while (waitingForReception && i < 5)
         {
             Thread.Sleep(1);
+            i++;
         }
         Assert.Equal(packet, receivedBytes);
         

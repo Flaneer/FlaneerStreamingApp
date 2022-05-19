@@ -38,13 +38,9 @@ public class VideoHeaderSource: ITcpSource
     {
         Byte[] bytes = new Byte[PacketSize];
         
-        while (listener.Server.IsBound)
+        TcpClient client = listener.AcceptTcpClient();
+        while (client.Connected)
         {
-            // Perform a blocking call to accept requests.
-            // You could also use server.AcceptSocket() here.
-            TcpClient client = listener.AcceptTcpClient();
-            Console.WriteLine("Connected!");
-
             // Get a stream object for reading and writing
             NetworkStream stream = client.GetStream();
             stream.Read(bytes, 0, bytes.Length);
