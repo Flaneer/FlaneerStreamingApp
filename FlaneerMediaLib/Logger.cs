@@ -7,12 +7,12 @@ namespace FlaneerMediaLib;
 /// </summary>
 public class Logger
 {
-    private Type loggerType;
-    private string typeString;
+    private readonly LoggerFactory factory;
+    private readonly string typeString;
 
-    private Logger(Type loggerType)
+    internal Logger(Type loggerType, LoggerFactory factory)
     {
-        this.loggerType = loggerType;
+        this.factory = factory;
         typeString = loggerType.ToString().Split('.').Last();
     }
 
@@ -21,38 +21,26 @@ public class Logger
     /// </summary>
     public static Logger GetLogger(object obj)
     {
-        return new Logger(obj.GetType());
+        return LoggerFactory.CreateLogger(obj);
     }
 
     /// <summary>
     /// 
     /// </summary>
-    public void Info(string s)
-    {
-        AnsiConsole.Markup($"[bold green](INFO :{typeString})[/] {s}\n");
-    }
+    public void Info(string s) => factory.Info(s, typeString);
 
     /// <summary>
     /// 
     /// </summary>
-    public void Debug(string s)
-    {
-        AnsiConsole.Markup($"[bold yellow](DEBUG:{typeString})[/] {s}\n");
-    }
-    
-    /// <summary>
-    /// 
-    /// </summary>
-    public void Error(Exception exception)
-    {
-        AnsiConsole.Markup($"[bold red](ERROR:{typeString})[/] {exception}\n");
-    }
+    public void Debug(string s) => factory.Debug(s, typeString);
 
     /// <summary>
     /// 
     /// </summary>
-    public void Error(string exception)
-    {
-        AnsiConsole.Markup($"[bold red](ERROR:{typeString})[/] {exception}\n");
-    }
+    public void Error(Exception exception) => factory.Error(exception, typeString);
+
+    /// <summary>
+    /// 
+    /// </summary>
+    public void Error(string error) => factory.Error(error, typeString);
 }

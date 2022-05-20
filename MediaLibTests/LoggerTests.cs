@@ -1,11 +1,14 @@
-﻿using FlaneerMediaLib;
+﻿using System.Linq;
+using System.Threading;
+using FlaneerMediaLib;
+using Spectre.Console;
 using Xunit;
 
 namespace MediaLibTests;
 
 public class LoggerTests
 {
-    [Fact(Skip = "Only used to test formatting")]
+    [Fact]//(Skip = "Only used to test formatting")]
     public void TestLogInfo()
     {
         var logger = Logger.GetLogger(this);
@@ -25,5 +28,4 @@ public class LoggerTests
         var logger = Logger.GetLogger(this);
         logger.Error("Hello 123 ?%&");
     }
-
 }
