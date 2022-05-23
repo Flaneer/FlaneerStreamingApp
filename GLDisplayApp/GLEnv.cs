@@ -101,9 +101,12 @@ public class GLEnv
 
         //Draw the geometry.
         Gl.DrawElements(PrimitiveType.Triangles, (uint) ScreenSpaceQuadIndices.Length, DrawElementsType.UnsignedInt, null);
+        
+        
         framesDisplayed++;
         var averageFrameTime = (DateTime.Now - StartTime) / framesDisplayed;
-        logger.Debug($"AverageFrameTime = {averageFrameTime} | FPS = {1000/averageFrameTime.Milliseconds}");
+        logger.LogPerfStat("AverageFrameTime", averageFrameTime);
+        logger.LogPerfStat("FPS", 1000/averageFrameTime.Milliseconds);
     }
 
     private void OnUpdate(double obj)

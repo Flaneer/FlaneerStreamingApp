@@ -13,8 +13,12 @@ internal class LoggerFactory
     private static LoggerFactory Instance => instance ??= new LoggerFactory();
 
     private List<string> log = new List<string>();
+    private List<string> perfStats = new List<string>();
 
     private Table logTable = new Table();
+    private string displayMessage = "";
+    
+    private int logRows = 20;
 
     public LoggerFactory()
     {
@@ -25,48 +29,69 @@ internal class LoggerFactory
 
     private void CreateLogTable()
     {
-        var table = new Table();
-        table.Centered();
-        table.Expand = true;
-        table.NoBorder();
+        logTable = new Table();
+        logTable.Centered();
+        logTable.Expand = true;
+        logTable.NoBorder();
         
-        var col = table.AddColumn("");
-        Thread.Sleep(1000);
-
-        var perfStatsRow = table.AddRow("");
-        Thread.Sleep(1000);
-
-        var logRow = table.AddRow("");
-        Thread.Sleep(1000);
-
-
-        const int logRows = 10;
-        Task.Run(() => AnsiConsole.Live(table).StartAsync(ctx =>
+        logTable.AddColumn(" ");
+        logTable.AddRow(" ");
+        logTable.AddRow(" ");
+        Task.Run(() => AnsiConsole.Live(logTable).StartAsync(ctx =>
         {
-            var i = 0;
             while (true)
             {
-                perfStatsRow.Rows.Update(0, 0, new Text("row " + i));
-
-                string displayText = "";
-                var logsToDisplay = log.Take(new Range(Math.Max(log.Count - logRows, 0), log.Count)).ToList();
-                for (int j = 0; j < Math.Min(logRows, logsToDisplay.Count); j++)
+                lock (logTable)
                 {
-                    displayText += logsToDisplay[j];
-                }
+                    //TODO: add rules
 
-                logRow.Rows.Update(1, 0, new Markup(displayText));
-                ctx.Refresh();
+                    for (int i = 1; i < logRows; i++)
+                    {
+                        var displayText = GenerateDisplayText(logRows);
+                        logTable.Rows.Update(0,0,new Markup(displayText));
+                    }
+                    
+                    var perfText = GeneratePerfText();
+                    logTable.Rows.Update(1,0,new Markup(perfText));
+                    
+                    ctx.Refresh();
+                }
             }
         }));
     }
     
+    private string GeneratePerfText()
+    {
+        if (perfStats.Count == 0)
+            return displayMessage;
+        
+        lock (perfStats)
+        {
+            string sep = "        ";
+            displayMessage = string.Join(sep, perfStats);
+            perfStats.Clear();
+            return displayMessage;
+        }
+    }
+
+    private string GenerateDisplayText(int logRows)
+    {
+        string displayText = "";
+        var logsToDisplay = log.Take(new Range(Math.Max(log.Count - logRows, 0), log.Count)).ToList();
+        for (int j = 0; j < Math.Min(logRows, logsToDisplay.Count); j++)
+        {
+            displayText += logsToDisplay[j];
+        }
+
+        return displayText;
+    }
+
     /// <summary>
     /// 
     /// </summary>
     public void Info(string s, string typeString)
     {
-        log.Add($"[bold green](INFO :{typeString})[/] {s}\n");
+        log.Add($"[bold green]<INFO :{typeString}>[/] {s}\n");
     }
 
     /// <summary>
@@ -74,7 +99,7 @@ internal class LoggerFactory
     /// </summary>
     public void Debug(string s, string typeString)
     {
-        log.Add($"[bold yellow](DEBUG:{typeString})[/] {s}\n");
+        log.Add($"[bold yellow]<DEBUG:{typeString}>[/] {s}\n");
     }
     
     /// <summary>
@@ -82,7 +107,7 @@ internal class LoggerFactory
     /// </summary>
     public void Error(Exception exception, string typeString)
     {
-        log.Add($"[bold red](ERROR:{typeString})[/] {exception}\n");
+        log.Add($"[bold red]<ERROR:{typeString}>[/] {exception}\n");
     }
 
     /// <summary>
@@ -90,6 +115,14 @@ internal class LoggerFactory
     /// </summary>
     public void Error(string exception, string typeString)
     {
-        log.Add($"[bold red](ERROR:{typeString})[/] {exception}\n");
+        log.Add($"[bold red]<ERROR:{typeString}>[/] {exception}\n");
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    public void LogPerfStat(string stat, object value)
+    {
+        perfStats.Add($"[bold blue]{stat.ToUpper()}[/] [white on blue]{value.ToString()}[/]");
     }
 }
