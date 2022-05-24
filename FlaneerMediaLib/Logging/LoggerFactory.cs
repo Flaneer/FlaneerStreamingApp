@@ -33,7 +33,7 @@ internal class LoggerFactory
         AnsiConsole.MarkupLine(message);
     }
     
-    public void Debug(string s, string typeString)
+    internal void Debug(string s, string typeString)
     {
         var message = $"{TimeString()}{GetLogPrefix("bold yellow", typeString)} {s}";
         AnsiConsole.MarkupLine(message);
