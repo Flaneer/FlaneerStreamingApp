@@ -14,21 +14,15 @@ internal class LoggerFactory
 
     private List<string> log = new();
 
-    public static Logger CreateLogger(object obj) => new Logger(obj.GetType(), Instance);
+    internal static Logger CreateLogger(object obj) => new Logger(obj.GetType(), Instance);
 
-    /// <summary>
-    /// 
-    /// </summary>
-    public void Info(string s, string typeString)
+    internal void Info(string s, string typeString)
     {
         var message = $"[bold green]<INFO :{typeString}>[/] {s}";
         AnsiConsole.MarkupLine(message);
         log.Add(message);
     }
-
-    /// <summary>
-    /// 
-    /// </summary>
+    
     public void Debug(string s, string typeString)
     {
         var message = $"[bold yellow]<DEBUG:{typeString}>[/] {s}";
@@ -36,20 +30,14 @@ internal class LoggerFactory
         log.Add(message);
     }
     
-    /// <summary>
-    /// 
-    /// </summary>
-    public void Error(Exception exception, string typeString)
+    internal void Error(Exception exception, string typeString)
     {
         var message = $"[bold red]<ERROR:{typeString}>[/] {exception}";
         AnsiConsole.MarkupLine(message);
         log.Add(message);
     }
 
-    /// <summary>
-    /// 
-    /// </summary>
-    public void Error(string exception, string typeString)
+    internal void Error(string exception, string typeString)
     {
         var message = $"[bold red]<ERROR:{typeString}>[/] {exception}";
         AnsiConsole.MarkupLine(message);

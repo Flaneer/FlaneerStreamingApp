@@ -1,11 +1,10 @@
 ﻿namespace FlaneerMediaLib.Logging;
 
 /// <summary>
-/// 
+/// Logs stats specifically, will generate a single string that will be updated 
 /// </summary>
 public class StatLogging
 {
-    
     private static StatLogging instance = null!;
 
     // ReSharper disable once ConstantNullCoalescingCondition
@@ -25,7 +24,7 @@ public class StatLogging
     }
    
     /// <summary>
-    /// 
+    /// Returns a string with the latest values of all the stats split bit a series of spaces
     /// </summary>
     public static string GetPerfStats()
     {

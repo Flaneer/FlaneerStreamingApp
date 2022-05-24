@@ -59,7 +59,7 @@ public class LoggerTests
         return ret;
     }
     
-    [Fact(Skip = "Only used to test formatting")]
+    [Fact]//(Skip = "Only used to test formatting")]
     public void TestFullLogging()
     {
         var loggers = new[]

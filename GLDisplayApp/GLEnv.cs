@@ -108,7 +108,7 @@ public class GLEnv
         var averageFrameTime = (DateTime.Now - StartTime) / framesDisplayed;
         StatLogging.LogPerfStat("AverageFrameTime", averageFrameTime);
         StatLogging.LogPerfStat("FPS", 1000/averageFrameTime.Milliseconds);
-        logger.Debug("Display Frame");
+        logger.Debug($"Display Frame: {framesDisplayed}");
     }
 
     private void OnUpdate(double obj)
