@@ -25,6 +25,10 @@ public class MediaEncoderLifeCycleManager : IDisposable
                 this.videoSource = new UDPVideoSource(11000);
                 ServiceRegistry.AddService(this.videoSource);
                 break;
+            case VideoSource.TestH264:
+                this.videoSource = new LocalFramesVideoSource();
+                ServiceRegistry.AddService(this.videoSource);
+                break;
             default:
                 throw new ArgumentOutOfRangeException(nameof(videoSource), videoSource, null);
         }
