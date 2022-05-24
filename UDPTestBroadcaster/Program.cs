@@ -14,9 +14,11 @@ class Program
     
     static void Main(string[] args)
     {
+        CommandLineArguementStore.CreateAndRegister(args);
+     
         InitialiseMediaEncoder();
 
-        IVideoSink videoSink = new UDPVideoSink("212.132.204.217");
+        IVideoSink videoSink = new UDPVideoSink();
         var videoSettings = new VideoSettings();
         videoSink.ProcessFrames(600, videoSettings.MaxFPS);
         

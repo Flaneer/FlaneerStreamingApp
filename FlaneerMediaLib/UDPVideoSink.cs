@@ -16,6 +16,7 @@ public class UDPVideoSink : IVideoSink
 
     private readonly Socket s = new(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
     private readonly IPAddress broadcast;
+    private readonly int port;
     private UInt32 nextFrame = 0;
     
     private Logger logger;
@@ -23,11 +24,14 @@ public class UDPVideoSink : IVideoSink
     /// <summary>
     /// ctor
     /// </summary>
-    public UDPVideoSink(string ip)
+    public UDPVideoSink()
     {
         logger = Logger.GetLogger(this);
+        ServiceRegistry.TryGetService<CommandLineArguementStore>(out var clas);
+        var frameSettings = clas.GetParams(CommandLineArgs.BroadcastAddress);
         
-        broadcast = IPAddress.Parse(ip);
+        broadcast = IPAddress.Parse(frameSettings[0]);
+        port = Int32.Parse(frameSettings[1]);
         s.SendBufferSize = Int16.MaxValue - Utils.UDPHEADERSIZE;
         GetEncoder();
         GetSource();
@@ -110,7 +114,7 @@ public class UDPVideoSink : IVideoSink
         var frameWritableSize = Int16.MaxValue - Utils.UDPHEADERSIZE;
         var numberOfPackets = (byte) Math.Ceiling((double)frame.FrameSize / frameWritableSize);
             
-        var ep = new IPEndPoint(broadcast, 11000);
+        var ep = new IPEndPoint(broadcast, port);
         var sent = 0;
         for (byte i = 0; i < numberOfPackets; i++)
         {
