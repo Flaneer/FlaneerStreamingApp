@@ -1,5 +1,6 @@
-﻿using GLDisplayApp;
-using NLog;
+﻿using FlaneerMediaLib;
+using FlaneerMediaLib.Logging;
+using GLDisplayApp;
 using Silk.NET.OpenGL;
 using Silk.NET.Windowing;
 
@@ -25,7 +26,7 @@ public class GLEnv
     private DateTime StartTime = DateTime.Now;
     private int framesDisplayed = 0;
 
-    private Logger logger = LogManager.GetCurrentClassLogger();
+    private Logger logger;
 
     // OpenGL has image origin in the bottom-left corner.
     private static readonly float[] ScreenSpaceQuadVertices =
@@ -48,10 +49,12 @@ public class GLEnv
 
     public GLEnv(GLWindow windowIn)
     {
+        logger = Logger.GetLogger(this);
+        
         window = windowIn.window;
 
         imageSource = new UDPImageSource();
-        
+
         window.Load += OnLoad;
         window.Render += OnRender;
         window.Update += OnUpdate;
@@ -99,9 +102,13 @@ public class GLEnv
 
         //Draw the geometry.
         Gl.DrawElements(PrimitiveType.Triangles, (uint) ScreenSpaceQuadIndices.Length, DrawElementsType.UnsignedInt, null);
+        
+        
         framesDisplayed++;
         var averageFrameTime = (DateTime.Now - StartTime) / framesDisplayed;
-        logger.Debug($"AverageFrameTime = {averageFrameTime} | FPS = {1000/averageFrameTime.Milliseconds}");
+        StatLogging.LogPerfStat("AverageFrameTime", averageFrameTime);
+        StatLogging.LogPerfStat("FPS", 1000/averageFrameTime.Milliseconds);
+        logger.Debug($"Display Frame: {framesDisplayed}");
     }
 
     private void OnUpdate(double obj)
@@ -115,6 +122,8 @@ public class GLEnv
                                 PixelFormat.Rgba, PixelType.UnsignedByte, p);
             }
         }
+
+        window.Title = "Flaneer Streaming: " + StatLogging.GetPerfStats();
     }
 
     private void OnClose()

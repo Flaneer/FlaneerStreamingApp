@@ -1,8 +1,8 @@
 ﻿using System.Diagnostics;
 using System.Net;
 using System.Net.Sockets;
+using FlaneerMediaLib.Logging;
 using FlaneerMediaLib.VideoDataTypes;
-using NLog;
 
 namespace FlaneerMediaLib;
 
@@ -19,7 +19,7 @@ public class UDPVideoSink : IVideoSink
     private readonly int port;
     private UInt32 nextFrame = 0;
     
-    private Logger logger = LogManager.GetCurrentClassLogger();
+    private Logger logger;
 
     /// <summary>
     /// ctor
