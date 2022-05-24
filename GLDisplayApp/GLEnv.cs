@@ -45,11 +45,19 @@ public class GLEnv
     };
 
     private readonly UDPImageSource imageSource;
-    private byte[] pixels = new byte[1920*1080*32];
+    private byte[] pixels;
 
     public GLEnv(GLWindow windowIn)
     {
         logger = Logger.GetLogger(this);
+        
+        
+        ServiceRegistry.TryGetService<CommandLineArguementStore>(out var clas);
+        var frameSettings = clas.GetParams(CommandLineArgs.FrameSettings);
+        var width = Int32.Parse(frameSettings[0]);
+        var height = Int32.Parse(frameSettings[1]);
+
+        pixels = new byte[width * height * 32];
         
         window = windowIn.window;
 

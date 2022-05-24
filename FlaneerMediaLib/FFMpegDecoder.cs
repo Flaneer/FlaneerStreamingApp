@@ -21,6 +21,8 @@ public class FFMpegDecoder : IDisposable
     private MemoryStream frameOut;
     
     private Logger logger;
+    private readonly int width;
+    private readonly int height;
 
     /// <summary>
     /// ctor
@@ -28,6 +30,11 @@ public class FFMpegDecoder : IDisposable
     public FFMpegDecoder(string logLevelIn = "quiet")
     {
         logger = Logger.GetLogger(this);
+        
+        ServiceRegistry.TryGetService<CommandLineArguementStore>(out var clas);
+        var frameSettings = clas.GetParams(CommandLineArgs.FrameSettings);
+        width = Int32.Parse(frameSettings[0]);
+        height = Int32.Parse(frameSettings[1]);
         
         ffmpegProcess.StartInfo.FileName = FFMPEGPATH;
         ffmpegProcess.StartInfo.UseShellExecute = false;
@@ -45,7 +52,7 @@ public class FFMpegDecoder : IDisposable
         ffmpegProcess.StartInfo.Arguments = $"{logLevel} -re {inputFormat} {input} {pixFmt} {codec} {numFrames} {outFormat} {output}";
 
         //TODO: pass as params
-        frameOut = new MemoryStream(1920*1080*32);
+        frameOut = new MemoryStream(width*height*32);
     }
 
     /// <summary>

@@ -11,10 +11,19 @@ public class UDPImageSource
     private readonly FFMpegDecoder videoConv;
     
     private Logger logger;
+    
+    private readonly short width;
+    private readonly short height;
 
     public UDPImageSource()
     {
         logger = Logger.GetLogger(this);
+        
+        
+        ServiceRegistry.TryGetService<CommandLineArguementStore>(out var clas);
+        var frameSettings = clas.GetParams(CommandLineArgs.FrameSettings);
+        width =  Int16.Parse(frameSettings[0]);
+        height = Int16.Parse(frameSettings[1]);
         
         ServiceRegistry.TryGetService(out videoSource);
         videoConv = new FFMpegDecoder();
@@ -36,8 +45,8 @@ public class UDPImageSource
             
             return new ManagedVideoFrame()
             {
-                Width = 1920,
-                Height = 1080,
+                Width = width,
+                Height = height,
                 Stream = frameOut
             };
         }

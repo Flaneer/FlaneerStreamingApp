@@ -67,8 +67,8 @@ public class LocalFramesVideoSource : IVideoSource
         return new ManagedVideoFrame
         {
             Codec = VideoCodec.H264,
-            Height = 1920,
-            Width = 1080,
+            Height = (short) FrameSettings.Height,
+            Width = (short) FrameSettings.Width,
             Stream = new MemoryStream(File.ReadAllBytes(FileNameFromIdx(currentFrame)))
         };
     }
