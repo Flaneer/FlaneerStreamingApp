@@ -31,7 +31,9 @@
         /// </summary>
         public static void AddService<T>(T service) where T : IService
         {
-            foreach (var ifce in service.GetType().GetInterfaces())
+            Instance.registry.Add(service.GetType(), service);
+            ServiceAdded?.Invoke(service);
+            foreach (var ifce in service.GetType().GetInterfaces().Where(type => type != typeof(IService)))
             {
                 Instance.registry.Add(ifce, service);
                 ServiceAdded?.Invoke(service);

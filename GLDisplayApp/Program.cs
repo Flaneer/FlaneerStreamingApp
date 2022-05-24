@@ -1,12 +1,15 @@
 ﻿using FlaneerMediaLib;
 using FlaneerMediaLib.VideoDataTypes;
+using GLFWTestApp;
 
-namespace GLFWTestApp;
+namespace GLDisplayApp;
 
 internal static class Program
 {
     private static void Main(string[] args)
     {
+        CommandLineArguementStore.CreateAndRegister(args);
+        
         InitialiseMediaEncoder();
         GLWindow window = new GLWindow(1920, 1080);
         GLEnv env = new GLEnv(window);
@@ -37,7 +40,11 @@ internal static class Program
             Format = videoSettings.Format,
             GoPLength = (short)videoSettings.GoPLength
         };
-        MediaEncoderLifeCycleManager encoderLifeCycleManager = new MediaEncoderLifeCycleManager(VideoSource.UDPH264);
+        
+        ServiceRegistry.TryGetService<CommandLineArguementStore>(out var clas);
+        var videoSource = clas.HasArgument(CommandLineArgs.UseLocalFrames) ? VideoSource.TestH264 : VideoSource.UDPH264;
+        
+        MediaEncoderLifeCycleManager encoderLifeCycleManager = new MediaEncoderLifeCycleManager(videoSource);
         encoderLifeCycleManager.InitVideoSource(frameSettings, codecSettings);
     }
 }
