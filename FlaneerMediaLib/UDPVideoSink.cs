@@ -1,8 +1,8 @@
 ﻿using System.Diagnostics;
 using System.Net;
 using System.Net.Sockets;
+using FlaneerMediaLib.Logging;
 using FlaneerMediaLib.VideoDataTypes;
-using NLog;
 
 namespace FlaneerMediaLib;
 
@@ -18,13 +18,15 @@ public class UDPVideoSink : IVideoSink
     private readonly IPAddress broadcast;
     private UInt32 nextFrame = 0;
     
-    private Logger logger = LogManager.GetCurrentClassLogger();
+    private Logger logger;
 
     /// <summary>
     /// ctor
     /// </summary>
     public UDPVideoSink(string ip)
     {
+        logger = Logger.GetLogger(this);
+        
         broadcast = IPAddress.Parse(ip);
         s.SendBufferSize = Int16.MaxValue - Utils.UDPHEADERSIZE;
         GetEncoder();

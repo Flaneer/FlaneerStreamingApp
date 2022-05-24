@@ -1,5 +1,5 @@
 ﻿using System.Diagnostics;
-using NLog;
+using FlaneerMediaLib.Logging;
 
 namespace FlaneerMediaLib;
 
@@ -20,13 +20,15 @@ public class FFMpegDecoder : IDisposable
     private Process ffmpegProcess = new Process();
     private MemoryStream frameOut;
     
-    private Logger logger = LogManager.GetCurrentClassLogger();
+    private Logger logger;
 
     /// <summary>
     /// ctor
     /// </summary>
     public FFMpegDecoder(string logLevelIn = "quiet")
     {
+        logger = Logger.GetLogger(this);
+        
         ffmpegProcess.StartInfo.FileName = FFMPEGPATH;
         ffmpegProcess.StartInfo.UseShellExecute = false;
         ffmpegProcess.StartInfo.RedirectStandardOutput = true;

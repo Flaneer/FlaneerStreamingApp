@@ -23,7 +23,6 @@
         {
         }
 
-        // 
         // ReSharper disable once ConstantNullCoalescingCondition
         private static ServiceRegistry Instance => instance ??= new ServiceRegistry();
 

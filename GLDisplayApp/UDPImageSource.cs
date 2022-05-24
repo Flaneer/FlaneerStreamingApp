@@ -1,7 +1,7 @@
 ﻿using System.Net.Sockets;
 using FlaneerMediaLib;
+using FlaneerMediaLib.Logging;
 using FlaneerMediaLib.VideoDataTypes;
-using NLog;
 
 namespace GLDisplayApp;
 
@@ -10,10 +10,12 @@ public class UDPImageSource
     private readonly IVideoSource videoSource;
     private readonly FFMpegDecoder videoConv;
     
-    private Logger logger = LogManager.GetCurrentClassLogger();
+    private Logger logger;
 
     public UDPImageSource()
     {
+        logger = Logger.GetLogger(this);
+        
         ServiceRegistry.TryGetService(out videoSource);
         videoConv = new FFMpegDecoder();
     }

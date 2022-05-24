@@ -1,7 +1,7 @@
 ﻿using System.Net;
 using System.Net.Sockets;
+using FlaneerMediaLib.Logging;
 using FlaneerMediaLib.VideoDataTypes;
-using NLog;
 
 namespace FlaneerMediaLib
 {
@@ -27,7 +27,7 @@ namespace FlaneerMediaLib
 
         private bool frameWithPPSSP;
         
-        private Logger logger = LogManager.GetCurrentClassLogger();
+        private Logger logger;
 
         /// <inheritdoc />
         public ICodecSettings CodecSettings => codecSettings;
@@ -39,6 +39,8 @@ namespace FlaneerMediaLib
         /// </summary>
         public UDPVideoSource(int listenPort)
         {
+            logger = Logger.GetLogger(this);
+            
             listener = new UdpClient(listenPort);
             groupEP = new IPEndPoint(IPAddress.Any, listenPort);
         }
