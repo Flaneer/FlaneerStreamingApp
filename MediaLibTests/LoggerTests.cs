@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using FlaneerMediaLib;
+using FlaneerMediaLib.Logging;
 using Spectre.Console;
 using Xunit;
 
@@ -58,7 +59,7 @@ public class LoggerTests
         return ret;
     }
     
-    [Fact]
+    [Fact(Skip = "Only used to test formatting")]
     public void TestFullLogging()
     {
         var loggers = new[]
@@ -89,13 +90,6 @@ public class LoggerTests
                         logger.Info(Shuffle(words));
                         break;
                 }
-
-                var randomWaitTime = Random.Next(10);
-                
-                logger.LogPerfStat("FPS", 60 + Random.Next(10));
-                logger.LogPerfStat("ABC", 100 + Random.Next(99));
-                logger.LogPerfStat("XYZ", $"{Random.Next(99)}%");
-                
                 Thread.Sleep(200);
             }
         });

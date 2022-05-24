@@ -1,6 +1,4 @@
-﻿using Spectre.Console;
-
-namespace FlaneerMediaLib;
+﻿namespace FlaneerMediaLib.Logging;
 
 /// <summary>
 /// 
@@ -43,10 +41,4 @@ public class Logger
     /// 
     /// </summary>
     public void Error(string error) => factory.Error(error, typeString);
-
-    /// <summary>
-    /// Logs an always visible stat, intended for continuously updating values.
-    /// <remarks>This will use the <code>ToString()</code> method for <see cref="value"/></remarks>
-    /// </summary>
-    public void LogPerfStat(string name, object value) => factory.LogPerfStat(name, value);
 }

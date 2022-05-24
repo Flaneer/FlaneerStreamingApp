@@ -1,4 +1,5 @@
 ﻿using FlaneerMediaLib;
+using FlaneerMediaLib.Logging;
 using GLDisplayApp;
 using Silk.NET.OpenGL;
 using Silk.NET.Windowing;
@@ -105,8 +106,9 @@ public class GLEnv
         
         framesDisplayed++;
         var averageFrameTime = (DateTime.Now - StartTime) / framesDisplayed;
-        logger.LogPerfStat("AverageFrameTime", averageFrameTime);
-        logger.LogPerfStat("FPS", 1000/averageFrameTime.Milliseconds);
+        StatLogging.LogPerfStat("AverageFrameTime", averageFrameTime);
+        StatLogging.LogPerfStat("FPS", 1000/averageFrameTime.Milliseconds);
+        logger.Debug("Display Frame");
     }
 
     private void OnUpdate(double obj)
@@ -120,6 +122,8 @@ public class GLEnv
                                 PixelFormat.Rgba, PixelType.UnsignedByte, p);
             }
         }
+
+        window.Title = "Flaneer Streaming: " + StatLogging.GetPerfStats();
     }
 
     private void OnClose()
