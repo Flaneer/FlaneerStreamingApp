@@ -11,7 +11,8 @@ namespace LocalMediaFileOut
         readonly IEncoder? encoder;
 
         Socket s = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
-        IPAddress broadcast = IPAddress.Parse("212.132.204.217");
+        private readonly IPAddress broadcast;
+        private readonly int port;
 
         private const int UDPHEADERSIZE = 28;
         
@@ -19,6 +20,11 @@ namespace LocalMediaFileOut
         {
             if (ServiceRegistry.TryGetService<IEncoder>(out var encoderOut))
                 encoder = encoderOut;
+            
+            ServiceRegistry.TryGetService<CommandLineArguementStore>(out var clas);
+            var frameSettings = clas.GetParams(CommandLineArgs.BroadcastAddress);
+            broadcast = IPAddress.Parse(frameSettings[0]);
+            port = Int32.Parse(frameSettings[1]);
         }
 
         public unsafe void Capture(int numberOfFrames, int targetFramerate)
@@ -61,7 +67,7 @@ namespace LocalMediaFileOut
     
                                 sent += n;
             
-                                IPEndPoint ep = new IPEndPoint(broadcast, 11000);
+                                IPEndPoint ep = new IPEndPoint(broadcast, port);
                                 s.SendTo(bytes, ep);
                                 Console.WriteLine($"SENT CHUNK | {sent}/{ustream.Length}");
                             }
