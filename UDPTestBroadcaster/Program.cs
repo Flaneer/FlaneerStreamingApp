@@ -1,33 +1,24 @@
 ﻿using FlaneerMediaLib;
 using FlaneerMediaLib.VideoDataTypes;
+using GLDisplayApp;
 
 class Program
 {
-    class VideoSettings
-    {
-        public int Height = 1440;
-        public int Width = 2560;
-        public int MaxFPS = 60;
-        public BufferFormat Format = BufferFormat.ARGB;
-        public int GoPLength = 5;
-    }
-    
     static void Main(string[] args)
     {
         CommandLineArguementStore.CreateAndRegister(args);
      
-        InitialiseMediaEncoder();
+        var videoSettings = new VideoSettings();
+        InitialiseMediaEncoder(videoSettings);
 
         IVideoSink videoSink = new UDPVideoSink();
-        var videoSettings = new VideoSettings();
         videoSink.ProcessFrames(600, videoSettings.MaxFPS);
         
         Console.WriteLine("Message sent to the broadcast address");
     }
 
-    private static void InitialiseMediaEncoder()
+    private static void InitialiseMediaEncoder(VideoSettings videoSettings)
     {
-        var videoSettings = new VideoSettings();
         var frameSettings = new FrameSettings()
         {
             Height = (short) videoSettings.Height,
