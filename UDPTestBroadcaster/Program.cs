@@ -1,6 +1,5 @@
 ﻿using FlaneerMediaLib;
 using FlaneerMediaLib.VideoDataTypes;
-using GLDisplayApp;
 
 class Program
 {

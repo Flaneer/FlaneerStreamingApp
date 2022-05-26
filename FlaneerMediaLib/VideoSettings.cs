@@ -1,7 +1,6 @@
-﻿using FlaneerMediaLib;
-using FlaneerMediaLib.VideoDataTypes;
+﻿using FlaneerMediaLib.VideoDataTypes;
 
-namespace GLDisplayApp;
+namespace FlaneerMediaLib;
 
 /// <summary>
 /// Class to parse the video settings from the command line
