@@ -116,7 +116,6 @@ public class GLEnv
         var averageFrameTime = (DateTime.Now - StartTime) / framesDisplayed;
         StatLogging.LogPerfStat("AverageFrameTime", averageFrameTime);
         StatLogging.LogPerfStat("FPS", 1000/averageFrameTime.Milliseconds);
-        logger.Debug($"Display Frame: {framesDisplayed}");
     }
 
     private void OnUpdate(double obj)
@@ -124,7 +123,7 @@ public class GLEnv
         unsafe
         {
             var frame = imageSource.GetImage();
-            fixed (void* p = frame.Stream.ToArray())
+            fixed (void* p = frame.Stream.GetBuffer())
             {
                 Gl.TexImage2D(TextureTarget.Texture2D, 0, InternalFormat.Rgba, (uint) frame.Width, (uint) frame.Height, 0,
                                 PixelFormat.Rgba, PixelType.UnsignedByte, p);
