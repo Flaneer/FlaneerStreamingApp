@@ -82,7 +82,7 @@ public class UDPVideoSink : IVideoSink
         
         Stopwatch stopWatch = new Stopwatch();
         stopWatch.Start();
-        var frameTime = targetFramerate == -1 ? new TimeSpan(0) : new TimeSpan(0, 0, (int)Math.Floor(1.0f/ targetFramerate));
+        var frameTime = targetFramerate == -1 ? new TimeSpan(0) : new TimeSpan(0, 0, 0, 0, 1000 / targetFramerate);
 
         for (int i = 0; i < numberOfFrames; i++)
         {
@@ -105,6 +105,7 @@ public class UDPVideoSink : IVideoSink
         stopWatch.Stop();
     }
 
+    private int sentPacketCount = 0;
     private unsafe void SendFrame(UnmanagedVideoFrame frame)
     {
         using var uStream = new UnmanagedMemoryStream((byte*) frame.FrameData, frame.FrameSize);
@@ -138,7 +139,7 @@ public class UDPVideoSink : IVideoSink
             s.SendTo(transmissionArray, ep);
 
             sent += packetSize;
-            logger.Debug($"SENT CHUNK OF {nextFrame} | {sent} / {frame.FrameSize}");
+            logger.Debug($"SENT CHUNK OF {nextFrame} | {sent} / {frame.FrameSize} [gray]Total Sent Packets = {sentPacketCount++}[/]");
             
         }
         nextFrame++;
