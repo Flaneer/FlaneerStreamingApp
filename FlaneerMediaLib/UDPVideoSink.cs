@@ -95,7 +95,7 @@ public class UDPVideoSink : IVideoSink
             {
                 var frame = encoder.GetFrame();
                 if(frame is UnmanagedVideoFrame unmanagedFrame)
-                    SendFrame(unmanagedFrame);
+                    SendFrame(unmanagedFrame, frameTime);
             }
             catch (Exception)
             {
@@ -106,7 +106,7 @@ public class UDPVideoSink : IVideoSink
     }
 
     private int sentPacketCount = 0;
-    private unsafe void SendFrame(UnmanagedVideoFrame frame)
+    private unsafe void SendFrame(UnmanagedVideoFrame frame, TimeSpan frameTime)
     {
         using var uStream = new UnmanagedMemoryStream((byte*) frame.FrameData, frame.FrameSize);
         var frameBytes = new byte[frame.FrameSize];
@@ -141,6 +141,7 @@ public class UDPVideoSink : IVideoSink
             sent += packetSize;
             logger.Debug($"SENT CHUNK OF {nextFrame} | {sent} / {frame.FrameSize} [gray]Total Sent Packets = {sentPacketCount++}[/]");
             
+            Thread.Sleep(frameTime/numberOfPackets);
         }
         nextFrame++;
     }
