@@ -53,7 +53,7 @@ internal class LoggerFactory
 
     internal void Trace(string s, string typeString)
     {
-        var message = $"{GetLogPrefix("gray", typeString)} {s}";
+        var message = $"{GetLogPrefix("gray", typeString)} [gray]{s}[/]";
         AnsiConsole.MarkupLine(message);
     }
 }
