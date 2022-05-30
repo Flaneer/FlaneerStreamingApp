@@ -33,6 +33,11 @@ public class Logger
     public void Debug(string s) => factory.Debug(s, typeString);
 
     /// <summary>
+    /// Logs at the trace level
+    /// </summary>
+    public void Trace(string s) => factory.Trace(s, typeString);
+
+    /// <summary>
     /// Logs at the error level
     /// </summary>
     public void Error(Exception exception) => factory.Error(exception, typeString);
