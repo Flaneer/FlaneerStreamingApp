@@ -9,6 +9,9 @@ internal static class Program
     private static void Main(string[] args)
     {
         CommandLineArguementStore.CreateAndRegister(args);
+
+        var UDPReceiver = new UDPReceiver();
+        ServiceRegistry.AddService(UDPReceiver);
         
         var videoSettings = new VideoSettings();
         InitialiseMediaEncoder();

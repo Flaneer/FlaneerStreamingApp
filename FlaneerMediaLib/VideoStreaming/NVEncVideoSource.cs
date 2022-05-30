@@ -25,7 +25,7 @@ namespace FlaneerMediaLib
                 default:
                     throw new ArgumentOutOfRangeException(nameof(codecSettingsIn));
             }
-            return Wrapper.Init(Utils.FromFrameSettings(frameSettingsIn), Utils.FromCodecSettings(codecSettingsIn));
+            return Wrapper.Init(VideoUtils.FromFrameSettings(frameSettingsIn), VideoUtils.FromCodecSettings(codecSettingsIn));
         }
 
         public IVideoFrame GetFrame()

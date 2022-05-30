@@ -6,11 +6,12 @@ namespace FlaneerMediaLib.VideoDataTypes;
 /// Video frame for transmission
 /// <remarks>This does not contain the actual frame data it only creates the header to avoid moving the larger frame data</remarks>
 /// </summary>
-public class TransmissionVideoFrame : IVideoFrame
+public class TransmissionVideoFrame : IPacketInfo, IVideoFrame
 {
     /// <inheritdoc/>
+    public PacketType PacketType => PacketType.VideoStreamPacket;
+    /// <inheritdoc/>
     public VideoCodec Codec { get; set; }
-    
     /// <inheritdoc/>
     public short Width { get; set; }
     /// <inheritdoc/>
@@ -47,6 +48,7 @@ public class TransmissionVideoFrame : IVideoFrame
         byte[] ret = new byte[HeaderSize];
         using MemoryStream stream = new MemoryStream(ret);
         using var writer = new BinaryWriter(stream, Encoding.UTF8, false);
+        writer.Write((byte) PacketType);
         writer.Write(Width);
         writer.Write(Height);
         writer.Write(SequenceIDX);
@@ -64,6 +66,13 @@ public class TransmissionVideoFrame : IVideoFrame
     {
         using var stream = new MemoryStream(packet, 0, HeaderSize);
         using var reader = new BinaryReader(stream, Encoding.UTF8, false);
+
+        //NOTE: this check also moves the reader beyond the type byte
+        var packetType = reader.ReadByte();
+        if (packetType != (byte)PacketType.VideoStreamPacket)
+        {
+            throw new Exception($"Trying to decode a {(PacketType) packetType} as a {PacketType.VideoStreamPacket}");
+        }
 
         return new TransmissionVideoFrame()
         {

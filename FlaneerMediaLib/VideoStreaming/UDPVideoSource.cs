@@ -14,14 +14,10 @@ namespace FlaneerMediaLib
         private ICodecSettings codecSettings = null!;
         private VideoCodec codec;
 
-        private readonly UdpClient listener;
-        private IPEndPoint groupEP;
-
         private readonly Dictionary<UInt32, ManagedVideoFrame> frameBuffer = new();
         private readonly Dictionary<TransmissionVideoFrame, byte[]> partialFrames = new();
         private UInt32 lastFrame;
-
-        private bool receiving;
+        
         private bool waitingForPPSSPS = true;
         private readonly byte[] ppssps = new byte[34];
 
@@ -31,6 +27,7 @@ namespace FlaneerMediaLib
 
         /// <inheritdoc />
         public ICodecSettings CodecSettings => codecSettings;
+        
         /// <inheritdoc />
         public FrameSettings FrameSettings => frameSettings;
         
@@ -40,9 +37,6 @@ namespace FlaneerMediaLib
         public UDPVideoSource(int listenPort)
         {
             logger = Logger.GetLogger(this);
-            
-            listener = new UdpClient(listenPort);
-            groupEP = new IPEndPoint(IPAddress.Any, listenPort);
         }
 
         
@@ -60,6 +54,7 @@ namespace FlaneerMediaLib
                     throw new ArgumentOutOfRangeException(nameof(codecSettingsIn));
             }
 
+            //TODO: Check if this is still needed
             //Initialise dictionary, so it can be used as a pool
             for (UInt32 i = 0; i < byte.MaxValue; i++)
             {
@@ -69,37 +64,24 @@ namespace FlaneerMediaLib
                 }
             }
 
-            receiving = true;
-            BeginReceptionThread();
+            if (!ServiceRegistry.TryGetService(out UDPReceiver receiver))
+            {
+                throw new Exception("No UDP Receiver");
+            }
+            
+            receiver.SubscribeToReceptionTraffic(PacketType.VideoStreamPacket, FrameCallBack);
             
             return true;
         }
 
-        private void BeginReceptionThread()
+        private void FrameCallBack(byte[] framePacket)
         {
-            Task.Run(() =>
-            {
-                while (receiving)
-                {
-                    FrameReception();
-                    FrameCleanup();
-                }
-            });
+            FrameReception(framePacket);
+            FrameCleanup();
         }
-
-        private void FrameReception()
+        
+        private void FrameReception(byte[] receivedBytes)
         {
-            byte[] receivedBytes;
-            try
-            {
-                receivedBytes = listener.Receive(ref groupEP);
-            }
-            catch (Exception e)
-            {
-                logger.Error(e.ToString());
-                return;
-            }
-
             if (waitingForPPSSPS)
             {
                 ScanForPPS_SPS(receivedBytes);
@@ -205,7 +187,7 @@ namespace FlaneerMediaLib
 
             partialFrames.Add(receivedFrame, frameData);
             
-            logger.Debug($"Received ({receivedFrame.PacketIdx+1}/{receivedFrame.NumberOfPackets}) of frame {receivedFrame.SequenceIDX}");
+            logger.Trace($"Received ({receivedFrame.PacketIdx+1}/{receivedFrame.NumberOfPackets}) of frame {receivedFrame.SequenceIDX}");
             
             var parts = partialFrames.Where(GetMatchingSequencePredicate);
             if (parts.Count() == receivedFrame.NumberOfPackets)
@@ -214,6 +196,7 @@ namespace FlaneerMediaLib
             }
         }
 
+        private int assembledFrames = 0;
         private void AssembleFrame(UInt32 sequenceIDX, IEnumerable<KeyValuePair<TransmissionVideoFrame, byte[]>> parts)
         {
             var orderedParts = parts.OrderBy(pair => pair.Key.PacketIdx);
@@ -234,6 +217,7 @@ namespace FlaneerMediaLib
                 partialFrames.Remove(part.Key);
             }
             logger.Debug($"Assembled packets for sequence {sequenceIDX}");
+            StatLogging.LogPerfStat("Assembled Frames: ", ++assembledFrames);
         }
 
         /// <inheritdoc />
@@ -244,12 +228,10 @@ namespace FlaneerMediaLib
                 return frameBuffer[lastFrame];
             }
         }
-        
+
         /// <inheritdoc />
         public void Dispose()
         {
-            receiving = false;
-            listener.Dispose();
         }
     }
 }

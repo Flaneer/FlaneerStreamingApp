@@ -32,7 +32,7 @@ public class UDPVideoSink : IVideoSink
         
         broadcast = IPAddress.Parse(frameSettings[0]);
         port = Int32.Parse(frameSettings[1]);
-        s.SendBufferSize = Int16.MaxValue - Utils.UDPHEADERSIZE;
+        s.SendBufferSize = Int16.MaxValue - VideoUtils.UDPHEADERSIZE;
         GetEncoder();
         GetSource();
     }
@@ -112,7 +112,7 @@ public class UDPVideoSink : IVideoSink
         var frameBytes = new byte[frame.FrameSize];
         uStream.Read(frameBytes, 0, frame.FrameSize);
             
-        var frameWritableSize = Int16.MaxValue - Utils.UDPHEADERSIZE;
+        var frameWritableSize = Int16.MaxValue - VideoUtils.UDPHEADERSIZE;
         var numberOfPackets = (byte) Math.Ceiling((double)frame.FrameSize / frameWritableSize);
             
         var ep = new IPEndPoint(broadcast, port);
