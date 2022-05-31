@@ -38,7 +38,7 @@ public class TransmissionVideoFrame : IPacketInfo, IVideoFrame
     /// The size of the header in bytes
     /// <remarks>This is manually calculated</remarks>
     /// </summary>
-    public const int HeaderSize = 14;
+    public const int HeaderSize = 15;
     
     /// <summary>
     /// Converts the data in this class to a byte array that can be decoded
