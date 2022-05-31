@@ -21,7 +21,7 @@ namespace LocalMediaFileOut
             if (ServiceRegistry.TryGetService<IEncoder>(out var encoderOut))
                 encoder = encoderOut;
             
-            ServiceRegistry.TryGetService<CommandLineArguementStore>(out var clas);
+            ServiceRegistry.TryGetService<CommandLineArgumentStore>(out var clas);
             var frameSettings = clas.GetParams(CommandLineArgs.BroadcastAddress);
             broadcast = IPAddress.Parse(frameSettings[0]);
             port = Int32.Parse(frameSettings[1]);

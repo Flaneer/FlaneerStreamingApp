@@ -54,15 +54,8 @@ namespace FlaneerMediaLib
                     throw new ArgumentOutOfRangeException(nameof(codecSettingsIn));
             }
 
-            //TODO: Check if this is still needed
-            //Initialise dictionary, so it can be used as a pool
-            for (UInt32 i = 0; i < byte.MaxValue; i++)
-            {
-                lock (frameBuffer)
-                {
-                    frameBuffer.Add(i, new ManagedVideoFrame());
-                }
-            }
+            //Initialise the framebuffer with an empty frame
+            frameBuffer.Add(0, new ManagedVideoFrame());
 
             if (!ServiceRegistry.TryGetService(out UDPReceiver receiver))
             {
@@ -218,6 +211,7 @@ namespace FlaneerMediaLib
             }
             logger.Debug($"Assembled packets for sequence {sequenceIDX}");
             StatLogging.LogPerfStat("Assembled Frames: ", ++assembledFrames);
+            StatLogging.LogPerfStat("Dropped Frames: ", sequenceIDX-assembledFrames);
         }
 
         /// <inheritdoc />

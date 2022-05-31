@@ -5,7 +5,7 @@ class Program
 {
     static void Main(string[] args)
     {
-        CommandLineArguementStore.CreateAndRegister(args);
+        CommandLineArgumentStore.CreateAndRegister(args);
      
         var videoSettings = new VideoSettings();
         InitialiseMediaEncoder(videoSettings);

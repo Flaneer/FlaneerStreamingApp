@@ -15,6 +15,7 @@ public class UDPReceiver : IService
     private Dictionary<PacketType, List<Action<byte[]>>> receptionTrafficDestinations = new();
     private bool receiving;
     private readonly Logger logger;
+    private readonly UDPStatTracker statTracker;
 
     /// <summary>
     /// ctor
@@ -22,7 +23,10 @@ public class UDPReceiver : IService
     public UDPReceiver()
     {
         logger = Logger.GetLogger(this);
-        ServiceRegistry.TryGetService<CommandLineArguementStore>(out var clas);
+        //TODO: turn this on/off based on log level in future
+        statTracker = new UDPStatTracker(this);
+        
+        ServiceRegistry.TryGetService<CommandLineArgumentStore>(out var clas);
         var broadcastInfo = clas.GetParams(CommandLineArgs.BroadcastAddress);
         var listenPort = Int32.Parse(broadcastInfo[1]);
         
@@ -34,6 +38,7 @@ public class UDPReceiver : IService
 
     private void Reception()
     {
+        receiving = true;
         while (receiving)
         {
             byte[] receivedBytes;
@@ -45,6 +50,8 @@ public class UDPReceiver : IService
                     continue;
 
                 var receivedType = (PacketType)receivedBytes[0];
+                var packetSize = BitConverter.ToInt16(receivedBytes, 1);
+                
                 if (receptionTrafficDestinations.ContainsKey(receivedType))
                 {
                     foreach (var callback in receptionTrafficDestinations[receivedType])
@@ -66,7 +73,6 @@ public class UDPReceiver : IService
     /// </summary>
     public void SubscribeToReceptionTraffic(PacketType packetType, Action<byte[]> callBack)
     {
-        //TODO: MAKE THIS SAFE
         if (receptionTrafficDestinations.ContainsKey(packetType))
         {
             receptionTrafficDestinations[packetType].Add(callBack);

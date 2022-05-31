@@ -20,7 +20,7 @@ public class UDPImageSource
         logger = Logger.GetLogger(this);
         
         
-        ServiceRegistry.TryGetService<CommandLineArguementStore>(out var clas);
+        ServiceRegistry.TryGetService<CommandLineArgumentStore>(out var clas);
         var frameSettings = clas.GetParams(CommandLineArgs.FrameSettings);
         width =  Int16.Parse(frameSettings[0]);
         height = Int16.Parse(frameSettings[1]);

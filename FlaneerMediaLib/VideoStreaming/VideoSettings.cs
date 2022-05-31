@@ -12,7 +12,7 @@ public class VideoSettings
     /// </summary>
     public VideoSettings()
     {
-        ServiceRegistry.TryGetService<CommandLineArguementStore>(out var clas);
+        ServiceRegistry.TryGetService<CommandLineArgumentStore>(out var clas);
         var frameSettings = clas.GetParams(CommandLineArgs.FrameSettings);
         Width = Int32.Parse(frameSettings[0]);
         Height = Int32.Parse(frameSettings[1]);

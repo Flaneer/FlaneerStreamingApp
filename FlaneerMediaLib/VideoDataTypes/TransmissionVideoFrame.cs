@@ -11,6 +11,8 @@ public class TransmissionVideoFrame : IPacketInfo, IVideoFrame
     /// <inheritdoc/>
     public PacketType PacketType => PacketType.VideoStreamPacket;
     /// <inheritdoc/>
+    public ushort PacketSize { get; set; }
+    /// <inheritdoc/>
     public VideoCodec Codec { get; set; }
     /// <inheritdoc/>
     public short Width { get; set; }
@@ -24,6 +26,7 @@ public class TransmissionVideoFrame : IPacketInfo, IVideoFrame
     /// The total number of packets this frame has been split into
     /// </summary>
     public byte NumberOfPackets;
+
     /// <summary>
     /// The index of the packet in the group of packets
     /// </summary>
@@ -38,7 +41,7 @@ public class TransmissionVideoFrame : IPacketInfo, IVideoFrame
     /// The size of the header in bytes
     /// <remarks>This is manually calculated</remarks>
     /// </summary>
-    public const int HeaderSize = 14;
+    public const int HeaderSize = 17;
     
     /// <summary>
     /// Converts the data in this class to a byte array that can be decoded
@@ -49,6 +52,7 @@ public class TransmissionVideoFrame : IPacketInfo, IVideoFrame
         using MemoryStream stream = new MemoryStream(ret);
         using var writer = new BinaryWriter(stream, Encoding.UTF8, false);
         writer.Write((byte) PacketType);
+        writer.Write(PacketSize);
         writer.Write(Width);
         writer.Write(Height);
         writer.Write(SequenceIDX);
@@ -76,6 +80,7 @@ public class TransmissionVideoFrame : IPacketInfo, IVideoFrame
 
         return new TransmissionVideoFrame()
         {
+            PacketSize = reader.ReadUInt16(),
             Width = reader.ReadInt16(),
             Height = reader.ReadInt16(),
             SequenceIDX = reader.ReadUInt32(),

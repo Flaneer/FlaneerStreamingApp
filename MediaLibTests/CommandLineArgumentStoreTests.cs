@@ -12,8 +12,8 @@ public class CommandLineArgumentStoreTests
     [Fact]
     public void TestParamParse()
     {
-        CommandLineArguementStore.CreateAndRegister(INPUT);
-        ServiceRegistry.TryGetService<CommandLineArguementStore>(out var clas);
+        CommandLineArgumentStore.CreateAndRegister(INPUT);
+        ServiceRegistry.TryGetService<CommandLineArgumentStore>(out var clas);
         
         Assert.True(clas.HasArgument("arg1"));
         

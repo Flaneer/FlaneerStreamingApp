@@ -27,7 +27,7 @@ public class UDPVideoSink : IVideoSink
     public UDPVideoSink()
     {
         logger = Logger.GetLogger(this);
-        ServiceRegistry.TryGetService<CommandLineArguementStore>(out var clas);
+        ServiceRegistry.TryGetService<CommandLineArgumentStore>(out var clas);
         var frameSettings = clas.GetParams(CommandLineArgs.BroadcastAddress);
         
         broadcast = IPAddress.Parse(frameSettings[0]);
@@ -133,6 +133,9 @@ public class UDPVideoSink : IVideoSink
 
             var packetSize = Math.Min(frameWritableSize, frame.FrameSize - sent);
             byte[] transmissionArray = new byte[headerBytes.Length + packetSize];
+
+            frameHeader.PacketSize = (ushort) transmissionArray.Length;
+            
             Array.Copy(headerBytes, transmissionArray, headerBytes.Length);
             Array.Copy(frameBytes, sent, transmissionArray, headerBytes.Length, packetSize);
                 
