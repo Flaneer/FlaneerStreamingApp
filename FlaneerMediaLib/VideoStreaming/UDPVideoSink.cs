@@ -128,13 +128,14 @@ public class UDPVideoSink : IVideoSink
                 FrameDataSize = frame.FrameSize,
                 SequenceIDX = nextFrame
             };
-                
-            var headerBytes = frameHeader.ToUDPPacket();
-
+            
             var packetSize = Math.Min(frameWritableSize, frame.FrameSize - sent);
-            byte[] transmissionArray = new byte[headerBytes.Length + packetSize];
-
-            frameHeader.PacketSize = (ushort) transmissionArray.Length;
+            var transmissionArraySize = TransmissionVideoFrame.HeaderSize + packetSize;
+            
+            frameHeader.PacketSize = (ushort) transmissionArraySize;
+            var headerBytes = frameHeader.ToUDPPacket();
+            
+            byte[] transmissionArray = new byte[transmissionArraySize];
             
             Array.Copy(headerBytes, transmissionArray, headerBytes.Length);
             Array.Copy(frameBytes, sent, transmissionArray, headerBytes.Length, packetSize);
