@@ -41,16 +41,18 @@ public class UDPReceiver : IService
         receiving = true;
         while (receiving)
         {
-            byte[] receivedBytes;
             listener.Client.ReceiveBufferSize = Int32.MaxValue;
             try
             {
-                receivedBytes = listener.Receive(ref groupEP);
+                var receivedBytes = listener.Receive(ref groupEP);
                 if(receivedBytes.Length == 0)
                     continue;
 
                 var receivedType = (PacketType)receivedBytes[0];
                 var packetSize = BitConverter.ToInt16(receivedBytes, 1);
+
+                if(packetSize != receivedBytes.Length)
+                    logger.Debug($"TransmittedPacketSize:{packetSize}");
                 
                 if (receptionTrafficDestinations.ContainsKey(receivedType))
                 {

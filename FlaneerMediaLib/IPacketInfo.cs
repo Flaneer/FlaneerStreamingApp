@@ -13,4 +13,9 @@ public interface IPacketInfo
     /// The size of the packet at transmission, this can be used in cases where multiple packets are in the buffer
     /// </summary>
     ushort PacketSize { get; set; }
+    /// <summary>
+    /// The time in <see cref="DateTime"/> ticks
+    /// <remarks>Use UTC now to avoid timezone BS</remarks>
+    /// </summary>
+    long TimeStamp { get; }
 }

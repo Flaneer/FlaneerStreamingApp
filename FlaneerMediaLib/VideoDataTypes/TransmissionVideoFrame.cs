@@ -13,6 +13,9 @@ public class TransmissionVideoFrame : IPacketInfo, IVideoFrame
     /// <inheritdoc/>
     public ushort PacketSize { get; set; }
     /// <inheritdoc/>
+    public long TimeStamp { get; private init; }
+
+    /// <inheritdoc/>
     public VideoCodec Codec { get; set; }
     /// <inheritdoc/>
     public short Width { get; set; }
@@ -41,7 +44,7 @@ public class TransmissionVideoFrame : IPacketInfo, IVideoFrame
     /// The size of the header in bytes
     /// <remarks>This is manually calculated</remarks>
     /// </summary>
-    public const int HeaderSize = 17;
+    public const int HeaderSize = 25;
     
     /// <summary>
     /// Converts the data in this class to a byte array that can be decoded
@@ -53,6 +56,7 @@ public class TransmissionVideoFrame : IPacketInfo, IVideoFrame
         using var writer = new BinaryWriter(stream, Encoding.UTF8, false);
         writer.Write((byte) PacketType);
         writer.Write(PacketSize);
+        writer.Write(DateTime.UtcNow.Ticks);
         writer.Write(Width);
         writer.Write(Height);
         writer.Write(SequenceIDX);
@@ -81,6 +85,7 @@ public class TransmissionVideoFrame : IPacketInfo, IVideoFrame
         return new TransmissionVideoFrame()
         {
             PacketSize = reader.ReadUInt16(),
+            TimeStamp = reader.ReadInt64(),
             Width = reader.ReadInt16(),
             Height = reader.ReadInt16(),
             SequenceIDX = reader.ReadUInt32(),
