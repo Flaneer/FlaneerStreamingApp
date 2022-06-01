@@ -211,7 +211,6 @@ namespace FlaneerMediaLib
             }
             logger.Debug($"Assembled packets for sequence {sequenceIDX}");
             StatLogging.LogPerfStat("Assembled Frames: ", ++assembledFrames);
-            StatLogging.LogPerfStat("Dropped Frames: ", sequenceIDX-assembledFrames);
         }
 
         /// <inheritdoc />
