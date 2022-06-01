@@ -17,5 +17,9 @@ public interface IPacketInfo
     /// The time in <see cref="DateTime"/> ticks
     /// <remarks>Use UTC now to avoid timezone BS</remarks>
     /// </summary>
-    long TimeStamp { get; }
+    long TimeStamp { get; init; }
+    /// <summary>
+    /// The sequential id of the packet
+    /// </summary>
+    UInt32 PacketId { get; init; }
 }

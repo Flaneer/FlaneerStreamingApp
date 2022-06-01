@@ -4,21 +4,21 @@ namespace FlaneerMediaLib;
 
 internal class SimpleMovingAverage
 {
-    private readonly int _k;
-    private readonly int[] _values;
+    private readonly long _k;
+    private readonly long[] _values;
 
-    private int _index = 0;
-    private int _sum = 0;
+    private long _index = 0;
+    private long _sum = 0;
 
-    public SimpleMovingAverage(int k)
+    public SimpleMovingAverage(long k)
     {
         if (k <= 0) throw new ArgumentOutOfRangeException(nameof(k), "Must be greater than 0");
 
         _k = k;
-        _values = new int[k];
+        _values = new long[k];
     }
 
-    public int Update(int nextInput)
+    public long Update(long nextInput)
     {
         // calculate the new sum
         _sum = _sum - _values[_index] + nextInput;
@@ -44,7 +44,7 @@ public class UDPStatTracker
     private int packetCount;
     private int emptyPacketCount;
     private SimpleMovingAverage bitrateAverage = new SimpleMovingAverage(5);
-    private SimpleMovingAverage latency = new SimpleMovingAverage(5);
+    private SimpleMovingAverage latencyAverage = new SimpleMovingAverage(5);
     private int lastSecond = DateTime.Now.Second;
     private int bytesThisSecond = 0;
     
@@ -63,15 +63,15 @@ public class UDPStatTracker
         if (lastSecond != DateTime.Now.Second)
         {
             var averageBitRate = bitrateAverage.Update(bytesThisSecond);
-            StatLogging.LogPerfStat("Average Bitrate", averageBitRate/1000);
+            StatLogging.LogPerfStat("Average Bitrate (KBs)", averageBitRate/1000);
             bytesThisSecond = 0;
             lastSecond = DateTime.Now.Second;
         }
         bytesThisSecond += packet.Length;
         
-        long ticks = BitConverter.ToInt64(packet, 3);
+        long ticks = PacketInfoParser.TimeStamp(packet);
         var latencyTicks = DateTime.UtcNow.Ticks - ticks;
-        var latency = TimeSpan.FromTicks(latencyTicks);
+        var latency = TimeSpan.FromTicks(latencyAverage.Update(latencyTicks));
         StatLogging.LogPerfStat("Latency", latency);
         
         StatLogging.LogPerfStat("Packets Received", ++packetCount);

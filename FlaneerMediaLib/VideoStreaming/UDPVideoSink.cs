@@ -13,11 +13,9 @@ public class UDPVideoSink : IVideoSink
 {
     private IEncoder encoder = null!;
     private IVideoSource videoSource = null!;
-
-    private readonly Socket s = new(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
-    private readonly IPAddress broadcast;
-    private readonly int port;
     private UInt32 nextFrame = 0;
+
+    private UDPSender udpSender;
     
     private Logger logger;
 
@@ -29,10 +27,9 @@ public class UDPVideoSink : IVideoSink
         logger = Logger.GetLogger(this);
         ServiceRegistry.TryGetService<CommandLineArgumentStore>(out var clas);
         var frameSettings = clas.GetParams(CommandLineArgs.BroadcastAddress);
+
+        udpSender = new UDPSender(frameSettings[0], Int32.Parse(frameSettings[1]));
         
-        broadcast = IPAddress.Parse(frameSettings[0]);
-        port = Int32.Parse(frameSettings[1]);
-        s.SendBufferSize = Int16.MaxValue - VideoUtils.UDPHEADERSIZE;
         GetEncoder();
         GetSource();
     }
@@ -114,8 +111,7 @@ public class UDPVideoSink : IVideoSink
             
         var frameWritableSize = Int16.MaxValue - VideoUtils.UDPHEADERSIZE;
         var numberOfPackets = (byte) Math.Ceiling((double)frame.FrameSize / frameWritableSize);
-            
-        var ep = new IPEndPoint(broadcast, port);
+        
         var sent = 0;
         for (byte i = 0; i < numberOfPackets; i++)
         {
@@ -140,7 +136,7 @@ public class UDPVideoSink : IVideoSink
             Array.Copy(headerBytes, transmissionArray, headerBytes.Length);
             Array.Copy(frameBytes, sent, transmissionArray, headerBytes.Length, packetSize);
                 
-            s.SendTo(transmissionArray, ep);
+            udpSender.Send(transmissionArray);
 
             sent += packetSize;
             logger.Debug($"SENT CHUNK OF {nextFrame} | {sent} / {frame.FrameSize} [gray]Total Sent Packets = {sentPacketCount++}[/]");

@@ -11,7 +11,7 @@ public class UDPReceiver : IService
 {
     private readonly UdpClient listener;
     private IPEndPoint groupEP;
-
+    
     private Dictionary<PacketType, List<Action<byte[]>>> receptionTrafficDestinations = new();
     private bool receiving;
     private readonly Logger logger;
@@ -48,8 +48,8 @@ public class UDPReceiver : IService
                 if(receivedBytes.Length == 0)
                     continue;
 
-                var receivedType = (PacketType)receivedBytes[0];
-                var packetSize = BitConverter.ToInt16(receivedBytes, 1);
+                var receivedType = PacketInfoParser.PacketType(receivedBytes);
+                var packetSize = PacketInfoParser.PacketSize(receivedBytes);
 
                 if(packetSize != receivedBytes.Length)
                     logger.Debug($"TransmittedPacketSize:{packetSize}");

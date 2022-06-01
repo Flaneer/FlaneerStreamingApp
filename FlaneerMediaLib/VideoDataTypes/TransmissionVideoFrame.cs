@@ -13,8 +13,9 @@ public class TransmissionVideoFrame : IPacketInfo, IVideoFrame
     /// <inheritdoc/>
     public ushort PacketSize { get; set; }
     /// <inheritdoc/>
-    public long TimeStamp { get; private init; }
-
+    public long TimeStamp { get; init; }
+    /// <inheritdoc/>
+    public uint PacketId { get; init; }
     /// <inheritdoc/>
     public VideoCodec Codec { get; set; }
     /// <inheritdoc/>
