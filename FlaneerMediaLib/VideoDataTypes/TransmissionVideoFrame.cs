@@ -58,6 +58,7 @@ public class TransmissionVideoFrame : IPacketInfo, IVideoFrame
         writer.Write((byte) PacketType);
         writer.Write(PacketSize);
         writer.Write(DateTime.UtcNow.Ticks);
+        writer.Write(PacketId);
         writer.Write(Width);
         writer.Write(Height);
         writer.Write(SequenceIDX);
@@ -87,6 +88,7 @@ public class TransmissionVideoFrame : IPacketInfo, IVideoFrame
         {
             PacketSize = reader.ReadUInt16(),
             TimeStamp = reader.ReadInt64(),
+            PacketId = reader.ReadUInt32(),
             Width = reader.ReadInt16(),
             Height = reader.ReadInt16(),
             SequenceIDX = reader.ReadUInt32(),
