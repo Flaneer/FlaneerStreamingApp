@@ -9,7 +9,7 @@ namespace FlaneerMediaLib.VideoDataTypes;
 /// <summary>
 /// Potential video sources to inform the factory
 /// </summary>
-public enum VideoSource
+public enum VideoSource : byte
 {
     NvEncH264,
     UDPH264,
@@ -19,7 +19,7 @@ public enum VideoSource
 /// <summary>
 /// Usable video codecs
 /// </summary>
-public enum VideoCodec
+public enum VideoCodec : byte
 {
     H264,
     H265
