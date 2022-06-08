@@ -52,7 +52,7 @@ public class GLEnv
         logger = Logger.GetLogger(this);
         
         
-        ServiceRegistry.TryGetService<CommandLineArguementStore>(out var clas);
+        ServiceRegistry.TryGetService<CommandLineArgumentStore>(out var clas);
         var frameSettings = clas.GetParams(CommandLineArgs.FrameSettings);
         var width = Int32.Parse(frameSettings[0]);
         var height = Int32.Parse(frameSettings[1]);
@@ -87,7 +87,22 @@ public class GLEnv
         Texture = new Texture(this, "testImage.png");
         StartTime = DateTime.Now;
     }
+    
+    private void OnUpdate(double obj)
+    {
+        unsafe
+        {
+            var frame = imageSource.GetImage();
+            fixed (void* p = frame.Stream.GetBuffer())
+            {
+                Gl.TexImage2D(TextureTarget.Texture2D, 0, InternalFormat.Rgba, (uint) frame.Width, (uint) frame.Height, 0,
+                                PixelFormat.Rgba, PixelType.UnsignedByte, p);
+            }
+        }
 
+        window.Title = "Flaneer Streaming: " + StatLogging.GetPerfStats();
+    }
+    
     private unsafe void OnRender(double obj) //Method needs to be unsafe due to draw elements.
     {
         //Clear the color channel.
@@ -116,24 +131,8 @@ public class GLEnv
         var averageFrameTime = (DateTime.Now - StartTime) / framesDisplayed;
         StatLogging.LogPerfStat("AverageFrameTime", averageFrameTime);
         StatLogging.LogPerfStat("FPS", 1000/averageFrameTime.Milliseconds);
-        logger.Debug($"Display Frame: {framesDisplayed}");
     }
-
-    private void OnUpdate(double obj)
-    {
-        unsafe
-        {
-            var frame = imageSource.GetImage();
-            fixed (void* p = frame.Stream.ToArray())
-            {
-                Gl.TexImage2D(TextureTarget.Texture2D, 0, InternalFormat.Rgba, (uint) frame.Width, (uint) frame.Height, 0,
-                                PixelFormat.Rgba, PixelType.UnsignedByte, p);
-            }
-        }
-
-        window.Title = "Flaneer Streaming: " + StatLogging.GetPerfStats();
-    }
-
+    
     private void OnClose()
     {
         Vbo.Dispose();

@@ -3,10 +3,10 @@ using NvEncWrapper;
 
 namespace FlaneerMediaLib
 {
-    internal class Utils
+    internal class VideoUtils
     {
         /// <summary>
-        /// * plus the current UDP header size
+        /// 8 plus the current UDP header size
         /// </summary>
         public const int UDPHEADERSIZE = 8 + TransmissionVideoFrame.HeaderSize;
         

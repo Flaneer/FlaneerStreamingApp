@@ -13,7 +13,7 @@ internal class LoggerFactory
     // ReSharper disable once ConstantNullCoalescingCondition
     private static LoggerFactory Instance => instance ??= new LoggerFactory();
     
-    private string TimeString() => $"[gray]<{DateTime.Now.ToString("HH:mm:ss")}>[/]";
+    private string TimeString() => $"[gray]({DateTime.Now.ToString("HH:mm:ss")})[/]";
 
     private string GetLogPrefix(string formatting, string typeString)
     {
@@ -22,32 +22,38 @@ internal class LoggerFactory
         var method = $"{sf.GetMethod().Name}";
         var fileLineNumber = $"{sf.GetFileLineNumber()}";
 
-        return $"[{formatting}]<{typeString}:{fileLineNumber}[/][gray]({method})[/][{formatting}]>[/]";
+        return $"{TimeString()}[{formatting}]<{typeString}:{fileLineNumber}[/][gray]({method})[/][{formatting}]>[/]";
     }
     
     internal static Logger CreateLogger(object obj) => new Logger(obj.GetType(), Instance);
 
     internal void Info(string s, string typeString)
     {
-        var message = $"{TimeString()}{GetLogPrefix("bold green", typeString)} {s}";
+        var message = $"{GetLogPrefix("bold green", typeString)} {s}";
         AnsiConsole.MarkupLine(message);
     }
     
     internal void Debug(string s, string typeString)
     {
-        var message = $"{TimeString()}{GetLogPrefix("bold yellow", typeString)} {s}";
+        var message = $"{GetLogPrefix("bold yellow", typeString)} {s}";
         AnsiConsole.MarkupLine(message);
     }
     
     internal void Error(Exception exception, string typeString)
     {
-        var message = $"{TimeString()}{GetLogPrefix("bold red", typeString)} {exception}";
+        var message = $"{GetLogPrefix("bold red", typeString)} {exception}";
         AnsiConsole.MarkupLine(message);
     }
 
     internal void Error(string exception, string typeString)
     {
-        var message = $"{TimeString()}{GetLogPrefix("bold red", typeString)} {exception}";
+        var message = $"{GetLogPrefix("bold red", typeString)} {exception}";
+        AnsiConsole.MarkupLine(message);
+    }
+
+    internal void Trace(string s, string typeString)
+    {
+        var message = $"{GetLogPrefix("gray", typeString)} [gray]{s}[/]";
         AnsiConsole.MarkupLine(message);
     }
 }

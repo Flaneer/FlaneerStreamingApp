@@ -3,7 +3,7 @@
 /// <summary>
 /// Class that parses CL arguments and stores them in a dictionary
 /// </summary>
-public class CommandLineArguementStore : IService
+public class CommandLineArgumentStore : IService
 {
     private Dictionary<string, List<string>> arguments = new();
 
@@ -42,7 +42,7 @@ public class CommandLineArguementStore : IService
     /// </summary>
     public static void CreateAndRegister(string[] commandLineArgs)
     {
-        var clas = new CommandLineArguementStore();
+        var clas = new CommandLineArgumentStore();
         clas.ParseArguments(commandLineArgs);
         ServiceRegistry.AddService(clas);
     }

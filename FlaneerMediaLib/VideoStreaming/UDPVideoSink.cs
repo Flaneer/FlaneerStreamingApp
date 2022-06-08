@@ -13,11 +13,9 @@ public class UDPVideoSink : IVideoSink
 {
     private IEncoder encoder = null!;
     private IVideoSource videoSource = null!;
-
-    private readonly Socket s = new(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
-    private readonly IPAddress broadcast;
-    private readonly int port;
     private UInt32 nextFrame = 0;
+
+    private UDPSender udpSender;
     
     private Logger logger;
 
@@ -27,12 +25,11 @@ public class UDPVideoSink : IVideoSink
     public UDPVideoSink()
     {
         logger = Logger.GetLogger(this);
-        ServiceRegistry.TryGetService<CommandLineArguementStore>(out var clas);
+        ServiceRegistry.TryGetService<CommandLineArgumentStore>(out var clas);
         var frameSettings = clas.GetParams(CommandLineArgs.BroadcastAddress);
+
+        udpSender = new UDPSender(frameSettings[0], Int32.Parse(frameSettings[1]));
         
-        broadcast = IPAddress.Parse(frameSettings[0]);
-        port = Int32.Parse(frameSettings[1]);
-        s.SendBufferSize = Int16.MaxValue - Utils.UDPHEADERSIZE;
         GetEncoder();
         GetSource();
     }
@@ -82,7 +79,7 @@ public class UDPVideoSink : IVideoSink
         
         Stopwatch stopWatch = new Stopwatch();
         stopWatch.Start();
-        var frameTime = targetFramerate == -1 ? new TimeSpan(0) : new TimeSpan(0, 0, (int)Math.Floor(1.0f/ targetFramerate));
+        var frameTime = targetFramerate == -1 ? new TimeSpan(0) : new TimeSpan(0, 0, 0, 0, 1000 / targetFramerate);
 
         for (int i = 0; i < numberOfFrames; i++)
         {
@@ -95,7 +92,7 @@ public class UDPVideoSink : IVideoSink
             {
                 var frame = encoder.GetFrame();
                 if(frame is UnmanagedVideoFrame unmanagedFrame)
-                    SendFrame(unmanagedFrame);
+                    SendFrame(unmanagedFrame, frameTime);
             }
             catch (Exception)
             {
@@ -105,16 +102,16 @@ public class UDPVideoSink : IVideoSink
         stopWatch.Stop();
     }
 
-    private unsafe void SendFrame(UnmanagedVideoFrame frame)
+    private int sentPacketCount = 0;
+    private unsafe void SendFrame(UnmanagedVideoFrame frame, TimeSpan frameTime)
     {
         using var uStream = new UnmanagedMemoryStream((byte*) frame.FrameData, frame.FrameSize);
         var frameBytes = new byte[frame.FrameSize];
         uStream.Read(frameBytes, 0, frame.FrameSize);
             
-        var frameWritableSize = Int16.MaxValue - Utils.UDPHEADERSIZE;
+        var frameWritableSize = Int16.MaxValue - VideoUtils.UDPHEADERSIZE;
         var numberOfPackets = (byte) Math.Ceiling((double)frame.FrameSize / frameWritableSize);
-            
-        var ep = new IPEndPoint(broadcast, port);
+        
         var sent = 0;
         for (byte i = 0; i < numberOfPackets; i++)
         {
@@ -127,19 +124,24 @@ public class UDPVideoSink : IVideoSink
                 FrameDataSize = frame.FrameSize,
                 SequenceIDX = nextFrame
             };
-                
-            var headerBytes = frameHeader.ToUDPPacket();
-
+            
             var packetSize = Math.Min(frameWritableSize, frame.FrameSize - sent);
-            byte[] transmissionArray = new byte[headerBytes.Length + packetSize];
+            var transmissionArraySize = TransmissionVideoFrame.HeaderSize + packetSize;
+            
+            frameHeader.PacketSize = (ushort) transmissionArraySize;
+            var headerBytes = frameHeader.ToUDPPacket();
+            
+            byte[] transmissionArray = new byte[transmissionArraySize];
+            
             Array.Copy(headerBytes, transmissionArray, headerBytes.Length);
             Array.Copy(frameBytes, sent, transmissionArray, headerBytes.Length, packetSize);
                 
-            s.SendTo(transmissionArray, ep);
+            udpSender.Send(transmissionArray);
 
             sent += packetSize;
-            logger.Debug($"SENT CHUNK OF {nextFrame} | {sent} / {frame.FrameSize}");
+            logger.Debug($"SENT CHUNK OF {nextFrame} | {sent} / {frame.FrameSize} [gray]Total Sent Packets = {sentPacketCount++}[/]");
             
+            Thread.Sleep(frameTime/numberOfPackets);
         }
         nextFrame++;
     }

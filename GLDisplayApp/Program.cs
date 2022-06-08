@@ -8,7 +8,10 @@ internal static class Program
 {
     private static void Main(string[] args)
     {
-        CommandLineArguementStore.CreateAndRegister(args);
+        CommandLineArgumentStore.CreateAndRegister(args);
+
+        var UDPReceiver = new UDPReceiver();
+        ServiceRegistry.AddService(UDPReceiver);
         
         var videoSettings = new VideoSettings();
         InitialiseMediaEncoder();
@@ -33,7 +36,7 @@ internal static class Program
             GoPLength = (short)videoSettings.GoPLength
         };
         
-        ServiceRegistry.TryGetService<CommandLineArguementStore>(out var clas);
+        ServiceRegistry.TryGetService<CommandLineArgumentStore>(out var clas);
         var videoSource = clas.HasArgument(CommandLineArgs.UseLocalFrames) ? VideoSource.TestH264 : VideoSource.UDPH264;
         
         MediaEncoderLifeCycleManager encoderLifeCycleManager = new MediaEncoderLifeCycleManager(videoSource);
