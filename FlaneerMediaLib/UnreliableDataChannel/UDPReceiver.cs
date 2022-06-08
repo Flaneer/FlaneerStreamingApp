@@ -23,7 +23,6 @@ public class UDPReceiver : IService
     public UDPReceiver()
     {
         logger = Logger.GetLogger(this);
-        //TODO: turn this on/off based on log level in future
         statTracker = new UDPStatTracker(this);
         
         ServiceRegistry.TryGetService<CommandLineArgumentStore>(out var clas);
