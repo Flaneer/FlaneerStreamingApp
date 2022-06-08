@@ -5,6 +5,7 @@ using Xunit;
 
 namespace MediaLibTests;
 
+[Collection("Sequential")]
 public class CommandLineArgumentStoreTests
 {
     private static readonly string[] INPUT = new[] {"-arg1", "-arg2", "param", "-arg3", "param1", "param2", "param3"};
@@ -12,6 +13,7 @@ public class CommandLineArgumentStoreTests
     [Fact]
     public void TestParamParse()
     {
+        ServiceRegistry.ClearRegistry();
         CommandLineArgumentStore.CreateAndRegister(INPUT);
         ServiceRegistry.TryGetService<CommandLineArgumentStore>(out var clas);
         

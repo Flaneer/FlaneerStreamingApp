@@ -5,6 +5,7 @@ using Xunit;
 
 namespace MediaLibTests;
 
+[Collection("Sequential")]
 public class TcpVideoHeaderTest
 {
     private static readonly string[] INPUT = new[] {$"-{CommandLineArgs.BroadcastAddress}", "127.0.0.1", "13000"};
@@ -12,6 +13,7 @@ public class TcpVideoHeaderTest
     [Fact]
     public void TestPacketIsReceived()
     {
+        ServiceRegistry.ClearRegistry();
         CommandLineArgumentStore.CreateAndRegister(INPUT);
         /*
          * Local host ip address, local port (1 each for sink and source) 

@@ -54,5 +54,13 @@
             service = default!;
             return false;
         }
+
+        /// <summary>
+        /// Function for unit tests only
+        /// </summary>
+        internal static void ClearRegistry()
+        {
+            Instance.registry.Clear();
+        }
     }
 }
