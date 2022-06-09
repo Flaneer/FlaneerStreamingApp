@@ -10,8 +10,7 @@ internal static class Program
     {
         CommandLineArgumentStore.CreateAndRegister(args);
 
-        var UDPReceiver = new UDPReceiver();
-        ServiceRegistry.AddService(UDPReceiver);
+        NetworkSubsystem.InitClient();
         
         var videoSettings = new VideoSettings();
         InitialiseMediaEncoder();

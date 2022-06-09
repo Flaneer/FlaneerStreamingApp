@@ -9,4 +9,8 @@ public enum PacketType : byte
     /// A packet that contains a chunk or a whole of video frame and metadata
     /// </summary>
     VideoStreamPacket,
+    /// <summary>
+    /// A packet that acknowledges a packet of the same Id was received
+    /// </summary>
+    Ack,
 }
