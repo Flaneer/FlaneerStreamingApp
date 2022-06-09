@@ -13,4 +13,8 @@ public enum PacketType : byte
     /// A packet that acknowledges a packet of the same Id was received
     /// </summary>
     Ack,
+    /// <summary>
+    /// A packet type used in unit testing
+    /// </summary>
+    TestPacket = Byte.MaxValue, 
 }

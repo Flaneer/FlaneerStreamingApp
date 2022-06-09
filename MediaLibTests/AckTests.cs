@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using FlaneerMediaLib;
 using Xunit;
 
@@ -20,7 +21,7 @@ public class AckTests
     {
         int[] testBuffer =
             {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0,};
-        UInt32 testNum = Ack.AcksFromBuffer(testBuffer);
+        UInt32 testNum = Ack.AcksFromBinary(testBuffer);
         
         Assert.Equal((UInt32)4, testNum);
     }
@@ -49,5 +50,32 @@ public class AckTests
         
         Assert.Equal((UInt32)10, testAck.PacketId);
         Assert.Equal((UInt32)4, testAck.PreviousAcks);
+    }
+
+    [Fact]
+    public void TestSendAck()
+    {
+        var ackBuffer = new List<UInt32>(){};
+
+        for (UInt32 i = 0; i < 64; i++)
+        {
+            var testPacket = new TestPacket()
+            {
+                PacketId = i
+            };
+            var testPacketBytes = testPacket.ToUDPPacket();
+            
+            var testAck = AckSender.AckFromReceivedPacket(ackBuffer, testPacketBytes);
+            
+            Assert.Equal(i, testAck.PacketId);
+            if (i < 32)
+            {
+                var ackBin = "";
+                ackBin = ackBin.PadLeft((int)i, '1');
+                ackBin = ackBin.PadLeft(32, '0');
+                var expectedFromBinary = Convert.ToUInt32(ackBin, 2);
+                Assert.Equal(expectedFromBinary, testAck.PreviousAcks);
+            }
+        }
     }
 }

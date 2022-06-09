@@ -22,4 +22,8 @@ public interface IPacketInfo
     /// The sequential id of the packet
     /// </summary>
     UInt32 PacketId { get; init; }
+    /// <summary>
+    /// Converts the data in this class to a byte array that can be decoded
+    /// </summary>
+    byte[] ToUDPPacket();
 }

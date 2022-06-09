@@ -59,7 +59,7 @@ public class Ack
     }
     
     
-    internal static UInt32 AcksFromBuffer(int[] buffer)
+    internal static UInt32 AcksFromBinary(int[] buffer)
     {
         if (buffer.Length != 32)
         {
