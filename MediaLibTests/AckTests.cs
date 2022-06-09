@@ -24,4 +24,30 @@ public class AckTests
         
         Assert.Equal((UInt32)4, testNum);
     }
+
+    [Fact]
+    public void TestToUDP()
+    {
+        Ack testAck = new Ack();
+        testAck.PacketId = 10;
+        testAck.PreviousAcks = 4;
+
+        var testBuffer = testAck.ToUDPPacket();
+        
+        Assert.Equal(Ack.ACKSIZE, testBuffer.Length);
+
+        byte[] expectedBuffer = {(byte) PacketType.Ack, 10, 0, 0, 0, 4, 0, 0, 0};
+        
+        Assert.Equal(expectedBuffer, testBuffer);
+    }
+
+    [Fact]
+    public void TestFromUDP()
+    {
+        byte[] packet = {(byte) PacketType.Ack, 10, 0, 0, 0, 4, 0, 0, 0};
+        Ack testAck = Ack.FromUDPPacket(packet);
+        
+        Assert.Equal((UInt32)10, testAck.PacketId);
+        Assert.Equal((UInt32)4, testAck.PreviousAcks);
+    }
 }
