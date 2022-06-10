@@ -18,7 +18,7 @@ public class Ack
     public UInt32 PacketId;
 
     /// <summary>
-    /// 
+    /// Each bit of this value represents a boolean value of whether the last 32 values were received or not
     /// </summary>
     public UInt32 PreviousAcks;
 
@@ -58,6 +58,19 @@ public class Ack
         };
     }
     
+    internal Stack<UInt32> GetPrevious32()
+    {
+        var ret = new Stack<UInt32>();
+        var size = Math.Min(32, PacketId);
+        
+        for (long i = PacketId; i > PacketId-size; i--)
+        {
+            ret.Push((UInt32)i-1);
+        }
+        return ret;
+    }
+
+    internal bool[] PreviousAcksToBuffer() => BufferFromAck(PreviousAcks);
     
     internal static UInt32 AcksFromBinary(int[] buffer)
     {
@@ -74,15 +87,16 @@ public class Ack
         return Convert.ToUInt32(bufferAsString, 2);
     }
 
-    internal static int[] BufferFromAck(UInt32 ack)
+    internal static bool[] BufferFromAck(UInt32 ack)
     {
         var binary = Convert.ToString(ack, 2);
         var paddedBinary = binary.PadLeft(32, '0');
-        var buffer = new int[32];
+        var buffer = new bool[32];
         for (int i = 0; i < 32; i++)
         {
-            buffer[i] = Int32.Parse(paddedBinary.Substring(i, 1));
+            buffer[i] = Int32.Parse(paddedBinary.Substring(i, 1)) == 1;
         }
+
         return buffer;
     }
 }

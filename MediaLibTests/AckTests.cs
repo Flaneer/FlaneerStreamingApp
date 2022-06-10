@@ -13,7 +13,7 @@ public class AckTests
         UInt32 testNum = 4;
         var testBuffer = Ack.BufferFromAck(testNum);
         
-        Assert.Equal(1, testBuffer[29]);
+        Assert.True(testBuffer[29]);
     }
 
     [Fact]
@@ -105,5 +105,17 @@ public class AckTests
                 Assert.Equal(expected, testAck.PreviousAcks);
             }
         }
+    }
+
+    [Fact]
+    public void TestTestAckReceptionAndParsing()
+    {
+        Dictionary<int, bool> prevAcks = new Dictionary<int, bool>
+        {
+            {0, true}, {1, true}, {2, true}, {3, true}, {4, true}, {5, true}, {6, true}, {7, true}, {8, true}, {9, true}
+        };
+        byte[] packet = {(byte) PacketType.Ack, 10, 0, 0, 0, 255, 3, 0, 0};
+        
+        AckReceiver.OnAckReceivedImpl(packet, prevAcks);
     }
 }
