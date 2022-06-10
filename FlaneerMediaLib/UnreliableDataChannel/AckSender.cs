@@ -19,12 +19,14 @@ public class AckSender : IService
         receiver.SubscribeToReceptionTraffic(PacketType.VideoStreamPacket, OnPacketReceived);
     }
 
-    private static Stack<UInt32> GetPrevious32(UInt32 current, UInt32 size)
+    private static Stack<UInt32> GetPrevious32(UInt32 packetId)
     {
         var ret = new Stack<UInt32>();
-        for (long i = current; i >= current - size; i--)
+        var size = Math.Min(32, packetId);
+        
+        for (long i = packetId; i > packetId-size; i--)
         {
-            ret.Push((UInt32)i);
+            ret.Push((UInt32)i-1);
         }
         return ret;
     }
@@ -32,8 +34,6 @@ public class AckSender : IService
     private void OnPacketReceived(byte[] incomingPacket)
     {
         Ack ack = AckFromReceivedPacket(ackBuffer, incomingPacket);
-        
-        
         udpSender.Send(ack.ToUDPPacket());
     }
 
@@ -41,10 +41,8 @@ public class AckSender : IService
     {
         Ack ack = new Ack();
         ack.PacketId = PacketInfoParser.PacketId(incomingPacket);
-        var nonZeroPacketId = ack.PacketId + 1;
         
-        var size = Math.Min(32, nonZeroPacketId);
-        var prev32 = GetPrevious32(nonZeroPacketId, size);
+        var prev32 = GetPrevious32(ack.PacketId);
         int[] binary = new int[32];
         for (int i = 31; i >= 0; i--)
         {

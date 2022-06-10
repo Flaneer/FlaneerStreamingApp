@@ -68,13 +68,41 @@ public class AckTests
             var testAck = AckSender.AckFromReceivedPacket(ackBuffer, testPacketBytes);
             
             Assert.Equal(i, testAck.PacketId);
-            if (i < 32)
+            if (i <= 32)
             {
                 var ackBin = "";
                 ackBin = ackBin.PadLeft((int)i, '1');
                 ackBin = ackBin.PadLeft(32, '0');
                 var expectedFromBinary = Convert.ToUInt32(ackBin, 2);
                 Assert.Equal(expectedFromBinary, testAck.PreviousAcks);
+            }
+            else
+            {
+                Assert.Equal(UInt32.MaxValue, testAck.PreviousAcks);
+            }
+        }
+    }
+    
+    [Fact]
+    public void TestSendAckWithPacketLoss()
+    {
+        var ackBuffer = new List<UInt32>(){};
+
+        for (UInt32 i = 0; i < 66; i+=2)
+        {
+            var testPacket = new TestPacket()
+            {
+                PacketId = i
+            };
+            var testPacketBytes = testPacket.ToUDPPacket();
+            
+            var testAck = AckSender.AckFromReceivedPacket(ackBuffer, testPacketBytes);
+            
+            Assert.Equal(i, testAck.PacketId);
+            if (i == 65)
+            {
+                var expected = Convert.ToUInt32("1010101010101010101010101010101", 2);
+                Assert.Equal(expected, testAck.PreviousAcks);
             }
         }
     }
