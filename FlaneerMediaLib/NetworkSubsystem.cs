@@ -13,9 +13,6 @@ public static class NetworkSubsystem
         var UDPReceiver = new UDPReceiver();
         ServiceRegistry.AddService(UDPReceiver);
 
-        var UDPSender = new UDPSender();
-        ServiceRegistry.AddService(UDPSender);
-
         var ackSender = new AckSender();
         ServiceRegistry.AddService(ackSender);
     }
@@ -25,6 +22,14 @@ public static class NetworkSubsystem
     /// </summary>
     public static void InitServer()
     {
+        var UDPSender = new UDPSender();
+        ServiceRegistry.AddService(UDPSender);
+        
+        var UDPReceiver = new UDPReceiver();
+        ServiceRegistry.AddService(UDPReceiver);
+        
+        var ackReceiver = new AckReceiver();
+        ServiceRegistry.AddService(ackReceiver);
         
     }
 }

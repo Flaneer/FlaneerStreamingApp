@@ -6,6 +6,8 @@ class Program
     static void Main(string[] args)
     {
         CommandLineArgumentStore.CreateAndRegister(args);
+        
+        NetworkSubsystem.InitServer();
      
         var videoSettings = new VideoSettings();
         InitialiseMediaEncoder(videoSettings);
