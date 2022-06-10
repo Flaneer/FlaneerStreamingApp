@@ -22,9 +22,9 @@ public class AckReceiver : IService
         Ack ack = Ack.FromUDPPacket(incomingAck);
         var prev32 = ack.GetPrevious32();
         var ackBuffer = ack.PreviousAcksToBuffer();
-        for (int i = 0; i < prev32.Count; i++)
+        for (int i = ackBuffer.Length-1; i >= ackBuffer.Length - prev32.Count; i--)
         {
-            
+            prevAckBuffer[(int) prev32.Pop()] = ackBuffer[i];
         }
     }
 }

@@ -108,8 +108,54 @@ public class AckTests
     }
 
     [Fact]
-    public void TestTestAckReceptionAndParsing()
+    public void TestAckReceptionAndParsing32()
     {
+        
+        Dictionary<int, bool> prevAcks = new Dictionary<int, bool>
+        {
+            {0, true}, {1, true}, {2, true}, {3, true}, {4, true}, {5, true}, {6, true}, {7, true},
+            {8, true}, {9, true}, {10, true}, {11, true}, {12, true}, {13, true}, {14, true}, {15, true},
+            {16, true}, {17, true}, {18, true}, {19, true}, {20, true}, {21, true}, {22, true}, {23, true},
+            {24, true}, {25, true}, {26, true}, {27, true}, {28, true}, {29, true}, {30, true}, {31, true},
+        };
+        byte[] packet = {(byte) PacketType.Ack, 32, 0, 0, 0, 255, 255, 255, 255};
+        
+        AckReceiver.OnAckReceivedImpl(packet, prevAcks);
+        
+        Assert.Equal(32, prevAcks.Count);
+        foreach (var kvp in prevAcks)
+        {
+            Assert.True(kvp.Value);
+        }
+    }
+    
+    [Fact]
+    public void TestAckReceptionAndParsingExtraBuffer()
+    {
+        
+        Dictionary<int, bool> prevAcks = new Dictionary<int, bool>
+        {
+            {0, true}, {1, true}, {2, true}, {3, true}, {4, true}, {5, true}, {6, true}, {7, true},
+            {8, true}, {9, true}, {10, true}, {11, true}, {12, true}, {13, true}, {14, true}, {15, true},
+            {16, true}, {17, true}, {18, true}, {19, true}, {20, true}, {21, true}, {22, true}, {23, true},
+            {24, true}, {25, true}, {26, true}, {27, true}, {28, true}, {29, true}, {30, true}, {31, true},
+            {32, true}, {33, true}, {34, true}, {35, true}, {36, true}, {37, true}, {38, true}, {39, true},
+        };
+        byte[] packet = {(byte) PacketType.Ack, 40, 0, 0, 0, 255, 255, 255, 255};
+        
+        AckReceiver.OnAckReceivedImpl(packet, prevAcks);
+        
+        Assert.Equal(40, prevAcks.Count);
+        foreach (var kvp in prevAcks)
+        {
+            Assert.True(kvp.Value);
+        }
+    }
+    
+    [Fact]
+    public void TestAckReceptionAndParsingPartialBuffer()
+    {
+        
         Dictionary<int, bool> prevAcks = new Dictionary<int, bool>
         {
             {0, true}, {1, true}, {2, true}, {3, true}, {4, true}, {5, true}, {6, true}, {7, true}, {8, true}, {9, true}
@@ -117,5 +163,33 @@ public class AckTests
         byte[] packet = {(byte) PacketType.Ack, 10, 0, 0, 0, 255, 3, 0, 0};
         
         AckReceiver.OnAckReceivedImpl(packet, prevAcks);
+        
+        Assert.Equal(10, prevAcks.Count);
+        foreach (var kvp in prevAcks)
+        {
+            Assert.True(kvp.Value);
+        }
+    }
+    
+    [Fact]
+    public void TestAckReceptionAndParsingPartialBufferWithSomeFalse()
+    {
+        
+        Dictionary<int, bool> prevAcks = new Dictionary<int, bool>
+        {
+            {0, false}, {1, true}, {2, false}, {3, true}, {4, false}, {5, true}, {6, false}, {7, true}, {8, false}, {9, true}
+        };
+        var x =BitConverter.GetBytes(682);
+        byte[] packet = {(byte) PacketType.Ack, 10, 0, 0, 0, 170, 2, 0, 0};
+        
+        AckReceiver.OnAckReceivedImpl(packet, prevAcks);
+        
+        Assert.Equal(10, prevAcks.Count);
+        var flipFlop = false;
+        foreach (var kvp in prevAcks)
+        {
+            Assert.Equal(flipFlop, kvp.Value);
+            flipFlop = !flipFlop;
+        }
     }
 }
