@@ -30,10 +30,13 @@ public class UDPSender : IService
     /// </summary>
     public void Send(byte[] bytes)
     {
-        var packetCountBytes = BitConverter.GetBytes(++packetCount);
-        for (int i = 0; i < sizeof(Int32); i++)
+        if (PacketInfoParser.PacketType(bytes) != PacketType.Ack)
         {
-            bytes[PacketInfoParser.PacketIdIdx + i] = packetCountBytes[i];
+            var packetCountBytes = BitConverter.GetBytes(++packetCount);
+            for (int i = 0; i < sizeof(Int32); i++)
+            {
+                bytes[PacketInfoParser.PacketIdIdx + i] = packetCountBytes[i];
+            }
         }
         s.SendTo(bytes, endPoint);
     }

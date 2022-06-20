@@ -10,6 +10,9 @@ public static class NetworkSubsystem
     /// </summary>
     public static void InitClient()
     {
+        var UDPSender = new UDPSender();
+        ServiceRegistry.AddService(UDPSender);
+        
         var UDPReceiver = new UDPReceiver();
         ServiceRegistry.AddService(UDPReceiver);
 
