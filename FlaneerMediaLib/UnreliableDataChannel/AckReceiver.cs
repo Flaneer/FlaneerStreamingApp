@@ -1,4 +1,5 @@
-﻿using FlaneerMediaLib.Logging;
+﻿using System.Diagnostics;
+using FlaneerMediaLib.Logging;
 
 namespace FlaneerMediaLib;
 
@@ -18,6 +19,14 @@ public class AckReceiver : IService
         logger = Logger.GetLogger(this);
         ServiceRegistry.TryGetService(out UDPReceiver receiver);
         receiver.SubscribeToReceptionTraffic(PacketType.Ack, OnAckReceived);
+
+        new Timer(PacketLossCallback, this, TimeSpan.FromSeconds(5), TimeSpan.FromSeconds(5));
+    }
+
+    private void PacketLossCallback(object? state)
+    {
+        var packetLoss = prevAcks.Count / prevAcks.Count(pair => pair.Value);
+        logger.Debug($"Current Packet Loss : {packetLoss}");
     }
 
     private void OnAckReceived(byte[] incomingAck)
