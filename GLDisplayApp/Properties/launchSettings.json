@@ -1,8 +1,0 @@
-{
-  "profiles": {
-    "GLDisplayApp": {
-      "commandName": "Project",
-      "commandLineArgs": "-framesize 1920 1080 -broadcastaddress 18.203.238.204 11000 -uselocalframes C:\\Users\\Tom\\Code\\FlaneerStreamingApp\\TestResources\\1080h264frames\\ 1080pTestFrame-{}.h264 100"
-    }
-  }
-}·
