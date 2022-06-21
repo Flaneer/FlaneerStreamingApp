@@ -2,43 +2,10 @@
 
 namespace FlaneerMediaLib;
 
-internal class SimpleMovingAverage
-{
-    private readonly long _k;
-    private readonly long[] _values;
-
-    private long _index = 0;
-    private long _sum = 0;
-
-    public SimpleMovingAverage(long k)
-    {
-        if (k <= 0) throw new ArgumentOutOfRangeException(nameof(k), "Must be greater than 0");
-
-        _k = k;
-        _values = new long[k];
-    }
-
-    public long Update(long nextInput)
-    {
-        // calculate the new sum
-        _sum = _sum - _values[_index] + nextInput;
-
-        // overwrite the old value with the new one
-        _values[_index] = nextInput;
-
-        // increment the index (wrapping back to 0)
-        _index = (_index + 1) % _k;
-
-        // calculate the average
-        return  _sum / _k;
-    }
-}
-
-
 /// <summary>
 /// Class that performs full logging of the UDP connection
 /// </summary>
-public class UDPStatTracker
+public class UDPClientStatTracker
 {
     private readonly Logger logger;
     private int packetCount;
@@ -53,7 +20,7 @@ public class UDPStatTracker
     /// <summary>
     /// ctor
     /// </summary>
-    public UDPStatTracker(UDPReceiver receiver)
+    public UDPClientStatTracker(UDPReceiver receiver)
     {
         logger = Logger.GetLogger(this);
         

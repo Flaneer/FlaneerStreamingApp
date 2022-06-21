@@ -47,8 +47,9 @@ internal class LoggerFactory
 
     internal void Error(string exception, string typeString)
     {
-        var message = $"{GetLogPrefix("bold red", typeString)} {exception}";
-        AnsiConsole.MarkupLine(message);
+        var message = $"{GetLogPrefix("bold red", typeString)}";
+        AnsiConsole.Markup(message);
+        AnsiConsole.Write(exception + "\n");
     }
 
     internal void Trace(string s, string typeString)

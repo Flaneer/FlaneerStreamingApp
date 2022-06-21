@@ -15,7 +15,7 @@ public class UDPReceiver : IService
     private Dictionary<PacketType, List<Action<byte[]>>> receptionTrafficDestinations = new();
     private bool receiving;
     private readonly Logger logger;
-    private readonly UDPStatTracker statTracker;
+    private readonly UDPClientStatTracker clientStatTracker;
 
     /// <summary>
     /// ctor
@@ -23,7 +23,7 @@ public class UDPReceiver : IService
     public UDPReceiver()
     {
         logger = Logger.GetLogger(this);
-        statTracker = new UDPStatTracker(this);
+        clientStatTracker = new UDPClientStatTracker(this);
         
         ServiceRegistry.TryGetService<CommandLineArgumentStore>(out var clas);
         var broadcastInfo = clas.GetParams(CommandLineArgs.BroadcastAddress);

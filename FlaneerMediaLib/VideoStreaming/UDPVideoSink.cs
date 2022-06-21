@@ -25,10 +25,7 @@ public class UDPVideoSink : IVideoSink
     public UDPVideoSink()
     {
         logger = Logger.GetLogger(this);
-        ServiceRegistry.TryGetService<CommandLineArgumentStore>(out var clas);
-        var frameSettings = clas.GetParams(CommandLineArgs.BroadcastAddress);
-
-        udpSender = new UDPSender(frameSettings[0], Int32.Parse(frameSettings[1]));
+        ServiceRegistry.TryGetService(out udpSender);
         
         GetEncoder();
         GetSource();

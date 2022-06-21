@@ -32,6 +32,13 @@ public class LoggerTests
         var logger = Logger.GetLogger(this);
         logger.Error("Hello 123 ?%&");
     }
+    
+    [Fact(Skip = "Only used to test formatting")]
+    public void TestLogErrorFromException()
+    {
+        var logger = Logger.GetLogger(this);
+        logger.Error(new Exception("Test"));
+    }
 
     class Foo{}
     class Bar{}

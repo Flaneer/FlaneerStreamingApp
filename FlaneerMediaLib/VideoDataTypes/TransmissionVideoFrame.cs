@@ -47,9 +47,7 @@ public class TransmissionVideoFrame : IPacketInfo, IVideoFrame
     /// </summary>
     public const int HeaderSize = 29;
     
-    /// <summary>
-    /// Converts the data in this class to a byte array that can be decoded
-    /// </summary>
+    /// <inheritdoc/>
     public byte[] ToUDPPacket()
     {
         byte[] ret = new byte[HeaderSize];
