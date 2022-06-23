@@ -23,6 +23,8 @@ namespace FlaneerMediaLib
 
         private bool frameWithPPSSP;
         
+        private DateTime startTime = DateTime.Now;
+        
         private Logger logger;
 
         /// <inheritdoc />
@@ -190,8 +192,16 @@ namespace FlaneerMediaLib
         }
 
         private int assembledFrames = 0;
+        private bool timerStarted;
+
         private void AssembleFrame(UInt32 sequenceIDX, IEnumerable<KeyValuePair<TransmissionVideoFrame, byte[]>> parts)
         {
+            if(!timerStarted)
+            {
+                timerStarted = true;
+                startTime = DateTime.Now;
+            }
+
             var orderedParts = parts.OrderBy(pair => pair.Key.PacketIdx);
             var completedPacket = new List<byte>();
             foreach (var part in orderedParts)
@@ -210,7 +220,8 @@ namespace FlaneerMediaLib
                 partialFrames.Remove(part.Key);
             }
             logger.Debug($"Assembled packets for sequence {sequenceIDX}");
-            StatLogging.LogPerfStat("Assembled Frames: ", ++assembledFrames);
+            var frameTime = (DateTime.Now - startTime) / ++assembledFrames;
+            StatLogging.LogPerfStat("AssembledFPS: ", 1000/frameTime.Milliseconds);
         }
 
         /// <inheritdoc />

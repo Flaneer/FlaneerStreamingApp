@@ -41,15 +41,13 @@ public class UDPClientStatTracker
         long ticks = PacketInfoParser.TimeStamp(packet);
         var latencyTicks = DateTime.UtcNow.Ticks - ticks;
         var latency = TimeSpan.FromTicks(latencyAverage.Update(latencyTicks));
-        StatLogging.LogPerfStat("Latency", latency);
+        StatLogging.LogPerfStat("Latency(ms)", latency.Milliseconds);
 
         var packetId = PacketInfoParser.PacketId(packet);
         droppedPackets += packetId - (lastPacket + 1);
         lastPacket = packetId;
         StatLogging.LogPerfStat("Dropped Packets", droppedPackets);
-        
-        
-        StatLogging.LogPerfStat("Packets Received", ++packetCount);
+
         if (packet.Length == 0)
         {
             StatLogging.LogPerfStat("EmptyPackets", ++emptyPacketCount);
