@@ -134,7 +134,7 @@ void NvEncoder::CreateDefaultEncoderParams(NV_ENC_INITIALIZE_PARAMS* pIntializeP
     pIntializeParams->encodeHeight = m_height;
     pIntializeParams->darWidth = m_width;
     pIntializeParams->darHeight = m_height;
-    pIntializeParams->frameRateNum = 30;
+    pIntializeParams->frameRateNum = 5;
     pIntializeParams->frameRateDen = 1;
     pIntializeParams->enablePTD = 1;
     pIntializeParams->reportSliceOffsets = 0;
@@ -150,7 +150,7 @@ void NvEncoder::CreateDefaultEncoderParams(NV_ENC_INITIALIZE_PARAMS* pIntializeP
     m_nvenc.nvEncGetEncodePresetConfig(m_encoder, codecGuid, presetGuid, &presetConfig);
     memcpy(pIntializeParams->encodeConfig, &presetConfig.presetCfg, sizeof(NV_ENC_CONFIG));
     pIntializeParams->encodeConfig->frameIntervalP = 1;
-    pIntializeParams->encodeConfig->gopLength = NVENC_INFINITE_GOPLENGTH;
+    pIntializeParams->encodeConfig->gopLength = 1;
 
     pIntializeParams->encodeConfig->rcParams.rateControlMode = NV_ENC_PARAMS_RC_CONSTQP;
 

@@ -3,6 +3,7 @@
 #include "DDAImpl.h"
 #include "InteropStructs.h"
 #include "NvEncoderD3D11.h"
+#include "RGBToNV12.h"
 
 
 class CaptureRuntime
@@ -51,6 +52,11 @@ private:
     /// NVENCODEAPI video encoding configuration parameters
     /// </summary>
     NV_ENC_CONFIG m_encConfig = { 0 };
+    /// <summary>
+    /// Preprocessingis required if captured images are of different size than encWidthxencHeight
+    /// This application always uses this preprocessor
+    /// </summary>
+    RGBToNV12* m_colorConv = nullptr;
 
     std::vector<std::vector<uint8_t>> m_packet;
 
@@ -72,6 +78,7 @@ private:
     HRESULT InitDXGI();
 	HRESULT InitDup();
 	HRESULT InitEnc();
+    HRESULT InitColorConv();
     HRESULT Capture();
     HRESULT Preproc();
     HRESULT Encode();
