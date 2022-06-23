@@ -95,8 +95,8 @@ public class GLEnv
             var frame = imageSource.GetImage();
             fixed (void* p = frame.Stream.GetBuffer())
             {
-                Gl.TexImage2D(TextureTarget.Texture2D, 0, InternalFormat.Rgb, (uint) frame.Width, (uint) frame.Height, 0,
-                                PixelFormat.Ycrcb444Sgix, PixelType.UnsignedByte, p);
+                Gl.TexImage2D(TextureTarget.Texture2D, 0, InternalFormat.Rgba, (uint) frame.Width, (uint) frame.Height, 0,
+                                PixelFormat.Rgba, PixelType.UnsignedByte, p);
             }
         }
 
@@ -129,8 +129,7 @@ public class GLEnv
         
         framesDisplayed++;
         var averageFrameTime = (DateTime.Now - StartTime) / framesDisplayed;
-        StatLogging.LogPerfStat("AverageFrameTime", averageFrameTime);
-        StatLogging.LogPerfStat("FPS", 1000/averageFrameTime.Milliseconds);
+        StatLogging.LogPerfStat("GL-FPS", 1000/averageFrameTime.Milliseconds);
     }
     
     private void OnClose()
