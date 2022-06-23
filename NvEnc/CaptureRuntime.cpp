@@ -163,6 +163,18 @@ HRESULT CaptureRuntime::InitEnc()
     return S_OK;
 }
 
+/// Initialize preprocessor
+HRESULT CaptureRuntime::InitColorConv()
+{
+    if (!m_colorConv)
+    {
+        m_colorConv = new RGBToNV12(m_d3dDevice, m_deviceContext);
+        HRESULT hr = m_colorConv->Init();
+        returnIfError(hr);
+    }
+    return S_OK;
+}
+
 HRESULT CaptureRuntime::Init()
 {
     HRESULT hr = S_OK;
@@ -174,6 +186,9 @@ HRESULT CaptureRuntime::Init()
     returnIfError(hr);
 
     hr = InitEnc();
+    returnIfError(hr);
+
+    hr = InitColorConv();
     returnIfError(hr);
 
     return hr;
@@ -194,7 +209,7 @@ HRESULT CaptureRuntime::Preproc()
     HRESULT hr = S_OK;
     const NvEncInputFrame* pEncInput = m_encoder->GetNextInputFrame();
     m_encBuf = (ID3D11Texture2D*)pEncInput->inputPtr;
-    m_deviceContext->CopySubresourceRegion(m_encBuf, D3D11CalcSubresource(0, 0, 1), 0, 0, 0, m_dupTex2D, 0, NULL);
+    hr = m_colorConv->Convert(m_dupTex2D, m_encBuf);
     SAFE_RELEASE(m_dupTex2D);
     returnIfError(hr);
 
@@ -251,6 +266,11 @@ void CaptureRuntime::Cleanup()
         m_ddaWrapper->Cleanup();
         delete m_ddaWrapper;
         m_ddaWrapper = nullptr;
+    }
+
+    if (m_colorConv)
+    {
+        m_colorConv->Cleanup();
     }
 
     if (m_encoder)
