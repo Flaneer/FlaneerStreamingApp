@@ -87,6 +87,7 @@ HRESULT RGBToNV12::Convert(ID3D11Texture2D* pRGB, ID3D11Texture2D* pYUV)
     /// Reconfiguration is required if input/output dimensions have changed
     if (m_pVP)
     {
+        //Discard the VP if the frame size has changed
         if (m_inDesc.Width != inDesc.Width ||
             m_inDesc.Height != inDesc.Height ||
             m_outDesc.Width != outDesc.Width ||

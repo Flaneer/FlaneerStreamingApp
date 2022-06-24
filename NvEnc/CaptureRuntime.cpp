@@ -209,7 +209,12 @@ HRESULT CaptureRuntime::Preproc()
     HRESULT hr = S_OK;
     const NvEncInputFrame* pEncInput = m_encoder->GetNextInputFrame();
     m_encBuf = (ID3D11Texture2D*)pEncInput->inputPtr;
-    hr = m_colorConv->Convert(m_dupTex2D, m_encBuf);
+
+    if(m_bufferFormat == NV_ENC_BUFFER_FORMAT_NV12)
+        hr = m_colorConv->Convert(m_dupTex2D, m_encBuf);
+    else
+        m_deviceContext->CopySubresourceRegion(m_encBuf, D3D11CalcSubresource(0, 0, 1), 0, 0, 0, m_dupTex2D, 0, NULL);
+
     SAFE_RELEASE(m_dupTex2D);
     returnIfError(hr);
 
