@@ -33,7 +33,7 @@ public class VideoSettings
     /// <summary>
     /// The pixel format of the video
     /// </summary>
-    public BufferFormat Format = BufferFormat.NV12;
+    public BufferFormat Format = BufferFormat.ARGB;
     /// <summary>
     /// The group of pictures length
     /// </summary>

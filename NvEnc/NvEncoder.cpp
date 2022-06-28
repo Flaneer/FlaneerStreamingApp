@@ -134,7 +134,7 @@ void NvEncoder::CreateDefaultEncoderParams(NV_ENC_INITIALIZE_PARAMS* pIntializeP
     pIntializeParams->encodeHeight = m_height;
     pIntializeParams->darWidth = m_width;
     pIntializeParams->darHeight = m_height;
-    pIntializeParams->frameRateNum = 5;
+    pIntializeParams->frameRateNum = 60;
     pIntializeParams->frameRateDen = 1;
     pIntializeParams->enablePTD = 1;
     pIntializeParams->reportSliceOffsets = 0;
@@ -152,7 +152,11 @@ void NvEncoder::CreateDefaultEncoderParams(NV_ENC_INITIALIZE_PARAMS* pIntializeP
     pIntializeParams->encodeConfig->frameIntervalP = 1;
     pIntializeParams->encodeConfig->gopLength = 1;
 
-    pIntializeParams->encodeConfig->rcParams.rateControlMode = NV_ENC_PARAMS_RC_CONSTQP;
+    //pIntializeParams->encodeConfig->rcParams.rateControlMode = NV_ENC_PARAMS_RC_CONSTQP;
+
+    pIntializeParams->encodeConfig->rcParams.rateControlMode = NV_ENC_PARAMS_RC_VBR;
+    //pIntializeParams->encodeConfig->rcParams.maxBitRate = 800000;
+    pIntializeParams->encodeConfig->rcParams.zeroReorderDelay = 1;
 
     if (pIntializeParams->presetGUID != NV_ENC_PRESET_LOSSLESS_DEFAULT_GUID
         && pIntializeParams->presetGUID != NV_ENC_PRESET_LOSSLESS_HP_GUID)
