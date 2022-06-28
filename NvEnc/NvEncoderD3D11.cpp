@@ -15,6 +15,7 @@
 #ifndef MAKEFOURCC
 #define MAKEFOURCC(a,b,c,d) (((unsigned int)a) | (((unsigned int)b)<< 8) | (((unsigned int)c)<<16) | (((unsigned int)d)<<24) )
 #endif
+#include "InteropStructs.h"
 
 DXGI_FORMAT GetD3D11Format(NV_ENC_BUFFER_FORMAT bufferFormat)
 {
@@ -29,9 +30,8 @@ DXGI_FORMAT GetD3D11Format(NV_ENC_BUFFER_FORMAT bufferFormat)
     }
 }
 
-NvEncoderD3D11::NvEncoderD3D11(ID3D11Device* D3D11Device, uint32_t width, uint32_t height,
-    NV_ENC_BUFFER_FORMAT bufferFormat,  uint32_t extraOutputDelay, bool motionEstimationOnly) :
-    NvEncoder(NV_ENC_DEVICE_TYPE_DIRECTX, D3D11Device, width, height, bufferFormat, extraOutputDelay, motionEstimationOnly)
+NvEncoderD3D11::NvEncoderD3D11(ID3D11Device* D3D11Device, EncInitSettings initSettings,  uint32_t extraOutputDelay, bool motionEstimationOnly) :
+    NvEncoder(NV_ENC_DEVICE_TYPE_DIRECTX, D3D11Device, initSettings, extraOutputDelay, motionEstimationOnly)
 {
     if (!D3D11Device)
     {

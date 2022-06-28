@@ -11,15 +11,14 @@
 
 #include "NvEncoder.h"
 
-NvEncoder::NvEncoder(NV_ENC_DEVICE_TYPE deviceType, void *device, uint32_t width, uint32_t height, NV_ENC_BUFFER_FORMAT bufferFormat,
-                            uint32_t extraOutputDelay, bool motionEstimationOnly) :
+NvEncoder::NvEncoder(NV_ENC_DEVICE_TYPE deviceType, void *device, EncInitSettings initSettings,  uint32_t extraOutputDelay, bool motionEstimationOnly) :
     m_device(device), 
     m_deviceType(deviceType),
-    m_width(width),
-    m_height(height),
-    m_maxEncodeWidth(width),
-    m_maxEncodeHeight(height),
-    m_bufferFormat(bufferFormat), 
+    m_width(initSettings.Width),
+    m_height(initSettings.Height),
+    m_maxEncodeWidth(initSettings.Width),
+    m_maxEncodeHeight(initSettings.Height),
+    m_bufferFormat(initSettings.Format),
     m_motionEstimationOnly(motionEstimationOnly), 
     m_extraOutputDelay(extraOutputDelay), 
     m_encoder(nullptr)
@@ -106,7 +105,7 @@ NvEncoder::~NvEncoder()
     }
 }
 
-void NvEncoder::CreateDefaultEncoderParams(NV_ENC_INITIALIZE_PARAMS* pIntializeParams, GUID codecGuid, GUID presetGuid)
+void NvEncoder::SetEncoderParams(NV_ENC_INITIALIZE_PARAMS* pIntializeParams, GUID codecGuid, GUID presetGuid)
 {
     if (!m_encoder)
     {
@@ -149,41 +148,25 @@ void NvEncoder::CreateDefaultEncoderParams(NV_ENC_INITIALIZE_PARAMS* pIntializeP
     NV_ENC_PRESET_CONFIG presetConfig = { NV_ENC_PRESET_CONFIG_VER, { NV_ENC_CONFIG_VER } };
     m_nvenc.nvEncGetEncodePresetConfig(m_encoder, codecGuid, presetGuid, &presetConfig);
     memcpy(pIntializeParams->encodeConfig, &presetConfig.presetCfg, sizeof(NV_ENC_CONFIG));
-    pIntializeParams->encodeConfig->frameIntervalP = 1;
-    pIntializeParams->encodeConfig->gopLength = 1;
-
-    //pIntializeParams->encodeConfig->rcParams.rateControlMode = NV_ENC_PARAMS_RC_CONSTQP;
+    pIntializeParams->encodeConfig->frameIntervalP = 0;
+    pIntializeParams->encodeConfig->gopLength = 5;
 
     pIntializeParams->encodeConfig->rcParams.rateControlMode = NV_ENC_PARAMS_RC_VBR;
-    //pIntializeParams->encodeConfig->rcParams.maxBitRate = 800000;
+    //pIntializeParams->encodeConfig->rcParams.maxBitRate = 1;
     pIntializeParams->encodeConfig->rcParams.zeroReorderDelay = 1;
-
-    if (pIntializeParams->presetGUID != NV_ENC_PRESET_LOSSLESS_DEFAULT_GUID
-        && pIntializeParams->presetGUID != NV_ENC_PRESET_LOSSLESS_HP_GUID)
-    {
-        pIntializeParams->encodeConfig->rcParams.constQP = { 28, 31, 25 };
-    }
 
     if (pIntializeParams->encodeGUID == NV_ENC_CODEC_H264_GUID)
     {
-        if (m_bufferFormat == NV_ENC_BUFFER_FORMAT_YUV444 || m_bufferFormat == NV_ENC_BUFFER_FORMAT_YUV444_10BIT)
-        {
-            pIntializeParams->encodeConfig->encodeCodecConfig.h264Config.chromaFormatIDC = 3;
-        }
         pIntializeParams->encodeConfig->encodeCodecConfig.h264Config.idrPeriod = pIntializeParams->encodeConfig->gopLength;
+        pIntializeParams->encodeConfig->encodeCodecConfig.h264Config.sliceMode = 3;
+        pIntializeParams->encodeConfig->encodeCodecConfig.h264Config.sliceModeData = 16;
+
     }
     else if (pIntializeParams->encodeGUID == NV_ENC_CODEC_HEVC_GUID)
     {
-        pIntializeParams->encodeConfig->encodeCodecConfig.hevcConfig.pixelBitDepthMinus8 =
-            (m_bufferFormat == NV_ENC_BUFFER_FORMAT_YUV420_10BIT || m_bufferFormat == NV_ENC_BUFFER_FORMAT_YUV444_10BIT ) ? 2 : 0;
-        if (m_bufferFormat == NV_ENC_BUFFER_FORMAT_YUV444 || m_bufferFormat == NV_ENC_BUFFER_FORMAT_YUV444_10BIT)
-        {
-            pIntializeParams->encodeConfig->encodeCodecConfig.hevcConfig.chromaFormatIDC = 3;
-        }
+        pIntializeParams->encodeConfig->encodeCodecConfig.hevcConfig.pixelBitDepthMinus8 = 0;
         pIntializeParams->encodeConfig->encodeCodecConfig.hevcConfig.idrPeriod = pIntializeParams->encodeConfig->gopLength;
     }
-
-    return;
 }
 
 void NvEncoder::CreateEncoder(const NV_ENC_INITIALIZE_PARAMS* pEncoderParams)
@@ -255,7 +238,7 @@ void NvEncoder::CreateEncoder(const NV_ENC_INITIALIZE_PARAMS* pEncoderParams)
         m_nvenc.nvEncGetEncodePresetConfig(m_encoder, pEncoderParams->encodeGUID, NV_ENC_PRESET_DEFAULT_GUID, &presetConfig);
         memcpy(&m_encodeConfig, &presetConfig.presetCfg, sizeof(NV_ENC_CONFIG));
         m_encodeConfig.version = NV_ENC_CONFIG_VER;
-        m_encodeConfig.rcParams.rateControlMode = NV_ENC_PARAMS_RC_CONSTQP;
+        m_encodeConfig.rcParams.rateControlMode = NV_ENC_PARAMS_RC_CBR;
         m_encodeConfig.rcParams.constQP = { 28, 31, 25 };
     }
     m_initializeParams.encodeConfig = &m_encodeConfig;

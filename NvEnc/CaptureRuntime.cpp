@@ -130,29 +130,25 @@ HRESULT CaptureRuntime::InitEnc()
 {
     if (!m_encoder)
     {
-        //std::cout << "Video details: Width:" << w << " Height:" << h << " Format:" << fmt << "\n";
+        auto initEnc = EncInitSettings();
+        initEnc.Width = m_width;
+        initEnc.Height = m_height;
+        initEnc.MaxFPS = m_maxFPS;
+        initEnc.GoPLength = m_gopLength;
+        initEnc.Format = m_bufferFormat;
 
-        m_encoder = new NvEncoderD3D11(m_d3dDevice, m_width, m_height, m_bufferFormat);
+        m_encoder = new NvEncoderD3D11(m_d3dDevice, initEnc);
         if (!m_encoder)
         {
             returnIfError(E_FAIL);
         }
 
-        ZeroMemory(&m_encInitParams, sizeof(m_encInitParams));
-        m_encInitParams.encodeConfig = &m_encConfig;
-        m_encInitParams.encodeWidth = m_width;
-        m_encInitParams.encodeHeight = m_height;
-        m_encInitParams.maxEncodeWidth = UHD_W;
-        m_encInitParams.maxEncodeHeight = UHD_H;
-        m_encInitParams.frameRateNum = m_maxFPS;
-        m_encInitParams.frameRateDen = 1;
-
-        ZeroMemory(&m_encConfig, sizeof(m_encConfig));
-        m_encConfig.gopLength = m_gopLength;
-
         try
         {
-            m_encoder->CreateDefaultEncoderParams(&m_encInitParams, m_codecId, NV_ENC_PRESET_LOW_LATENCY_HP_GUID);
+            ZeroMemory(&m_encInitParams, sizeof(m_encInitParams));
+            m_encInitParams.encodeConfig = &m_encConfig; 
+            ZeroMemory(&m_encConfig, sizeof(m_encConfig));
+            m_encoder->SetEncoderParams(&m_encInitParams, m_codecId, NV_ENC_PRESET_LOW_LATENCY_HP_GUID);
             m_encoder->CreateEncoder(&m_encInitParams);
         }
         catch (...)

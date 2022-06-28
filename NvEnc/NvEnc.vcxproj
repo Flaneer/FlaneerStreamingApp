@@ -161,6 +161,7 @@
     <ClInclude Include="NvEncoder.h" />
     <ClInclude Include="NvEncoderD3D11.h" />
     <ClInclude Include="RGBToNV12.h" />
+    <ClInclude Include="Utils.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="CaptureRuntime.cpp" />
