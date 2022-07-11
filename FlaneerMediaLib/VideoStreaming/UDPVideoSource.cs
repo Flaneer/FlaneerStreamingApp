@@ -152,7 +152,8 @@ namespace FlaneerMediaLib
             MemoryStream frameStream;
             if(receivedFrame.SequenceIDX == 0)
             {
-                frameStream = new MemoryStream(frameData);
+                frameStream = new MemoryStream(frameData.Length);
+                frameStream.Write(frameData);
             }
             else
             {
