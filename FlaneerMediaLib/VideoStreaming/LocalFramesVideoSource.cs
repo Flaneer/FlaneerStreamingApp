@@ -61,16 +61,17 @@ public class LocalFramesVideoSource : IVideoSource
     }
     
     /// <inheritdoc />
-    public IVideoFrame GetFrame()
+    public bool GetFrame(out IVideoFrame frame)
     {
         IterateCurrentFrame();
-        return new ManagedVideoFrame
+        frame = new ManagedVideoFrame
         {
             Codec = VideoCodec.H264,
             Height = (short) FrameSettings.Height,
             Width = (short) FrameSettings.Width,
             Stream = new MemoryStream(File.ReadAllBytes(FileNameFromIdx(currentFrame)))
         };
+        return true;
     }
     
     /// <inheritdoc />

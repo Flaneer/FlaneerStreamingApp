@@ -22,6 +22,7 @@ public class UDPImageSource
     private VideoStreamDecoder? vsd;
     private AVIOReader? avioReader;
     private VideoFrameConverter? vfc;
+    private AutoResizingByteBuffer? outFrameBuffer = null;
 
     public UDPImageSource()
     {
@@ -31,7 +32,7 @@ public class UDPImageSource
         var frameSettings = clas.GetParams(CommandLineArgs.FrameSettings);
         width =  Int16.Parse(frameSettings[0]);
         height = Int16.Parse(frameSettings[1]);
-    
+
         ServiceRegistry.TryGetService(out videoSource);
     }
 
@@ -52,11 +53,11 @@ public class UDPImageSource
         {
             unsafe
             {
-                var frameIn = videoSource.GetFrame();
-                ManagedVideoFrame? frame = frameIn as ManagedVideoFrame;
-                if(frame == null || frame.Stream.Length == 0)
+                var frameAvailable = videoSource.GetFrame(out var frameIn);
+                if(!frameAvailable)
                     return new ManagedVideoFrame();
-
+                
+                var frame = frameIn as ManagedVideoFrame;
                 if(!File.Exists("out.h264"))
                     File.WriteAllBytes("out.h264",frame.Stream.ToArray());
 
@@ -68,9 +69,12 @@ public class UDPImageSource
                     avioReader!.RefreshInputStream(inStream);
                 
                 var convertedFrame = vfc!.Convert(vsd!.DecodeNextFrame());
-                //var frameOut = videoConv.DecodeFrame(frame.Stream);
-                outFrameStream = new MemoryStream();
-                outFrameStream.Write(new Span<byte>(convertedFrame.data[0], convertedFrame.height * convertedFrame.linesize[0]));
+                var convertedFrameSize = convertedFrame.height * convertedFrame.linesize[0];
+                if (outFrameBuffer == null)
+                    outFrameBuffer = new AutoResizingByteBuffer(convertedFrame.data[0], convertedFrameSize);
+                else
+                    outFrameBuffer.RefreshContent(convertedFrameSize);
+                outFrameStream = outFrameBuffer.WriteToStream();
                 return new ManagedVideoFrame()
                 {
                     Width = width,

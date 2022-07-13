@@ -56,9 +56,6 @@ namespace FlaneerMediaLib
                     throw new ArgumentOutOfRangeException(nameof(codecSettingsIn));
             }
 
-            //Initialise the framebuffer with an empty frame
-            frameBuffer.Add(0, new ManagedVideoFrame());
-
             if (!ServiceRegistry.TryGetService(out UDPReceiver receiver))
             {
                 throw new Exception("No UDP Receiver");
@@ -226,12 +223,18 @@ namespace FlaneerMediaLib
         }
 
         /// <inheritdoc />
-        public IVideoFrame GetFrame()
+        public bool GetFrame(out IVideoFrame frame)
         {
+            var ret = false;
             lock (frameBuffer)
             {
-                return frameBuffer[lastFrame];
+                ret = frameBuffer.TryGetValue(lastFrame, out var bufferedFrame);
+                if (ret)
+                    frame = bufferedFrame;
+                else
+                    frame = new ManagedVideoFrame();
             }
+            return ret;
         }
 
         /// <inheritdoc />
