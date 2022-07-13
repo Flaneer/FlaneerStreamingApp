@@ -10,20 +10,18 @@ namespace GLDisplayApp;
 public class UDPImageSource
 {
     private readonly IVideoSource videoSource;
-    private readonly FFMpegDecoder videoConv;
     
     private Logger logger;
     
     private readonly short width;
     private readonly short height;
-    private int maxFrameSize;
 
-    private MemoryStream outFrameStream;
+    private MemoryStream? outFrameStream;
 
     private bool ffmpegInitialised = false;
-    private VideoStreamDecoder vsd;
-    private AVIOReader avioReader;
-    private VideoFrameConverter vfc;
+    private VideoStreamDecoder? vsd;
+    private AVIOReader? avioReader;
+    private VideoFrameConverter? vfc;
 
     public UDPImageSource()
     {
@@ -35,12 +33,9 @@ public class UDPImageSource
         height = Int16.Parse(frameSettings[1]);
     
         ServiceRegistry.TryGetService(out videoSource);
-        //videoConv = new FFMpegDecoder();
-        maxFrameSize = width * height * 24;
-        outFrameStream = new MemoryStream(maxFrameSize);
     }
 
-    private unsafe void InitialiseFFMpeg(MemoryStream inFrameStream)
+    private unsafe void InitialiseFFMpeg(ref MemoryStream? inFrameStream)
     {
         FFmpegBinariesHelper.RegisterFFmpegBinaries();
         avioReader = new AVIOReader(inFrameStream);
@@ -65,12 +60,14 @@ public class UDPImageSource
                 if(!File.Exists("out.h264"))
                     File.WriteAllBytes("out.h264",frame.Stream.ToArray());
 
-                if(!ffmpegInitialised)
-                    InitialiseFFMpeg(frame.Stream);
-                else
-                    avioReader.InputStream = frame.Stream;
+                var inStream = frame.Stream;
                 
-                var convertedFrame = vfc.Convert(vsd.DecodeNextFrame());
+                if(!ffmpegInitialised)
+                    InitialiseFFMpeg(ref inStream);
+                else
+                    avioReader!.RefreshInputStream(inStream);
+                
+                var convertedFrame = vfc!.Convert(vsd!.DecodeNextFrame());
                 //var frameOut = videoConv.DecodeFrame(frame.Stream);
                 outFrameStream = new MemoryStream();
                 outFrameStream.Write(new Span<byte>(convertedFrame.data[0], convertedFrame.height * convertedFrame.linesize[0]));

@@ -13,7 +13,7 @@ namespace FlaneerMediaLib.VideoStreaming.ffmpeg
         /// </summary>
         public unsafe AVIOContext* AvioCtx => avioCtx;
 
-        private MemoryStream inputStream;
+        private MemoryStream? inputStream;
         private int bufferSize;
         private unsafe byte * bufferPtr;
         private unsafe AVIOContext * avioCtx;
@@ -22,23 +22,9 @@ namespace FlaneerMediaLib.VideoStreaming.ffmpeg
         private readonly byte[] imageBytes;
 
         /// <summary>
-        /// Stream containing the video input
-        /// </summary>
-        public MemoryStream InputStream
-        {
-            get => inputStream;
-            set
-            {
-                inputStream = value;
-                bufferSize = (int) inputStream.Length;
-                AllocAvioContext();
-            }
-        }
-
-        /// <summary>
         /// ctor
         /// </summary>
-        public unsafe AVIOReader(MemoryStream inputStream)
+        public unsafe AVIOReader(MemoryStream? inputStream)
         {
             this.inputStream = inputStream;
             bufferSize = (int) inputStream.Length;
@@ -60,8 +46,19 @@ namespace FlaneerMediaLib.VideoStreaming.ffmpeg
             }
         }
 
+        /// <summary>
+        /// Refresh the stream containing the video input
+        /// </summary>
+        public void RefreshInputStream(MemoryStream? streamIn)
+        {
+            inputStream = streamIn;
+            bufferSize = (int) inputStream.Length;
+            AllocAvioContext();
+        }
+
         private unsafe int read(void* opaque, byte *buf, int buf_size)
         {
+            inputStream.Position = 0;
             var bytesRead = inputStream.Read(imageBytes, 0, buf_size);
             Marshal.Copy(imageBytes, 0, (IntPtr)buf, buf_size);
             //https://ffmpeg.org/doxygen/trunk/avio_8h.html#a853f5149136a27ffba3207d8520172a5

@@ -96,7 +96,7 @@ public class GLEnv
             fixed (void* p = frame.Stream.GetBuffer())
             {
                 Gl.TexImage2D(TextureTarget.Texture2D, 0, InternalFormat.Rgba, (uint) frame.Width, (uint) frame.Height, 0,
-                                PixelFormat.Rgba, PixelType.UnsignedByte, p);
+                                PixelFormat.Rgb, PixelType.UnsignedByte, p);
             }
         }
 

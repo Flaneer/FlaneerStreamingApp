@@ -14,7 +14,7 @@ namespace FlaneerMediaLib.VideoStreaming.ffmpeg
         private AVPacket* packetPtr;
         private AVFormatContext* avfCtxPtr;
         private readonly int streamIndex;
-        private readonly AVCodecContext* CodecContextPtr;
+        private readonly AVCodecContext* codecContextPtr;
 
         private int frameCount = 0;
         
@@ -36,29 +36,29 @@ namespace FlaneerMediaLib.VideoStreaming.ffmpeg
         {
             logger = Logger.GetLogger(this);
             
+            //Allocate an AVFormatContext. avformat_free_context() can be used to free the context and everything allocated by the framework within it.
             var ctx = FFmpeg.AutoGen.ffmpeg.avformat_alloc_context();
             ctx->pb = avioCtx;
             
             var arbitrarytext = Encoding.UTF8.GetString(Encoding.Default.GetBytes(""));
             var inFmt = FFmpeg.AutoGen.ffmpeg.av_find_input_format("h264");
             FFmpeg.AutoGen.ffmpeg.avformat_open_input(&ctx, arbitrarytext, inFmt, null);
-            //ffmpeg.avformat_find_stream_info(ctx, null);
 
             AVCodec* codec = FFmpeg.AutoGen.ffmpeg.avcodec_find_decoder(AVCodecID.AV_CODEC_ID_H264);
-            //streamIndex = ffmpeg.av_find_best_stream(ctx, AVMediaType.AVMEDIA_TYPE_VIDEO, -1, -1, &codec, 0);
-            CodecContextPtr = FFmpeg.AutoGen.ffmpeg.avcodec_alloc_context3(codec);
-            CodecContextPtr->width = 1920;
-            CodecContextPtr->height = 1080;
-            CodecContextPtr->pix_fmt = AVPixelFormat.AV_PIX_FMT_YUV420P;
+            //Allocate an AVCodecContext and set its fields to default values. The resulting struct should be freed with avcodec_free_context().
+            codecContextPtr = FFmpeg.AutoGen.ffmpeg.avcodec_alloc_context3(codec);
+            //TODO: Set this from config
+            codecContextPtr->width = 1920;
+            codecContextPtr->height = 1080;
+            codecContextPtr->pix_fmt = AVPixelFormat.AV_PIX_FMT_YUV420P;
             
-            //ffmpeg.avcodec_parameters_to_context(CodecContextPtr, ctx->streams[streamIndex]->codecpar);
-            FFmpeg.AutoGen.ffmpeg.avcodec_open2(CodecContextPtr, codec, null);
+            FFmpeg.AutoGen.ffmpeg.avcodec_open2(codecContextPtr, codec, null);
             
             packetPtr = FFmpeg.AutoGen.ffmpeg.av_packet_alloc();
             framePtr = FFmpeg.AutoGen.ffmpeg.av_frame_alloc();
 
-            SourceSize = new Size(CodecContextPtr->width, CodecContextPtr->height);
-            SourcePixelFormat = CodecContextPtr->pix_fmt;
+            SourceSize = new Size(codecContextPtr->width, codecContextPtr->height);
+            SourcePixelFormat = codecContextPtr->pix_fmt;
             
             avfCtxPtr = ctx;
         }
@@ -72,7 +72,7 @@ namespace FlaneerMediaLib.VideoStreaming.ffmpeg
             var pPacket = packetPtr;
             FFmpeg.AutoGen.ffmpeg.av_packet_free(&pPacket);
 
-            FFmpeg.AutoGen.ffmpeg.avcodec_close(CodecContextPtr);
+            FFmpeg.AutoGen.ffmpeg.avcodec_close(codecContextPtr);
             var pFormatContext = avfCtxPtr;
             FFmpeg.AutoGen.ffmpeg.avformat_close_input(&pFormatContext);
         }
@@ -101,14 +101,14 @@ namespace FlaneerMediaLib.VideoStreaming.ffmpeg
                         }
                     } while (packetPtr->stream_index != streamIndex);
 
-                    FFmpeg.AutoGen.ffmpeg.avcodec_send_packet(CodecContextPtr, packetPtr);
+                    FFmpeg.AutoGen.ffmpeg.avcodec_send_packet(codecContextPtr, packetPtr);
                 }
                 finally
                 {
                     FFmpeg.AutoGen.ffmpeg.av_packet_unref(packetPtr);
                 }
 
-                error = FFmpeg.AutoGen.ffmpeg.avcodec_receive_frame(CodecContextPtr, framePtr);
+                error = FFmpeg.AutoGen.ffmpeg.avcodec_receive_frame(codecContextPtr, framePtr);
             } while (error == FFmpeg.AutoGen.ffmpeg.AVERROR(FFmpeg.AutoGen.ffmpeg.EAGAIN));
 
             return *framePtr;

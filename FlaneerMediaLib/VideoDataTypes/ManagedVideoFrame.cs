@@ -14,7 +14,7 @@ public class ManagedVideoFrame : IVideoFrame, IDisposable
     /// <summary>
     /// Stream to contain the frame data
     /// </summary>
-    public MemoryStream Stream = new();
+    public MemoryStream? Stream = new();
 
     /// <inheritdoc/>
     public void Dispose()
