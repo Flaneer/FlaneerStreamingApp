@@ -22,7 +22,6 @@ public class UDPImageSource
     private VideoStreamDecoder? vsd;
     private AVIOReader? avioReader;
     private VideoFrameConverter? vfc;
-    private AutoResizingByteBuffer? outFrameBuffer = null;
 
     public UDPImageSource()
     {
@@ -47,7 +46,7 @@ public class UDPImageSource
         ffmpegInitialised = true;
     }
 
-    public ManagedVideoFrame GetImage()
+    public UnsafeUnmanagedVideoFrame GetImage()
     {
         try
         {
@@ -55,7 +54,7 @@ public class UDPImageSource
             {
                 var frameAvailable = videoSource.GetFrame(out var frameIn);
                 if(!frameAvailable)
-                    return new ManagedVideoFrame();
+                    return new UnsafeUnmanagedVideoFrame();
                 
                 var frame = frameIn as ManagedVideoFrame;
                 if(!File.Exists("out.h264"))
@@ -70,16 +69,12 @@ public class UDPImageSource
                 
                 var convertedFrame = vfc!.Convert(vsd!.DecodeNextFrame());
                 var convertedFrameSize = convertedFrame.height * convertedFrame.linesize[0];
-                if (outFrameBuffer == null)
-                    outFrameBuffer = new AutoResizingByteBuffer(convertedFrame.data[0], convertedFrameSize);
-                else
-                    outFrameBuffer.RefreshContent(convertedFrameSize);
-                outFrameStream = outFrameBuffer.WriteToStream();
-                return new ManagedVideoFrame()
+                return new UnsafeUnmanagedVideoFrame()
                 {
                     Width = width,
                     Height = height,
-                    Stream = outFrameStream
+                    FrameData = convertedFrame.data[0],
+                    FrameSize = convertedFrameSize
                 };
             }
         }
@@ -88,6 +83,6 @@ public class UDPImageSource
             logger.Error(e);
         }
 
-        return new ManagedVideoFrame();
+        return new UnsafeUnmanagedVideoFrame();
     }
 }

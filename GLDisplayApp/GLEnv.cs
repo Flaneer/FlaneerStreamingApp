@@ -93,11 +93,8 @@ public class GLEnv
         unsafe
         {
             var frame = imageSource.GetImage();
-            fixed (void* p = frame.Stream.GetBuffer())
-            {
-                Gl.TexImage2D(TextureTarget.Texture2D, 0, InternalFormat.Rgba, (uint) frame.Width, (uint) frame.Height, 0,
-                                PixelFormat.Rgb, PixelType.UnsignedByte, p);
-            }
+            Gl.TexImage2D(TextureTarget.Texture2D, 0, InternalFormat.Rgba, (uint) frame.Width, (uint) frame.Height, 0,
+                            PixelFormat.Rgb, PixelType.UnsignedByte, frame.FrameData);
         }
 
         window.Title = "Flaneer Streaming: " + StatLogging.GetPerfStats();
