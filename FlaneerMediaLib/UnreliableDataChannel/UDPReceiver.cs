@@ -2,7 +2,7 @@
 using System.Net.Sockets;
 using FlaneerMediaLib.Logging;
 
-namespace FlaneerMediaLib;
+namespace FlaneerMediaLib.UnreliableDataChannel;
 
 /// <summary>
 /// Receives UDP network traffic

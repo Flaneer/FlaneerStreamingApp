@@ -16,8 +16,6 @@ public class UDPImageSource
     private readonly short width;
     private readonly short height;
 
-    private MemoryStream? outFrameStream;
-
     private bool ffmpegInitialised = false;
     private VideoStreamDecoder? vsd;
     private AVIOReader? avioReader;
@@ -57,6 +55,7 @@ public class UDPImageSource
                     return new UnsafeUnmanagedVideoFrame();
                 
                 var frame = frameIn as ManagedVideoFrame;
+                
                 if(!File.Exists("out.h264"))
                     File.WriteAllBytes("out.h264",frame.Stream.ToArray());
 

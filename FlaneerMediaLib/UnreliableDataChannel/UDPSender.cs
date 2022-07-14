@@ -1,7 +1,7 @@
 ﻿using System.Net;
 using System.Net.Sockets;
 
-namespace FlaneerMediaLib;
+namespace FlaneerMediaLib.UnreliableDataChannel;
 
 /// <summary>
 /// Sends UDP packets

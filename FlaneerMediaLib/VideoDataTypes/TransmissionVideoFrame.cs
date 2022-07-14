@@ -30,7 +30,6 @@ public class TransmissionVideoFrame : IPacketInfo, IVideoFrame
     /// The total number of packets this frame has been split into
     /// </summary>
     public byte NumberOfPackets;
-
     /// <summary>
     /// The index of the packet in the group of packets
     /// </summary>
@@ -42,10 +41,23 @@ public class TransmissionVideoFrame : IPacketInfo, IVideoFrame
     public Int32 FrameDataSize;
     
     /// <summary>
+    /// Stores 8 boolean values
+    /// </summary>
+    /// <remarks>0: IsIFrame 1-7: Unreserved</remarks>
+    private byte flagsByte;
+
+    private bool[] flags = Array.Empty<bool>();
+
+    /// <summary>
+    /// Is this frame an I frame
+    /// </summary>
+    public bool IsIFrame => flags[0];
+    
+    /// <summary>
     /// The size of the header in bytes
     /// <remarks>This is manually calculated</remarks>
     /// </summary>
-    public const int HeaderSize = 29;
+    public const int HeaderSize = 30;
     
     /// <inheritdoc/>
     public byte[] ToUDPPacket()
@@ -63,6 +75,7 @@ public class TransmissionVideoFrame : IPacketInfo, IVideoFrame
         writer.Write(NumberOfPackets);
         writer.Write(PacketIdx);
         writer.Write(FrameDataSize);
+        writer.Write(flagsByte);
         
         return ret;
     }
@@ -82,7 +95,7 @@ public class TransmissionVideoFrame : IPacketInfo, IVideoFrame
             throw new Exception($"Trying to decode a {(PacketType) packetType} as a {PacketType.VideoStreamPacket}");
         }
 
-        return new TransmissionVideoFrame()
+        var ret = new TransmissionVideoFrame()
         {
             PacketSize = reader.ReadUInt16(),
             TimeStamp = reader.ReadInt64(),
@@ -92,8 +105,13 @@ public class TransmissionVideoFrame : IPacketInfo, IVideoFrame
             SequenceIDX = reader.ReadUInt32(),
             NumberOfPackets = reader.ReadByte(),
             PacketIdx = reader.ReadByte(),
-            FrameDataSize = reader.ReadInt32()
+            FrameDataSize = reader.ReadInt32(),
+            flagsByte = reader.ReadByte(),
         };
+
+        ret.flags = BooleanArrayUtils.ConvertByteToBoolArray(ret.flagsByte);
+        
+        return ret;
     }
 
     /// <inheritdoc/>

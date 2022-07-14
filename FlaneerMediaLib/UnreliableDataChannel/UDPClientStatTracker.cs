@@ -1,6 +1,6 @@
 ﻿using FlaneerMediaLib.Logging;
 
-namespace FlaneerMediaLib;
+namespace FlaneerMediaLib.UnreliableDataChannel;
 
 /// <summary>
 /// Class that performs full logging of the UDP connection

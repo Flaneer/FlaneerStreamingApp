@@ -1,10 +1,9 @@
 ﻿using System.Diagnostics;
-using System.Net;
-using System.Net.Sockets;
 using FlaneerMediaLib.Logging;
+using FlaneerMediaLib.UnreliableDataChannel;
 using FlaneerMediaLib.VideoDataTypes;
 
-namespace FlaneerMediaLib;
+namespace FlaneerMediaLib.VideoStreaming;
 
 /// <summary>
 /// Video sink that broadcasts frames over UDP
