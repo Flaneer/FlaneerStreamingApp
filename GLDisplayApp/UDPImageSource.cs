@@ -35,7 +35,7 @@ public class UDPImageSource
 
     private unsafe void InitialiseFFMpeg(ref MemoryStream? inFrameStream)
     {
-        FFmpegBinariesHelper.RegisterFFmpegBinaries();
+        FFmpegLauncher.InitialiseFFMpeg();
         avioReader = new AVIOReader(inFrameStream);
         vsd = new VideoStreamDecoder(avioReader.AvioCtx);
         var destinationSize = vsd.SourceSize;

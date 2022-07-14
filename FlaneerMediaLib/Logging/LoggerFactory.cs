@@ -15,7 +15,7 @@ internal class LoggerFactory
     
     private string TimeString() => $"[gray]({DateTime.Now.ToString("HH:mm:ss")})[/]";
 
-    private string GetLogPrefix(string formatting, string typeString)
+    private string GetMarkupLogPrefix(string formatting, string typeString)
     {
         StackTrace st = new StackTrace(true);
         StackFrame sf = st.GetFrame(3);
@@ -24,37 +24,78 @@ internal class LoggerFactory
 
         return $"{TimeString()}[{formatting}]<{typeString}:{fileLineNumber}[/][gray]({method})[/][{formatting}]>[/]";
     }
+
+    private string GetNonMarkupLogPrefix(string typeString)
+    {
+        StackTrace st = new StackTrace(true);
+        StackFrame sf = st.GetFrame(3);
+        var method = $"{sf.GetMethod().Name}";
+        var fileLineNumber = $"{sf.GetFileLineNumber()}";
+        return $"{TimeString()}<{typeString}:{fileLineNumber}({method})>";
+    }
     
     internal static Logger CreateLogger(object obj) => new Logger(obj.GetType(), Instance);
 
     internal void Info(string s, string typeString)
     {
-        var message = $"{GetLogPrefix("bold green", typeString)} {s}";
-        AnsiConsole.MarkupLine(message);
+        var message = $"{GetMarkupLogPrefix("bold green", typeString)} {s}";
+        try
+        {
+            AnsiConsole.MarkupLine(message);
+        }
+        catch (InvalidOperationException)
+        {
+            message = $"{GetNonMarkupLogPrefix(typeString)} {s}";
+            AnsiConsole.WriteLine(message);
+        }
     }
     
     internal void Debug(string s, string typeString)
     {
-        var message = $"{GetLogPrefix("bold yellow", typeString)} {s}";
-        AnsiConsole.MarkupLine(message);
+        var message = $"{GetMarkupLogPrefix("bold yellow", typeString)} {s}";
+        try
+        {
+            AnsiConsole.MarkupLine(message);
+        }
+        catch (InvalidOperationException)
+        {
+            message = $"{GetNonMarkupLogPrefix(typeString)} {s}";
+            AnsiConsole.WriteLine(message);
+        }
     }
     
     internal void Error(Exception exception, string typeString)
     {
-        var message = $"{GetLogPrefix("bold red", typeString)} {exception}";
-        AnsiConsole.MarkupLine(message);
+        var message = $"{GetMarkupLogPrefix("bold red", typeString)} {exception}";
+        try
+        {
+            AnsiConsole.MarkupLine(message);
+        }
+        catch (InvalidOperationException)
+        {
+            message = $"{GetNonMarkupLogPrefix(typeString)} {exception}";
+            AnsiConsole.WriteLine(message);
+        }
     }
 
     internal void Error(string exception, string typeString)
     {
-        var message = $"{GetLogPrefix("bold red", typeString)}";
+        var message = $"{GetMarkupLogPrefix("bold red", typeString)}";
         AnsiConsole.Markup(message);
         AnsiConsole.Write(exception + "\n");
     }
 
     internal void Trace(string s, string typeString)
     {
-        var message = $"{GetLogPrefix("gray", typeString)} [gray]{s}[/]";
-        AnsiConsole.MarkupLine(message);
+        var message = $"{GetMarkupLogPrefix("gray", typeString)} [gray]{s}[/]";
+        try
+        {
+            AnsiConsole.MarkupLine(message);
+        }
+        catch (InvalidOperationException)
+        {
+            message = $"{GetNonMarkupLogPrefix(typeString)} {s}";
+            AnsiConsole.WriteLine(message);
+        }
     }
 }

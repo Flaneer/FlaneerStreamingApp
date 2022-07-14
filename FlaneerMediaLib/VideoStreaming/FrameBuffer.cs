@@ -74,11 +74,10 @@ internal class FrameBuffer
         var totalLength = 0;
         foreach (var arr in partialFrames[frameSequenceIDX])
         {
-            var len = arr.Length;
-            if (len != 0)
-                totalLength += len;
-            else
+            if(arr == null)
                 return;
+            
+            totalLength += arr.Length;
         }
         var frameDataLength = totalLength - (TransmissionVideoFrame.HeaderSize * receivedFrame.NumberOfPackets);
         var frameStream = new MemoryStream(frameDataLength);
