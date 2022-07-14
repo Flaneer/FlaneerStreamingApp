@@ -8,7 +8,7 @@ class Program
         CommandLineArgumentStore.CreateAndRegister(args);
         
         NetworkSubsystem.InitServer();
-     
+
         var videoSettings = new VideoSettings();
         InitialiseMediaEncoder(videoSettings);
 

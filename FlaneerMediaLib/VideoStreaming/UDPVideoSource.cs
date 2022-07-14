@@ -1,6 +1,4 @@
-﻿using System.Net;
-using System.Net.Sockets;
-using FlaneerMediaLib.Logging;
+﻿using FlaneerMediaLib.Logging;
 using FlaneerMediaLib.VideoDataTypes;
 
 namespace FlaneerMediaLib
@@ -55,9 +53,6 @@ namespace FlaneerMediaLib
                 default:
                     throw new ArgumentOutOfRangeException(nameof(codecSettingsIn));
             }
-
-            //Initialise the framebuffer with an empty frame
-            frameBuffer.Add(0, new ManagedVideoFrame());
 
             if (!ServiceRegistry.TryGetService(out UDPReceiver receiver))
             {
@@ -152,7 +147,8 @@ namespace FlaneerMediaLib
             MemoryStream frameStream;
             if(receivedFrame.SequenceIDX == 0)
             {
-                frameStream = new MemoryStream(frameData);
+                frameStream = new MemoryStream(frameData.Length);
+                frameStream.Write(frameData);
             }
             else
             {
@@ -225,12 +221,18 @@ namespace FlaneerMediaLib
         }
 
         /// <inheritdoc />
-        public IVideoFrame GetFrame()
+        public bool GetFrame(out IVideoFrame frame)
         {
+            var ret = false;
             lock (frameBuffer)
             {
-                return frameBuffer[lastFrame];
+                ret = frameBuffer.TryGetValue(lastFrame, out var bufferedFrame);
+                if (ret)
+                    frame = bufferedFrame;
+                else
+                    frame = new ManagedVideoFrame();
             }
+            return ret;
         }
 
         /// <inheritdoc />
