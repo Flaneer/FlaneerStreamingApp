@@ -118,8 +118,12 @@ public class UDPVideoSink : IVideoSink
                 NumberOfPackets = numberOfPackets,
                 PacketIdx = i,
                 FrameDataSize = frame.FrameSize,
-                SequenceIDX = nextFrame
+                SequenceIDX = nextFrame,
             };
+
+            //TODO: set this properly
+            var gopLength = 5;
+            frameHeader.IsIFrame = frameHeader.SequenceIDX % gopLength == 0; 
             
             var packetSize = Math.Min(frameWritableSize, frame.FrameSize - sent);
             var transmissionArraySize = TransmissionVideoFrame.HeaderSize + packetSize;

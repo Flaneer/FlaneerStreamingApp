@@ -35,4 +35,12 @@ public class BooleanArrayTests
         var expectedFrom102 = new []{false, true, true, false, false, true, true, false};
         Assert.Equal(expectedFrom102, BooleanArrayUtils.ConvertByteToBoolArray(102));
     }
+
+    [Fact]
+    public void TestSetSingle()
+    {
+        //Use 102 as input and set the final bit to true, incrementing the value by 1, expecting 103
+        var testByte = BooleanArrayUtils.SetSingleBit(102, true, 7);
+        Assert.Equal(103, testByte);
+    }
 }

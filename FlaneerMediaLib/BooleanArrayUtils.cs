@@ -39,6 +39,13 @@ internal static class BooleanArrayUtils
 
         return result;
     }
+
+    public static byte SetSingleBit(byte current, bool value, int idx)
+    {
+        var currentBools = ConvertByteToBoolArray(current);
+        currentBools[idx] = value;
+        return ConvertBoolArrayToByte(currentBools);
+    }
     
     public static bool[] ConvertByteToBoolArray(byte b)
     {

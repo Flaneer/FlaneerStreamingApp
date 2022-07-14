@@ -48,10 +48,16 @@ public class TransmissionVideoFrame : IPacketInfo, IVideoFrame
 
     private bool[] flags = Array.Empty<bool>();
 
+    private const byte IsIFrameIdx = 0;
+    
     /// <summary>
     /// Is this frame an I frame
     /// </summary>
-    public bool IsIFrame => flags[0];
+    public bool IsIFrame
+    {
+        get => flags.Length > IsIFrameIdx && flags[IsIFrameIdx];
+        set => flagsByte = BooleanArrayUtils.SetSingleBit(flagsByte, value, IsIFrameIdx);
+    } 
     
     /// <summary>
     /// The size of the header in bytes
