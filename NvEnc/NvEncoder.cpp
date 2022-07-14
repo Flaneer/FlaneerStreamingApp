@@ -148,7 +148,7 @@ void NvEncoder::SetEncoderParams(NV_ENC_INITIALIZE_PARAMS* pIntializeParams, GUI
     NV_ENC_PRESET_CONFIG presetConfig = { NV_ENC_PRESET_CONFIG_VER, { NV_ENC_CONFIG_VER } };
     m_nvenc.nvEncGetEncodePresetConfig(m_encoder, codecGuid, presetGuid, &presetConfig);
     memcpy(pIntializeParams->encodeConfig, &presetConfig.presetCfg, sizeof(NV_ENC_CONFIG));
-    pIntializeParams->encodeConfig->frameIntervalP = 0;
+    pIntializeParams->encodeConfig->frameIntervalP = 1;
     pIntializeParams->encodeConfig->gopLength = 5;
 
     pIntializeParams->encodeConfig->rcParams.rateControlMode = NV_ENC_PARAMS_RC_VBR;
