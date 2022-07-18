@@ -6,8 +6,8 @@ namespace FlaneerMediaLib.QualityManagement;
 public class QualityManager: IService
 {
 
-    private readonly List<IQualityMeasure> measures = new List<IQualityMeasure>() ;
-    private readonly List<IControl> controls = new List<IControl>();
+    internal readonly List<IQualityMeasure> measures = new List<IQualityMeasure>() ;
+    internal readonly List<IControl> controls = new List<IControl>();
     private bool receiving;
 
     /// <summary>
@@ -20,7 +20,6 @@ public class QualityManager: IService
     
     private void Management()
     {
-        receiving = true;
         while (receiving)
         {
             Thread.Sleep(1);
@@ -29,7 +28,7 @@ public class QualityManager: IService
         }
     }
 
-    private void UpdateMeasuresAndControls()
+    internal void UpdateMeasuresAndControls()
     {
         foreach (var measure in measures)
         {
@@ -56,4 +55,14 @@ public class QualityManager: IService
     /// 
     /// </summary>
     public void AddControl(IControl control) => controls.Add(control);
+
+    /// <summary>
+    /// 
+    /// </summary>
+    public void Start() => receiving = true;
+    
+    /// <summary>
+    /// 
+    /// </summary>
+    public void Stop() => receiving = false;
 }

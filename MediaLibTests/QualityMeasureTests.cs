@@ -7,7 +7,7 @@ public class TestQualityMeasure: IQualityMeasure
     private float score = 0;
     public float Score => score;
 
-    private float target = 0;
+    private float target = 5;
     public float Target => target;
     
     private float acceptableDeviationRate = 10;
@@ -16,5 +16,10 @@ public class TestQualityMeasure: IQualityMeasure
     public void Update()
     {
         score += 1;
+    }
+    
+    public void SwitchToHard()
+    {
+        acceptableDeviationRate = 0;
     }
 }
