@@ -68,7 +68,7 @@ public class QualityManagerTests
         qualityManager.UpdateMeasuresAndControls();
         
         Assert.Equal(1, measure.Score);
-        Assert.Equal(-0.8, control.Weight);
-        Assert.Equal(29.2, control.FakeFPS);
+        Assert.True(Math.Abs(control.Weight - (-0.8)) < 0.000001);
+        Assert.True(Math.Abs(control.FakeFPS - (29.2)) < 0.000001);
     }
 }
