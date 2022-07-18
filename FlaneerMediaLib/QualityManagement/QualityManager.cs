@@ -1,7 +1,7 @@
 namespace FlaneerMediaLib.QualityManagement;
 
 /// <summary>
-/// 
+/// Main manager of the streaming server parameters
 /// </summary>
 public class QualityManager: IService
 {
@@ -47,22 +47,22 @@ public class QualityManager: IService
     }
 
     /// <summary>
-    /// 
+    /// Adds a new measure for the QualityManager to take into consideration
     /// </summary>
     public void AddMeasure(IQualityMeasure qualityMeasure) => measures.Add(qualityMeasure);
 
     /// <summary>
-    /// 
+    /// Adds a new control for the QualityManager to increase or decrease
     /// </summary>
     public void AddControl(IControl control) => controls.Add(control);
 
     /// <summary>
-    /// 
+    /// Starts the QualityManager process 
     /// </summary>
     public void Start() => receiving = true;
     
     /// <summary>
-    /// 
+    /// Stops the QualityManager process 
     /// </summary>
     public void Stop() => receiving = false;
 }
