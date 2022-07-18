@@ -23,23 +23,28 @@ public class QualityManager: IService
         receiving = true;
         while (receiving)
         {
+            Thread.Sleep(1);
             controls.Sort((x, y) => x.Weight.CompareTo(y.Weight));
+            UpdateMeasuresAndControls();
+        }
+    }
 
-            foreach (var measure in measures)
-            {
-                measure.Update();
-                var measureDeviationRate = measure.GetCurrentDeviationRate();
+    private void UpdateMeasuresAndControls()
+    {
+        foreach (var measure in measures)
+        {
+            measure.Update();
+            var measureDeviationRate = measure.GetCurrentDeviationRate();
                 
-                foreach (var control in controls)
+            foreach (var control in controls)
+            {
+                if (Math.Abs(measureDeviationRate) > measure.AcceptableDeviationRate)
                 {
-                    if (Math.Abs(measureDeviationRate) > measure.AcceptableDeviationRate)
-                    {
-                        control.Update(measureDeviationRate);
-                        break;
-                    }
+                    control.Update(measureDeviationRate);
+                    break;
                 }
             }
-        }
+        }  
     }
 
     /// <summary>
