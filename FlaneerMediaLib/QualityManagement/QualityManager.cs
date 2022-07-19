@@ -9,9 +9,10 @@ public class QualityManager: IService
     internal readonly List<IQualityMeasure> measures = new List<IQualityMeasure>() ;
     internal readonly List<IControl> controls = new List<IControl>();
     private bool receiving;
+    private int qualityControlInterval = 1;
 
     /// <summary>
-    /// 
+    /// Initialize the Manager and its main loop
     /// </summary>
     public QualityManager()
     {
@@ -22,14 +23,14 @@ public class QualityManager: IService
     {
         while (receiving)
         {
-            Thread.Sleep(1);
-            controls.Sort((x, y) => x.Weight.CompareTo(y.Weight));
+            Thread.Sleep(qualityControlInterval);
             UpdateMeasuresAndControls();
         }
     }
 
     internal void UpdateMeasuresAndControls()
     {
+        controls.Sort((x, y) => x.Weight.CompareTo(y.Weight));
         foreach (var measure in measures)
         {
             measure.Update();

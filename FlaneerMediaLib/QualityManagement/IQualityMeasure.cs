@@ -31,8 +31,5 @@ public interface IQualityMeasure
     /// Function to compute the current deviation rate
     /// </summary>
     /// <returns></returns>
-    float GetCurrentDeviationRate()
-    {
-        return (Score - Target) / Target;
-    }
+    float GetCurrentDeviationRate() =>  (Score - Target) / Target;
 }
