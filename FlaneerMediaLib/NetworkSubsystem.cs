@@ -1,4 +1,6 @@
-﻿namespace FlaneerMediaLib;
+﻿using FlaneerMediaLib.QualityManagement;
+
+namespace FlaneerMediaLib;
 
 /// <summary>
 /// Static class that can be used in the main to start all the network services
@@ -18,6 +20,9 @@ public static class NetworkSubsystem
 
         var ackSender = new AckSender();
         ServiceRegistry.AddService(ackSender);
+        
+        //add measures
+        
     }
 
     /// <summary>
@@ -34,5 +39,9 @@ public static class NetworkSubsystem
         var ackReceiver = new AckReceiver();
         ServiceRegistry.AddService(ackReceiver);
         
+        //add control
+        var qualityManager = new QualityManager();
+        ServiceRegistry.AddService(qualityManager);
+
     }
 }
