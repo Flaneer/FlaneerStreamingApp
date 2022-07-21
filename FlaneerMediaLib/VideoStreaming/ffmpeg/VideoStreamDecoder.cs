@@ -111,6 +111,11 @@ namespace FlaneerMediaLib.VideoStreaming.ffmpeg
                 error = FFmpeg.AutoGen.ffmpeg.avcodec_receive_frame(codecContextPtr, framePtr);
             } while (error == FFmpeg.AutoGen.ffmpeg.AVERROR(FFmpeg.AutoGen.ffmpeg.EAGAIN));
 
+            logger.Debug($"Frame {codecContextPtr->frame_number}" +
+                            $"(type={Convert.ToChar(FFmpeg.AutoGen.ffmpeg.av_get_picture_type_char(framePtr->pict_type))}," +
+                            $" size={framePtr->pkt_size} bytes, format={framePtr->format}) " +
+                            $"pts {framePtr->pts} key_frame {framePtr->key_frame} (DTS {framePtr->coded_picture_number})");
+            
             return *framePtr;
         }
 
