@@ -56,6 +56,8 @@ public class UDPImageSource
                 
                 var frame = frameIn as ManagedVideoFrame;
                 
+                logger.Trace($"Decoding new frame of size {frame.Stream.Length}");
+                
                 if(!File.Exists("out.h264"))
                     File.WriteAllBytes("out.h264",frame.Stream.ToArray());
 
