@@ -26,14 +26,31 @@ namespace FlaneerMediaLib.VideoStreaming.ffmpeg
         public static void InitialiseFFMpeg()
         {
             RegisterBinaries();
-            InitialiseLogging();
+            SetupLogging();
         }
 
-        private static void InitialiseLogging()
+        private static unsafe void SetupLogging()
         {
             FFmpeg.AutoGen.ffmpeg.av_log_set_level(FFmpeg.AutoGen.ffmpeg.AV_LOG_VERBOSE);
-        }
 
+            // do not convert to local function
+            av_log_set_callback_callback logCallback = (p0, level, format, vl) =>
+            {
+                if (level > FFmpeg.AutoGen.ffmpeg.av_log_get_level()) return;
+
+                var lineSize = 1024;
+                var lineBuffer = stackalloc byte[lineSize];
+                var printPrefix = 1;
+                FFmpeg.AutoGen.ffmpeg.av_log_format_line(p0, level, format, vl, lineBuffer, lineSize, &printPrefix);
+                var line = Marshal.PtrToStringAnsi((IntPtr) lineBuffer);
+                Console.ForegroundColor = ConsoleColor.Yellow;
+                Console.WriteLine(line);
+                Console.ResetColor();
+            };
+
+            FFmpeg.AutoGen.ffmpeg.av_log_set_callback(logCallback);
+        }
+        
         /// <summary>
         /// TODO: Make this work safely, it is a nice to have so not spending any more time now
         /// </summary>
@@ -41,7 +58,7 @@ namespace FlaneerMediaLib.VideoStreaming.ffmpeg
         /// <param name="level">level	The importance level of the message expressed using a Logging Constant. </param>
         /// <param name="fmt">The format string (printf-compatible) that specifies how subsequent arguments are converted to output. </param>
         /// <param name="vl">The arguments referenced by the format string. </param>
-        private static unsafe void LogCallback(void* avcl, int level, [MarshalAs((UnmanagedType) 0)] string fmt, byte* vl)
+        private static unsafe void FlaneerLogCallback(void* avcl, int level, [MarshalAs((UnmanagedType) 0)] string fmt, byte* vl)
         {
             var lineSize = 1024;
             var lineBuffer = stackalloc byte[lineSize];

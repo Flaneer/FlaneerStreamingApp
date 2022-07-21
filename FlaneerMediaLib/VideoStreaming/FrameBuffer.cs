@@ -36,6 +36,14 @@ internal class FrameBuffer
             var dataSize = framePacket.Length - TransmissionVideoFrame.HeaderSize;
             var frameData = new byte[dataSize];
             Array.Copy(framePacket, TransmissionVideoFrame.HeaderSize, frameData, 0, dataSize);
+            //Print SPS PPS
+            /*if (receivedFrameIsNewIFrame)
+            {
+                ArraySegment<byte> sps = new ArraySegment<byte>(frameData, 4, 21);
+                ArraySegment<byte> pps = new ArraySegment<byte>(frameData, 25, 4);
+                Console.WriteLine($"SPS: {Convert.ToBase64String(sps)}");
+                Console.WriteLine($"PPS: {Convert.ToBase64String(pps)}");
+            }*/
         }
         else
         {
