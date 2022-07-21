@@ -9,7 +9,7 @@ namespace FlaneerMediaLib.VideoStreaming;
 /// </summary>
 internal class FrameBuffer
 {
-    private readonly Dictionary<UInt32, byte[][]> partialFrames = new();
+    private readonly Dictionary<UInt32, PartialFrame?> partialFrames = new();
     private readonly Dictionary<UInt32, ManagedVideoFrame> frameBuffer = new();
 
     private uint nextFrameIdx = 0;
@@ -17,6 +17,7 @@ internal class FrameBuffer
     private VideoCodec codec;
     private Logger logger;
 
+    private int maxArraySize;
 
     /// <summary>
     /// ctor
@@ -33,28 +34,20 @@ internal class FrameBuffer
     public void BufferFrame(byte[] framePacket)
     {
         TransmissionVideoFrame receivedFrame = TransmissionVideoFrame.FromUDPPacket(framePacket);
-        
-        var isNotOldFrame = receivedFrame.SequenceIDX >= nextFrameIdx;
-        var receivedFrameIsNewIFrame = receivedFrame.IsIFrame && isNotOldFrame;
-        if (isNotOldFrame || receivedFrameIsNewIFrame)
-        {
-            var dataSize = framePacket.Length - TransmissionVideoFrame.HeaderSize;
-            var frameData = new byte[dataSize];
-            Array.Copy(framePacket, TransmissionVideoFrame.HeaderSize, frameData, 0, dataSize);
-            //Print SPS PPS
-            /*if (receivedFrameIsNewIFrame)
-            {
-                ArraySegment<byte> sps = new ArraySegment<byte>(frameData, 4, 21);
-                ArraySegment<byte> pps = new ArraySegment<byte>(frameData, 25, 4);
-                Console.WriteLine($"SPS: {Convert.ToBase64String(sps)}");
-                Console.WriteLine($"PPS: {Convert.ToBase64String(pps)}");
-            }*/
-        }
-        else
-        {
+
+        //Check the frame is new, we dont want to do anything with old frames 
+        var isOldFrame = receivedFrame.SequenceIDX < nextFrameIdx;
+        if(isOldFrame)
             return;
-        }
         
+        //Check if the frame is a new I frame, in which case we skip to it to reduce latency
+        var receivedFrameIsNewIFrame = receivedFrame.IsIFrame && !isOldFrame;
+        if(receivedFrameIsNewIFrame)
+        {
+            logger.Trace($"Skipping to latest I frame: {receivedFrame.SequenceIDX}");
+            nextFrameIdx = receivedFrame.SequenceIDX;
+        }
+
         if (receivedFrame.NumberOfPackets == 1)
             BufferFullFrame(receivedFrame, framePacket);
         else
@@ -78,52 +71,22 @@ internal class FrameBuffer
         if (frameBuffer.ContainsKey(lastFrameIdx))
             frameBuffer.Remove(lastFrameIdx);
         
-        logger.Debug(frameBuffer.Count.ToString());
+        logger.Debug($"Sending {frameBuffer[nextFrameIdx].Stream.Length}B Frame From Buffer");
         
         nextFrameIdx++;
         return true;
     }
 
-    private void BufferPartialFrame(TransmissionVideoFrame receivedFrame, byte[] frameData)
+    private void BufferPartialFrame(TransmissionVideoFrame receivedFrame, byte[] framePacket)
     {
         var frameSequenceIDX = receivedFrame.SequenceIDX;
-        if (!partialFrames.ContainsKey(frameSequenceIDX))
-            partialFrames[frameSequenceIDX] = new byte[receivedFrame.NumberOfPackets][];
-
-        partialFrames[frameSequenceIDX][receivedFrame.PacketIdx] = frameData;
-        var totalLength = 0;
-
-        foreach (var arr in partialFrames[frameSequenceIDX])
-        {
-            if(arr == null)
-                return;
-            
-            totalLength += arr.Length;
-        }
-
-        int HeaderSize = (TransmissionVideoFrame.HeaderSize * receivedFrame.NumberOfPackets);
-        var frameDataLength = totalLength - HeaderSize;
-
-        var groupedFrameData = new byte[frameDataLength];
-        var currentCopiedFrameBytes = 0;
-        foreach (var arr in partialFrames[frameSequenceIDX])
-        {
-            var copySize = arr.Length-TransmissionVideoFrame.HeaderSize;
-            Buffer.BlockCopy(arr, TransmissionVideoFrame.HeaderSize, groupedFrameData, currentCopiedFrameBytes, copySize);
-            currentCopiedFrameBytes += copySize;
-        }
-
-        var frameStream = new MemoryStream(groupedFrameData, 0, groupedFrameData.Length, false, true);
-        
-        frameBuffer[receivedFrame.SequenceIDX] = new ManagedVideoFrame()
-        {
-            Codec = codec,
-            Height = receivedFrame.Height,
-            Width = receivedFrame.Width,
-            Stream = frameStream
-        };
+        if(!partialFrames.ContainsKey(frameSequenceIDX))
+            partialFrames[frameSequenceIDX] = new PartialFrame(receivedFrame, OnPartialFrameAssembled);
+        partialFrames[frameSequenceIDX]!.BufferPiece(framePacket, receivedFrame.PacketIdx);
     }
-    
+
+    private void OnPartialFrameAssembled(uint sequenceIdx, ManagedVideoFrame assembledFrame) => frameBuffer[sequenceIdx] = assembledFrame;
+
     private void BufferFullFrame(TransmissionVideoFrame receivedFrame, byte[] frameData)
     {
         var frameDataLength = frameData.Length - TransmissionVideoFrame.HeaderSize;
