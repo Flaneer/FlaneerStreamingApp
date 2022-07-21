@@ -93,7 +93,8 @@ public class GLEnv
         unsafe
         {
             var frame = imageSource.GetImage();
-            Gl.TexImage2D(TextureTarget.Texture2D, 0, InternalFormat.Rgba, (uint) frame.Width, (uint) frame.Height, 0,
+            if(frame.Height != 0)
+                Gl.TexImage2D(TextureTarget.Texture2D, 0, InternalFormat.Rgba, (uint) frame.Width, (uint) frame.Height, 0,
                             PixelFormat.Rgb, PixelType.UnsignedByte, frame.FrameData);
         }
 
