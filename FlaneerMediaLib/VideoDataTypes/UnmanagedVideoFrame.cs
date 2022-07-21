@@ -13,6 +13,7 @@ public abstract class BaseUnmanagedVideoFrame : IVideoFrame
     public short Height { get; set; }
     /// <summary>
     /// Size of the frame data
+    /// TODO: convert this to a uint since we cannot have a negative frame size
     /// </summary>
     public int FrameSize;
 }
