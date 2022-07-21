@@ -1,4 +1,6 @@
-﻿using FlaneerMediaLib.VideoDataTypes;
+﻿using System.Buffers;
+using FlaneerMediaLib.Logging;
+using FlaneerMediaLib.VideoDataTypes;
 
 namespace FlaneerMediaLib.VideoStreaming;
 
@@ -13,12 +15,15 @@ internal class FrameBuffer
     private uint nextFrameIdx = 0;
     
     private VideoCodec codec;
+    private Logger logger;
+
 
     /// <summary>
     /// ctor
     /// </summary>
     public FrameBuffer(VideoCodec codec)
     {
+        logger = Logger.GetLogger(this);
         this.codec = codec;
     }
 
@@ -61,15 +66,22 @@ internal class FrameBuffer
     /// </summary>
     public bool GetNextFrame(out IVideoFrame nextFrame)
     {
-        if (frameBuffer.ContainsKey(nextFrameIdx))
+        if (!frameBuffer.ContainsKey(nextFrameIdx))
         {
-            nextFrame = frameBuffer[nextFrameIdx];
-            nextFrameIdx++;
-            return true;
+            nextFrame = new ManagedVideoFrame();
+            return false;
         }
+
+        nextFrame = frameBuffer[nextFrameIdx];
+
+        var lastFrameIdx = nextFrameIdx -1;
+        if (frameBuffer.ContainsKey(lastFrameIdx))
+            frameBuffer.Remove(lastFrameIdx);
         
-        nextFrame = new ManagedVideoFrame();
-        return false;
+        logger.Debug(frameBuffer.Count.ToString());
+        
+        nextFrameIdx++;
+        return true;
     }
 
     private void BufferPartialFrame(TransmissionVideoFrame receivedFrame, byte[] frameData)
@@ -80,6 +92,7 @@ internal class FrameBuffer
 
         partialFrames[frameSequenceIDX][receivedFrame.PacketIdx] = frameData;
         var totalLength = 0;
+
         foreach (var arr in partialFrames[frameSequenceIDX])
         {
             if(arr == null)
@@ -87,18 +100,27 @@ internal class FrameBuffer
             
             totalLength += arr.Length;
         }
-        var frameDataLength = totalLength - (TransmissionVideoFrame.HeaderSize * receivedFrame.NumberOfPackets);
-        var frameStream = new MemoryStream(frameDataLength);
+
+        int HeaderSize = (TransmissionVideoFrame.HeaderSize * receivedFrame.NumberOfPackets);
+        var frameDataLength = totalLength - HeaderSize;
+
+        var groupedFrameData = new byte[frameDataLength];
+        var currentCopiedFrameBytes = 0;
         foreach (var arr in partialFrames[frameSequenceIDX])
         {
-            frameStream.Write(arr, TransmissionVideoFrame.HeaderSize, arr.Length - TransmissionVideoFrame.HeaderSize);
+            var copySize = arr.Length-TransmissionVideoFrame.HeaderSize;
+            Buffer.BlockCopy(arr, TransmissionVideoFrame.HeaderSize, groupedFrameData, currentCopiedFrameBytes, copySize);
+            currentCopiedFrameBytes += copySize;
         }
+
+        var frameStream = new MemoryStream(groupedFrameData, 0, groupedFrameData.Length, false, true);
+        
         frameBuffer[receivedFrame.SequenceIDX] = new ManagedVideoFrame()
         {
             Codec = codec,
             Height = receivedFrame.Height,
             Width = receivedFrame.Width,
-            Stream = frameStream 
+            Stream = frameStream
         };
     }
     
