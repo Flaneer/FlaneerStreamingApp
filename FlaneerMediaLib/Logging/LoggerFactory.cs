@@ -13,7 +13,8 @@ internal class LoggerFactory
     // ReSharper disable once ConstantNullCoalescingCondition
     private static LoggerFactory Instance => instance ??= new LoggerFactory();
     
-    private string TimeString() => $"[gray]({DateTime.Now.ToString("HH:mm:ss")})[/]";
+    private string TimeStringNoMarkup() => $"({DateTime.Now.ToString("HH:mm:ss")})";
+    private string TimeString() => $"[gray]{TimeStringNoMarkup()}[/]";
 
     private string GetMarkupLogPrefix(string formatting, string typeString)
     {
@@ -31,17 +32,19 @@ internal class LoggerFactory
         StackFrame sf = st.GetFrame(3);
         var method = $"{sf.GetMethod().Name}";
         var fileLineNumber = $"{sf.GetFileLineNumber()}";
-        return $"{TimeString()}<{typeString}:{fileLineNumber}({method})>";
+        return $"{TimeStringNoMarkup()}<{typeString}:{fileLineNumber}({method})>";
     }
     
     internal static Logger CreateLogger(object obj) => new Logger(obj.GetType(), Instance);
 
     internal void Info(string s, string typeString)
     {
-        var message = $"{GetMarkupLogPrefix("bold green", typeString)} {s}";
+        //var message = $"{GetMarkupLogPrefix("bold green", typeString)} {s}";
+        var message = $"{GetNonMarkupLogPrefix(typeString)} {s}";
         try
         {
-            AnsiConsole.MarkupLine(message);
+            AnsiConsole.WriteLine(message);
+            //AnsiConsole.MarkupLine(message);
         }
         catch (InvalidOperationException)
         {
@@ -52,10 +55,12 @@ internal class LoggerFactory
     
     internal void Debug(string s, string typeString)
     {
-        var message = $"{GetMarkupLogPrefix("bold yellow", typeString)} {s}";
+        //var message = $"{GetMarkupLogPrefix("bold green", typeString)} {s}";
+        var message = $"{GetNonMarkupLogPrefix(typeString)} {s}";
         try
         {
-            AnsiConsole.MarkupLine(message);
+            AnsiConsole.WriteLine(message);
+            //AnsiConsole.MarkupLine(message);
         }
         catch (InvalidOperationException)
         {
@@ -69,7 +74,8 @@ internal class LoggerFactory
         var message = $"{GetMarkupLogPrefix("bold red", typeString)} {exception}";
         try
         {
-            AnsiConsole.MarkupLine(message);
+            AnsiConsole.WriteLine(message);
+            //AnsiConsole.MarkupLine(message);
         }
         catch (InvalidOperationException)
         {
@@ -87,10 +93,12 @@ internal class LoggerFactory
 
     internal void Trace(string s, string typeString)
     {
-        var message = $"{GetMarkupLogPrefix("gray", typeString)} [gray]{s}[/]";
+        //var message = $"{GetMarkupLogPrefix("bold green", typeString)} {s}";
+        var message = $"{GetNonMarkupLogPrefix(typeString)} {s}";
         try
         {
-            AnsiConsole.MarkupLine(message);
+            AnsiConsole.WriteLine(message);
+            //AnsiConsole.MarkupLine(message);
         }
         catch (InvalidOperationException)
         {

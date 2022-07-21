@@ -34,6 +34,7 @@ public class StatLogging
         Instance.displayMessage = "";
         
         string sep = "        ";
+        //TODO fix this race condition
         foreach (var kvp in Instance.perfStats)
         {
             Instance.displayMessage += kvp.Key + ":" + kvp.Value + sep;
