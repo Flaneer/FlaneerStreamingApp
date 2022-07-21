@@ -19,7 +19,7 @@ namespace FlaneerMediaLib.VideoStreaming.ffmpeg
         private unsafe AVIOContext * avioCtx;
         private readonly avio_alloc_context_read_packet readDel;
         private readonly avio_alloc_context_seek seekDel;
-        private readonly byte[] imageBytes;
+        private byte[] imageBytes;
 
         /// <summary>
         /// ctor
@@ -42,7 +42,7 @@ namespace FlaneerMediaLib.VideoStreaming.ffmpeg
             {
                 bufferPtr = p;
                 //Allocate and initialize an AVIOContext for buffered I/O. It must be later freed with avio_context_free().
-                avioCtx = FFmpeg.AutoGen.ffmpeg.avio_alloc_context(bufferPtr, bufferSize, 0, null, readDel, null, seekDel);
+                avioCtx = FFmpeg.AutoGen.ffmpeg.avio_alloc_context(bufferPtr, (int) inputStream.Length, 0, null, readDel, null, seekDel);
             }
         }
 
@@ -56,14 +56,16 @@ namespace FlaneerMediaLib.VideoStreaming.ffmpeg
             AllocAvioContext();
         }
 
-        private unsafe int read(void* opaque, byte *buf, int buf_size)
+        private unsafe int read(void* opaque, byte *buf, int bufSize)
         {
             inputStream.Position = 0;
-            var bytesRead = inputStream.Read(imageBytes, 0, buf_size);
-            Marshal.Copy(imageBytes, 0, (IntPtr)buf, buf_size);
+            if (inputStream.Length > imageBytes.Length)
+                imageBytes = new byte[inputStream.Length];
+            var bytesRead = inputStream.Read(imageBytes, 0, (int)inputStream.Length);
+            Marshal.Copy(imageBytes, 0, (IntPtr)buf, (int)inputStream.Length);
             //https://ffmpeg.org/doxygen/trunk/avio_8h.html#a853f5149136a27ffba3207d8520172a5
             //"must never return 0 but rather a proper AVERROR code."
-            return bytesRead == 0 ? buf_size : bytesRead;
+            return bytesRead == 0 ? (int)inputStream.Length : bytesRead;
         }
 
         private unsafe Int64 seek(void* opaque, Int64 offset, int whence) 
