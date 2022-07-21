@@ -9,6 +9,11 @@ namespace FlaneerMediaLib
         /// 8 plus the current UDP header size
         /// </summary>
         public const int UDPHEADERSIZE = 8 + TransmissionVideoFrame.HeaderSize;
+
+        /// <summary>
+        /// The size of the UDP packet with space for the header
+        /// </summary>
+        public const int FRAMEWRITABLESIZE = Int16.MaxValue - VideoUtils.UDPHEADERSIZE;
         
         public static NvEncWrapper.H264CodecSettings FromCodecSettings(ICodecSettings settings)
         {

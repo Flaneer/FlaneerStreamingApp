@@ -104,9 +104,8 @@ public class UDPVideoSink : IVideoSink
         using var uStream = new UnmanagedMemoryStream((byte*) frame.FrameData, frame.FrameSize);
         var frameBytes = new byte[frame.FrameSize];
         uStream.Read(frameBytes, 0, frame.FrameSize);
-            
-        var frameWritableSize = Int16.MaxValue - VideoUtils.UDPHEADERSIZE;
-        var numberOfPackets = (byte) Math.Ceiling((double)frame.FrameSize / frameWritableSize);
+        
+        var numberOfPackets = (byte) Math.Ceiling((double)frame.FrameSize / VideoUtils.FRAMEWRITABLESIZE);
         
         var sent = 0;
         for (byte i = 0; i < numberOfPackets; i++)
@@ -125,7 +124,7 @@ public class UDPVideoSink : IVideoSink
             var gopLength = 5;
             frameHeader.IsIFrame = frameHeader.SequenceIDX % gopLength == 0; 
             
-            var packetSize = Math.Min(frameWritableSize, frame.FrameSize - sent);
+            var packetSize = Math.Min(VideoUtils.FRAMEWRITABLESIZE, frame.FrameSize - sent);
             var transmissionArraySize = TransmissionVideoFrame.HeaderSize + packetSize;
             
             frameHeader.PacketSize = (ushort) transmissionArraySize;
