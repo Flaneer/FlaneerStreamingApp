@@ -149,7 +149,8 @@ void NvEncoder::SetEncoderParams(NV_ENC_INITIALIZE_PARAMS* pIntializeParams, GUI
     m_nvenc.nvEncGetEncodePresetConfig(m_encoder, codecGuid, presetGuid, &presetConfig);
     memcpy(pIntializeParams->encodeConfig, &presetConfig.presetCfg, sizeof(NV_ENC_CONFIG));
     pIntializeParams->encodeConfig->frameIntervalP = 1;
-    pIntializeParams->encodeConfig->gopLength = 5;
+    //TODO: set this with the param
+    pIntializeParams->encodeConfig->gopLength = 300;
 
     pIntializeParams->encodeConfig->rcParams.rateControlMode = NV_ENC_PARAMS_RC_VBR;
     //pIntializeParams->encodeConfig->rcParams.maxBitRate = 1;
@@ -160,6 +161,7 @@ void NvEncoder::SetEncoderParams(NV_ENC_INITIALIZE_PARAMS* pIntializeParams, GUI
         pIntializeParams->encodeConfig->encodeCodecConfig.h264Config.idrPeriod = pIntializeParams->encodeConfig->gopLength;
         pIntializeParams->encodeConfig->encodeCodecConfig.h264Config.sliceMode = 3;
         pIntializeParams->encodeConfig->encodeCodecConfig.h264Config.sliceModeData = 16;
+        pIntializeParams->encodeConfig->encodeCodecConfig.h264Config.repeatSPSPPS = 1;
 
     }
     else if (pIntializeParams->encodeGUID == NV_ENC_CODEC_HEVC_GUID)
