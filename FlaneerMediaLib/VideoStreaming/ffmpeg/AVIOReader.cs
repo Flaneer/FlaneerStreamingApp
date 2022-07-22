@@ -15,7 +15,7 @@ namespace FlaneerMediaLib.VideoStreaming.ffmpeg
         /// </summary>
         public unsafe AVIOContext* AvioCtx => avioCtx;
 
-        private MemoryStream? inputStream;
+        private MemoryStream inputStream;
         private int bufferSize;
         private unsafe byte * bufferPtr;
         private unsafe AVIOContext * avioCtx;
@@ -26,12 +26,12 @@ namespace FlaneerMediaLib.VideoStreaming.ffmpeg
         /// <summary>
         /// ctor
         /// </summary>
-        public unsafe AVIOReader(MemoryStream? inputStream)
+        public unsafe AVIOReader(MemoryStream inputStream)
         {
             this.inputStream = inputStream;
             bufferSize = (int) inputStream.Length;
-            readDel = new avio_alloc_context_read_packet(read);
-            seekDel = new avio_alloc_context_seek(seek);
+            readDel = Read;
+            seekDel = Seek;
 
             AllocAvioContext();
             
@@ -51,14 +51,14 @@ namespace FlaneerMediaLib.VideoStreaming.ffmpeg
         /// <summary>
         /// Refresh the stream containing the video input
         /// </summary>
-        public void RefreshInputStream(MemoryStream? streamIn)
+        public void RefreshInputStream(MemoryStream streamIn)
         {
             inputStream = streamIn;
             bufferSize = (int) inputStream.Length;
             AllocAvioContext();
         }
 
-        private unsafe int read(void* opaque, byte *buf, int bufSize)
+        private unsafe int Read(void* opaque, byte *buf, int bufSize)
         {
             inputStream.Position = 0;
             if (inputStream.Length > imageBytes.Length)
@@ -70,7 +70,7 @@ namespace FlaneerMediaLib.VideoStreaming.ffmpeg
             return bytesRead == 0 ? (int)inputStream.Length : bytesRead;
         }
 
-        private unsafe Int64 seek(void* opaque, Int64 offset, int whence) 
+        private unsafe Int64 Seek(void* opaque, Int64 offset, int whence) 
         {
             if (0x10000 == whence)
                 return inputStream.Length;
