@@ -11,7 +11,7 @@ internal class FrameBuffer
     private readonly Dictionary<UInt32, PartialFrame?> partialFrames = new();
     private readonly Dictionary<UInt32, ManagedVideoFrame> frameBuffer = new();
 
-    private uint nextFrameIdx = 0;
+    private uint nextFrameIdx;
     
     private VideoCodec codec;
     private Logger logger;

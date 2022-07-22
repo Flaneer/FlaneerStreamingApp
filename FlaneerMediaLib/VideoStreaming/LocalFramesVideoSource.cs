@@ -10,7 +10,7 @@ public class LocalFramesVideoSource : IVideoSource
     private string framesPath = "";
     private string frameNameTemplate = "";
     private int numberOfLocalFrames;
-    private int currentFrame = 0;
+    private int currentFrame;
     
     private string FileNameFromIdx(int idx) => Path.Join(framesPath, frameNameTemplate.Replace("{}", $"{idx}"));
 

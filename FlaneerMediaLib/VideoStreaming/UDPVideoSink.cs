@@ -12,7 +12,7 @@ public class UDPVideoSink : IVideoSink
 {
     private IEncoder encoder = null!;
     private IVideoSource videoSource = null!;
-    private UInt32 nextFrame = 0;
+    private UInt32 nextFrame;
 
     private UDPSender udpSender;
     
@@ -98,7 +98,7 @@ public class UDPVideoSink : IVideoSink
         stopWatch.Stop();
     }
 
-    private int sentPacketCount = 0;
+    private int sentPacketCount;
     private unsafe void SendFrame(UnmanagedVideoFrame frame, TimeSpan frameTime)
     {
         using var uStream = new UnmanagedMemoryStream((byte*) frame.FrameData, frame.FrameSize);

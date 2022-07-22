@@ -11,7 +11,7 @@ public class UDPSender : IService
     private readonly Socket s = new(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
     private readonly IPEndPoint endPoint;
 
-    private UInt32 packetCount = 0;
+    private UInt32 packetCount;
 
     /// <summary>
     /// ctor

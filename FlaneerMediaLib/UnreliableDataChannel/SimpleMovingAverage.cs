@@ -5,8 +5,8 @@ internal class SimpleMovingAverage
     private readonly long k;
     private readonly long[] values;
 
-    private long index = 0;
-    private long sum = 0;
+    private long index;
+    private long sum;
 
     public SimpleMovingAverage(long k)
     {

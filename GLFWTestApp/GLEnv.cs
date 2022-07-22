@@ -21,7 +21,7 @@ public class GLEnv
     private DateTime lastDisplay = DateTime.Now;
     
     private DateTime StartTime = DateTime.Now;
-    private int framesDisplayed = 0;
+    private int framesDisplayed;
 
     // OpenGL has image origin in the bottom-left corner.
     private static readonly float[] ScreenSpaceQuadVertices =

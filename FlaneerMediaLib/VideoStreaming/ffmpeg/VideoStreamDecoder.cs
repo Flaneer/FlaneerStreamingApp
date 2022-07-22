@@ -19,7 +19,7 @@ namespace FlaneerMediaLib.VideoStreaming.ffmpeg
         private readonly int streamIndex;
         private readonly AVCodecContext* codecContextPtr;
 
-        private int frameCount = 0;
+        private int frameCount;
         private bool usingHardwareDecoding => codecContextPtr->hw_device_ctx != null;
         
         /// <summary>

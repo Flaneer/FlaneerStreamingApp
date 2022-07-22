@@ -13,9 +13,9 @@ public class UDPClientStatTracker
     private SimpleMovingAverage bitrateAverage = new SimpleMovingAverage(5);
     private SimpleMovingAverage latencyAverage = new SimpleMovingAverage(5);
     private int lastSecond = DateTime.Now.Second;
-    private int bytesThisSecond = 0;
-    private uint lastPacket = 0;
-    private uint droppedPackets = 0;
+    private int bytesThisSecond;
+    private uint lastPacket;
+    private uint droppedPackets;
     
     /// <summary>
     /// ctor
