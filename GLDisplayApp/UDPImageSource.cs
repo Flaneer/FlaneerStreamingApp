@@ -11,12 +11,12 @@ public class UDPImageSource
 {
     private readonly IVideoSource videoSource;
     
-    private Logger logger;
+    private readonly Logger logger;
     
     private readonly short width;
     private readonly short height;
 
-    private bool ffmpegInitialised = false;
+    private bool ffmpegInitialised;
     private VideoStreamDecoder? vsd;
     private AVIOReader? avioReader;
     private VideoFrameConverter? vfc;
@@ -33,7 +33,7 @@ public class UDPImageSource
         ServiceRegistry.TryGetService(out videoSource);
     }
 
-    private unsafe void InitialiseFFMpeg(ref MemoryStream? inFrameStream)
+    private unsafe void InitialiseFFMpeg(ref MemoryStream inFrameStream)
     {
         FFmpegLauncher.InitialiseFFMpeg();
         avioReader = new AVIOReader(inFrameStream);
@@ -55,6 +55,12 @@ public class UDPImageSource
                     return new UnsafeUnmanagedVideoFrame();
                 
                 var frame = frameIn as ManagedVideoFrame;
+
+                if (frame == null)
+                    throw new Exception("Trying to use wrong frame type in ImageDecode");
+
+                if (frame.Stream == null)
+                    throw new Exception("Frame passed with empty stream");
                 
                 logger.Trace($"Decoding new frame of size {frame.Stream.Length}");
                 
