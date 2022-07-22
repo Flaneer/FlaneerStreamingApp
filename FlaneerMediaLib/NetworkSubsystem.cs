@@ -1,4 +1,5 @@
 ﻿using FlaneerMediaLib.UnreliableDataChannel;
+﻿using FlaneerMediaLib.QualityManagement;
 
 namespace FlaneerMediaLib;
 
@@ -20,6 +21,9 @@ public static class NetworkSubsystem
 
         var ackSender = new AckSender();
         ServiceRegistry.AddService(ackSender);
+        
+        //add measures
+        
     }
 
     /// <summary>
@@ -36,5 +40,9 @@ public static class NetworkSubsystem
         var ackReceiver = new AckReceiver();
         ServiceRegistry.AddService(ackReceiver);
         
+        //add control
+        var qualityManager = new QualityManager();
+        ServiceRegistry.AddService(qualityManager);
+
     }
 }
