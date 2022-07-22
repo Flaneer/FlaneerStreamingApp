@@ -1,7 +1,6 @@
 ﻿using FlaneerMediaLib.Logging;
-using FlaneerMediaLib.UnreliableDataChannel;
 
-namespace FlaneerMediaLib;
+namespace FlaneerMediaLib.UnreliableDataChannel;
 
 /// <summary>
 /// Receives acks and parses them

@@ -1,6 +1,6 @@
 ﻿using FlaneerMediaLib;
 using FlaneerMediaLib.VideoDataTypes;
-using GLFWTestApp;
+using FlaneerMediaLib.VideoStreaming;
 
 namespace GLDisplayApp;
 

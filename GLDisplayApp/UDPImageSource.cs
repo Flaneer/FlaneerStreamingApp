@@ -3,6 +3,7 @@ using FFmpeg.AutoGen;
 using FlaneerMediaLib;
 using FlaneerMediaLib.Logging;
 using FlaneerMediaLib.VideoDataTypes;
+using FlaneerMediaLib.VideoStreaming;
 using FlaneerMediaLib.VideoStreaming.ffmpeg;
 
 namespace GLDisplayApp;

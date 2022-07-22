@@ -1,4 +1,4 @@
-﻿namespace FlaneerMediaLib;
+﻿namespace FlaneerMediaLib.ReliableDataChannel;
 
 /// <summary>
 /// Defines the behaviour of a tcp sink

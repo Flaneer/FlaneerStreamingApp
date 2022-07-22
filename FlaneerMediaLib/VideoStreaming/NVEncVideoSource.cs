@@ -1,7 +1,7 @@
 ﻿using FlaneerMediaLib.VideoDataTypes;
 using NvEncWrapper;
 
-namespace FlaneerMediaLib
+namespace FlaneerMediaLib.VideoStreaming
 {
     internal class NvEncVideoSource : IVideoSource, IEncoder
     {

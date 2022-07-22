@@ -1,10 +1,9 @@
 ﻿using FlaneerMediaLib;
 using FlaneerMediaLib.Logging;
-using GLDisplayApp;
 using Silk.NET.OpenGL;
 using Silk.NET.Windowing;
 
-namespace GLFWTestApp;
+namespace GLDisplayApp;
 
 public class GLEnv
 {

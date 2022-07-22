@@ -1,4 +1,4 @@
-﻿namespace FlaneerMediaLib
+﻿namespace FlaneerMediaLib.VideoStreaming
 {
     /// <summary>
     /// Base interface for any codec settings

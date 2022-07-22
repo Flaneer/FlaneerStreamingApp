@@ -1,6 +1,6 @@
 using Silk.NET.OpenGL;
 
-namespace GLFWTestApp;
+namespace GLDisplayApp;
 
 //The vertex array object abstraction.
 public class VertexArrayObject<TVertexType, TIndexType> : IDisposable

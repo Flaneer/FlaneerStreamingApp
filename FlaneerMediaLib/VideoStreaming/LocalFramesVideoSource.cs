@@ -1,6 +1,6 @@
 ﻿using FlaneerMediaLib.VideoDataTypes;
 
-namespace FlaneerMediaLib;
+namespace FlaneerMediaLib.VideoStreaming;
 
 /// <summary>
 /// Uses local frames to emulate a UDP video source

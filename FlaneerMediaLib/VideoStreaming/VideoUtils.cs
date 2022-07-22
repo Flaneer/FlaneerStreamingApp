@@ -1,7 +1,7 @@
 ﻿using FlaneerMediaLib.VideoDataTypes;
 using NvEncWrapper;
 
-namespace FlaneerMediaLib
+namespace FlaneerMediaLib.VideoStreaming
 {
     internal class VideoUtils
     {
@@ -17,7 +17,7 @@ namespace FlaneerMediaLib
         
         public static NvEncWrapper.H264CodecSettings FromCodecSettings(ICodecSettings settings)
         {
-            if (settings is FlaneerMediaLib.H264CodecSettings h264CodecSettings)
+            if (settings is H264CodecSettings h264CodecSettings)
             {
                 return new NvEncWrapper.H264CodecSettings
                 {

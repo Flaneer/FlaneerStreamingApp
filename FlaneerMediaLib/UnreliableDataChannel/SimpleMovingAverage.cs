@@ -1,4 +1,4 @@
-﻿namespace FlaneerMediaLib;
+﻿namespace FlaneerMediaLib.UnreliableDataChannel;
 
 internal class SimpleMovingAverage
 {

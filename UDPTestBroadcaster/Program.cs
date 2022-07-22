@@ -2,6 +2,8 @@
 using FlaneerMediaLib.VideoDataTypes;
 using FlaneerMediaLib.VideoStreaming;
 
+namespace UDPTestBroadcaster;
+
 class Program
 {
     static void Main(string[] args)

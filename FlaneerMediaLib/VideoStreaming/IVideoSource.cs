@@ -1,6 +1,6 @@
 ﻿using FlaneerMediaLib.VideoDataTypes;
 
-namespace FlaneerMediaLib
+namespace FlaneerMediaLib.VideoStreaming
 {
     /// <summary>
     /// Base interface for all video sources

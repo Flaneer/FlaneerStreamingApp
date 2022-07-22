@@ -1,6 +1,6 @@
 ﻿using Silk.NET.OpenGL;
 
-namespace GLFWTestApp;
+namespace GLDisplayApp;
 
 public class Texture
 {

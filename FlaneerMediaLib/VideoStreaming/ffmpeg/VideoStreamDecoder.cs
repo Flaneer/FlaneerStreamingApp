@@ -16,7 +16,6 @@ namespace FlaneerMediaLib.VideoStreaming.ffmpeg
         private readonly AVFrame* receivedFrame;
         private readonly AVPacket* packetPtr;
         private readonly AVFormatContext* avfCtxPtr;
-        private readonly int streamIndex;
         private readonly AVCodecContext* codecContextPtr;
 
         private int frameCount;
@@ -114,7 +113,7 @@ namespace FlaneerMediaLib.VideoStreaming.ffmpeg
                         {
                             throw new Exception("error == ffmpeg.AVERROR_EOF");
                         }
-                    } while (packetPtr->stream_index != streamIndex);
+                    } while (packetPtr->stream_index != 0);
 
                     FF.avcodec_send_packet(codecContextPtr, packetPtr);
                 }

@@ -1,6 +1,6 @@
 ﻿using System.Net;
 
-namespace FlaneerMediaLib;
+namespace FlaneerMediaLib.ReliableDataChannel;
 
 /// <summary>
 /// Interface to define the behaviour of a tcp data channel

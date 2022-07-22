@@ -1,9 +1,8 @@
 ﻿using FlaneerMediaLib.Logging;
 using FlaneerMediaLib.UnreliableDataChannel;
 using FlaneerMediaLib.VideoDataTypes;
-using FlaneerMediaLib.VideoStreaming;
 
-namespace FlaneerMediaLib
+namespace FlaneerMediaLib.VideoStreaming
 {
     /// <summary>
     /// A video source that gets video from a UDP channel

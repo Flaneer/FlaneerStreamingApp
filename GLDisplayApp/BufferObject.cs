@@ -1,6 +1,6 @@
 using Silk.NET.OpenGL;
 
-namespace GLFWTestApp;
+namespace GLDisplayApp;
 
 //Our buffer object abstraction.
 public class BufferObject<TDataType> : IDisposable

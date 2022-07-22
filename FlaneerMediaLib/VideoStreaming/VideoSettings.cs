@@ -1,6 +1,6 @@
 ﻿using FlaneerMediaLib.VideoDataTypes;
 
-namespace FlaneerMediaLib;
+namespace FlaneerMediaLib.VideoStreaming;
 
 /// <summary>
 /// Class to parse the video settings from the command line

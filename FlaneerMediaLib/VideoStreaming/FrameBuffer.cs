@@ -68,7 +68,7 @@ internal class FrameBuffer
         if (frameBuffer.ContainsKey(lastFrameIdx))
             frameBuffer.Remove(lastFrameIdx);
         
-        logger.Debug($"Sending {frameBuffer[nextFrameIdx].Stream.Length}B Frame From Buffer");
+        logger.Debug($"Sending {frameBuffer[nextFrameIdx].Stream!.Length}B Frame From Buffer");
         
         nextFrameIdx++;
         return true;
