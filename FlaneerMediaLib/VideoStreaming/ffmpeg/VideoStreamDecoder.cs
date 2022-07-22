@@ -3,6 +3,8 @@ using System.Text;
 using FFmpeg.AutoGen;
 using FlaneerMediaLib.Logging;
 
+using FF = FFmpeg.AutoGen.ffmpeg;
+
 namespace FlaneerMediaLib.VideoStreaming.ffmpeg
 {
     /// <summary>
@@ -11,12 +13,14 @@ namespace FlaneerMediaLib.VideoStreaming.ffmpeg
     public sealed unsafe class VideoStreamDecoder : IDisposable
     {
         private AVFrame* framePtr;
+        private AVFrame* receivedFrame;
         private AVPacket* packetPtr;
         private AVFormatContext* avfCtxPtr;
         private readonly int streamIndex;
         private readonly AVCodecContext* codecContextPtr;
 
         private int frameCount = 0;
+        private bool usingHardwareDecoding => codecContextPtr->hw_device_ctx != null;
         
         /// <summary>
         /// The height and width of the video frame
@@ -37,28 +41,36 @@ namespace FlaneerMediaLib.VideoStreaming.ffmpeg
             logger = Logger.GetLogger(this);
             
             //Allocate an AVFormatContext. avformat_free_context() can be used to free the context and everything allocated by the framework within it.
-            var ctx = FFmpeg.AutoGen.ffmpeg.avformat_alloc_context();
+            var ctx = FF.avformat_alloc_context();
             ctx->pb = avioCtx;
             
             var arbitrarytext = Encoding.UTF8.GetString(Encoding.Default.GetBytes(""));
-            var inFmt = FFmpeg.AutoGen.ffmpeg.av_find_input_format("h264");
-            FFmpeg.AutoGen.ffmpeg.avformat_open_input(&ctx, arbitrarytext, inFmt, null);
+            var inFmt = FF.av_find_input_format("h264");
+            FF.avformat_open_input(&ctx, arbitrarytext, inFmt, null);
 
-            AVCodec* codec = FFmpeg.AutoGen.ffmpeg.avcodec_find_decoder(AVCodecID.AV_CODEC_ID_H264);
+            AVCodec* codec = FF.avcodec_find_decoder(AVCodecID.AV_CODEC_ID_H264);
             //Allocate an AVCodecContext and set its fields to default values. The resulting struct should be freed with avcodec_free_context().
-            codecContextPtr = FFmpeg.AutoGen.ffmpeg.avcodec_alloc_context3(codec);
+            codecContextPtr = FF.avcodec_alloc_context3(codec);
             //TODO: Set this from config
             codecContextPtr->width = 1920;
             codecContextPtr->height = 1080;
             codecContextPtr->pix_fmt = AVPixelFormat.AV_PIX_FMT_YUV420P;
+
+            var hwDec = HwDecodeHelper.GetHWDecoder();
+            if (hwDec != AVHWDeviceType.AV_HWDEVICE_TYPE_NONE)
+            {
+                FF.av_hwdevice_ctx_create(&codecContextPtr->hw_device_ctx, hwDec, null, null, 0);
+            }
             
-            FFmpeg.AutoGen.ffmpeg.avcodec_open2(codecContextPtr, codec, null);
+            FF.avcodec_open2(codecContextPtr, codec, null);
             
-            packetPtr = FFmpeg.AutoGen.ffmpeg.av_packet_alloc();
-            framePtr = FFmpeg.AutoGen.ffmpeg.av_frame_alloc();
+            packetPtr = FF.av_packet_alloc();
+            framePtr = FF.av_frame_alloc();
+            if (usingHardwareDecoding)
+                receivedFrame = FF.av_frame_alloc();
 
             SourceSize = new Size(codecContextPtr->width, codecContextPtr->height);
-            SourcePixelFormat = codecContextPtr->pix_fmt;
+            SourcePixelFormat = usingHardwareDecoding ? HwDecodeHelper.GetHWPixelFormat(hwDec) : codecContextPtr->pix_fmt;
             
             avfCtxPtr = ctx;
         }
@@ -67,14 +79,14 @@ namespace FlaneerMediaLib.VideoStreaming.ffmpeg
         public void Dispose()
         {
             var pFrame = framePtr;
-            FFmpeg.AutoGen.ffmpeg.av_frame_free(&pFrame);
+            FF.av_frame_free(&pFrame);
 
             var pPacket = packetPtr;
-            FFmpeg.AutoGen.ffmpeg.av_packet_free(&pPacket);
+            FF.av_packet_free(&pPacket);
 
-            FFmpeg.AutoGen.ffmpeg.avcodec_close(codecContextPtr);
+            FF.avcodec_close(codecContextPtr);
             var pFormatContext = avfCtxPtr;
-            FFmpeg.AutoGen.ffmpeg.avformat_close_input(&pFormatContext);
+            FF.avformat_close_input(&pFormatContext);
         }
         
         /// <summary>
@@ -82,7 +94,10 @@ namespace FlaneerMediaLib.VideoStreaming.ffmpeg
         /// </summary>
         public AVFrame DecodeNextFrame()
         {
-            FFmpeg.AutoGen.ffmpeg.av_frame_unref(framePtr);
+            FF.av_frame_unref(framePtr);
+            if(usingHardwareDecoding)
+                FF.av_frame_unref(receivedFrame);
+            
             int error;
             frameCount++;
             logger.Trace($"Decoding frame {frameCount}");
@@ -92,33 +107,38 @@ namespace FlaneerMediaLib.VideoStreaming.ffmpeg
                 {
                     do
                     {
-                        FFmpeg.AutoGen.ffmpeg.av_packet_unref(packetPtr);
-                        error = FFmpeg.AutoGen.ffmpeg.av_read_frame(avfCtxPtr, packetPtr);
+                        FF.av_packet_unref(packetPtr);
+                        error = FF.av_read_frame(avfCtxPtr, packetPtr);
 
-                        if (error == FFmpeg.AutoGen.ffmpeg.AVERROR_EOF)
+                        if (error == FF.AVERROR_EOF)
                         {
                             throw new Exception("error == ffmpeg.AVERROR_EOF");
                         }
                     } while (packetPtr->stream_index != streamIndex);
 
-                    FFmpeg.AutoGen.ffmpeg.avcodec_send_packet(codecContextPtr, packetPtr);
+                    FF.avcodec_send_packet(codecContextPtr, packetPtr);
                 }
                 finally
                 {
-                    FFmpeg.AutoGen.ffmpeg.av_packet_unref(packetPtr);
+                    FF.av_packet_unref(packetPtr);
                 }
 
-                error = FFmpeg.AutoGen.ffmpeg.avcodec_receive_frame(codecContextPtr, framePtr);
-            } while (error == FFmpeg.AutoGen.ffmpeg.AVERROR(FFmpeg.AutoGen.ffmpeg.EAGAIN));
+                error = FF.avcodec_receive_frame(codecContextPtr, framePtr);
+            } while (error == FF.AVERROR(FF.EAGAIN));
 
-            logger.Debug($"Frame {codecContextPtr->frame_number}" +
-                            $"(type={Convert.ToChar(FFmpeg.AutoGen.ffmpeg.av_get_picture_type_char(framePtr->pict_type))}," +
-                            $" size={framePtr->pkt_size} bytes, format={framePtr->format}) " +
-                            $"pts {framePtr->pts} key_frame {framePtr->key_frame} (DTS {framePtr->coded_picture_number})");
+            logger.Trace($"Frame {codecContextPtr->frame_number}" +
+                           $"(type={Convert.ToChar(FF.av_get_picture_type_char(framePtr->pict_type))}," +
+                           $" size={framePtr->pkt_size} bytes, format={framePtr->format}) " +
+                           $"pts {framePtr->pts} key_frame {framePtr->key_frame} (DTS {framePtr->coded_picture_number})");
             
+            if (usingHardwareDecoding)
+            {
+                FF.av_hwframe_transfer_data(receivedFrame, framePtr, 0);
+                return *receivedFrame;
+            }
+
             return *framePtr;
         }
-
     }
 }
 

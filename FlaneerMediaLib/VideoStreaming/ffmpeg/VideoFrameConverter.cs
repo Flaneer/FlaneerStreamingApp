@@ -2,6 +2,8 @@
 using System.Runtime.InteropServices;
 using FFmpeg.AutoGen;
 
+using FF = FFmpeg.AutoGen.ffmpeg;
+
 namespace FlaneerMediaLib.VideoStreaming.ffmpeg
 {
     /// <summary>
@@ -23,20 +25,20 @@ namespace FlaneerMediaLib.VideoStreaming.ffmpeg
         {
             this.destinationSize = destinationSize;
 
-            pConvertContext = FFmpeg.AutoGen.ffmpeg.sws_getContext(sourceSize.Width,
+            pConvertContext = FF.sws_getContext(sourceSize.Width,
                 sourceSize.Height,
                 sourcePixelFormat,
                 destinationSize.Width,
                 destinationSize.Height,
                 destinationPixelFormat,
-                FFmpeg.AutoGen.ffmpeg.SWS_FAST_BILINEAR,
+                FF.SWS_FAST_BILINEAR,
                 null,
                 null,
                 null);
             if (pConvertContext == null)
                 throw new ApplicationException("Could not initialize the conversion context.");
 
-            var convertedFrameBufferSize = FFmpeg.AutoGen.ffmpeg.av_image_get_buffer_size(destinationPixelFormat,
+            var convertedFrameBufferSize = FF.av_image_get_buffer_size(destinationPixelFormat,
                 destinationSize.Width,
                 destinationSize.Height,
                 1);
@@ -44,7 +46,7 @@ namespace FlaneerMediaLib.VideoStreaming.ffmpeg
             dstData = new byte_ptrArray4();
             dstLinesize = new int_array4();
 
-            FFmpeg.AutoGen.ffmpeg.av_image_fill_arrays(ref dstData,
+            FF.av_image_fill_arrays(ref dstData,
                 ref dstLinesize,
                 (byte*) convertedFrameBufferPtr,
                 destinationPixelFormat,
@@ -57,7 +59,7 @@ namespace FlaneerMediaLib.VideoStreaming.ffmpeg
         public void Dispose()
         {
             Marshal.FreeHGlobal(convertedFrameBufferPtr);
-            FFmpeg.AutoGen.ffmpeg.sws_freeContext(pConvertContext);
+            FF.sws_freeContext(pConvertContext);
         }
 
         /// <summary>
@@ -65,7 +67,7 @@ namespace FlaneerMediaLib.VideoStreaming.ffmpeg
         /// </summary>
         public AVFrame Convert(AVFrame sourceFrame)
         {
-            FFmpeg.AutoGen.ffmpeg.sws_scale(pConvertContext,
+            FF.sws_scale(pConvertContext,
                 sourceFrame.data,
                 sourceFrame.linesize,
                 0,

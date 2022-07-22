@@ -36,7 +36,7 @@ public class TransmissionVideoFrame : IPacketInfo, IVideoFrame
     public byte PacketIdx;
     /// <summary>
     /// Size of the frame data
-    /// <remarks>Int32 will always be sufficient since it will fit into UDP packet</remarks>
+    /// TODO: convert this to a uint since we cannot have a negative frame size
     /// </summary>
     public Int32 FrameDataSize;
     

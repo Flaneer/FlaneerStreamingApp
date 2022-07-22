@@ -1,6 +1,8 @@
 ﻿using System.Runtime.InteropServices;
 using FFmpeg.AutoGen;
 
+using FF = FFmpeg.AutoGen.ffmpeg;
+
 namespace FlaneerMediaLib.VideoStreaming.ffmpeg
 {
     /// <summary>
@@ -42,7 +44,7 @@ namespace FlaneerMediaLib.VideoStreaming.ffmpeg
             {
                 bufferPtr = p;
                 //Allocate and initialize an AVIOContext for buffered I/O. It must be later freed with avio_context_free().
-                avioCtx = FFmpeg.AutoGen.ffmpeg.avio_alloc_context(bufferPtr, (int) inputStream.Length, 0, null, readDel, null, seekDel);
+                avioCtx = FF.avio_alloc_context(bufferPtr, (int) inputStream.Length, 0, null, readDel, null, seekDel);
             }
         }
 
@@ -80,8 +82,8 @@ namespace FlaneerMediaLib.VideoStreaming.ffmpeg
         public unsafe void Dispose()
         {
             inputStream.Dispose();
-            FFmpeg.AutoGen.ffmpeg.av_free(avioCtx);
-            FFmpeg.AutoGen.ffmpeg.av_free(bufferPtr);
+            FF.av_free(avioCtx);
+            FF.av_free(bufferPtr);
         }
     }
 }
