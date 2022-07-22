@@ -10,8 +10,8 @@ public class UDPClientStatTracker
     private readonly Logger logger;
     private int packetCount;
     private int emptyPacketCount;
-    private SimpleMovingAverage bitrateAverage = new SimpleMovingAverage(5);
-    private SimpleMovingAverage latencyAverage = new SimpleMovingAverage(5);
+    private readonly SimpleMovingAverage bitrateAverage = new SimpleMovingAverage(5);
+    private readonly SimpleMovingAverage latencyAverage = new SimpleMovingAverage(5);
     private int lastSecond = DateTime.Now.Second;
     private int bytesThisSecond;
     private uint lastPacket;

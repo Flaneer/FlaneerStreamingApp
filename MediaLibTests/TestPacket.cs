@@ -12,7 +12,7 @@ public class TestPacket : IPacketInfo
     public long TimeStamp { get; init; }
     public uint PacketId { get; init; }
 
-    private int HeaderSize = 15;
+    private readonly int HeaderSize = 15;
     
     public byte[] ToUDPPacket()
     {

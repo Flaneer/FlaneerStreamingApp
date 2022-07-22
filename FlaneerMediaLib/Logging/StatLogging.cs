@@ -10,7 +10,7 @@ public class StatLogging
     // ReSharper disable once ConstantNullCoalescingCondition
     private static StatLogging Instance => instance ??= new StatLogging();
     
-    private Dictionary<string, object> perfStats = new();
+    private readonly Dictionary<string, object> perfStats = new();
     private string displayMessage = "";
 
     /// <summary>

@@ -6,7 +6,7 @@ namespace LocalMediaFileOut
 {
     internal class MP4VideoSink : IVideoSink
     {
-        IEncoder encoder;
+        readonly IEncoder encoder;
 
         public MP4VideoSink()
         {

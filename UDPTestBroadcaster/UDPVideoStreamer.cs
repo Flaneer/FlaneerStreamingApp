@@ -10,7 +10,7 @@ namespace LocalMediaFileOut
     {
         readonly IEncoder? encoder;
 
-        Socket s = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
+        readonly Socket s = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
         private readonly IPAddress broadcast;
         private readonly int port;
 

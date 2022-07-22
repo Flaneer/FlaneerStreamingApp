@@ -13,10 +13,8 @@ internal class FrameBuffer
 
     private uint nextFrameIdx;
     
-    private VideoCodec codec;
-    private Logger logger;
-
-    private int maxArraySize;
+    private readonly VideoCodec codec;
+    private readonly Logger logger;
 
     /// <summary>
     /// ctor

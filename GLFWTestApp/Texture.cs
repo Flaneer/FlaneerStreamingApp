@@ -6,8 +6,8 @@ namespace GLFWTestApp;
 
 public class Texture
 {
-    private uint handle;
-    private GL gl;
+    private readonly uint handle;
+    private readonly GL gl;
     private Image<Rgba32> img;
 
     public unsafe Texture(GLEnv GLIn, string path)

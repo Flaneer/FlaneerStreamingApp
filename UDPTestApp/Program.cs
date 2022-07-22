@@ -19,11 +19,11 @@ namespace UDPTestApp
 
         class VideoSettings
         {
-            public int Height = 1440;
-            public int Width = 2560;
-            public int MaxFPS = 60;
-            public BufferFormat Format = BufferFormat.ARGB;
-            public int GoPLength = 5;
+            public readonly int Height = 1440;
+            public readonly int Width = 2560;
+            public readonly int MaxFPS = 60;
+            public readonly BufferFormat Format = BufferFormat.ARGB;
+            public readonly int GoPLength = 5;
         }
 
         private static void InitialiseMediaEncoder()

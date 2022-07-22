@@ -12,10 +12,10 @@ namespace FlaneerMediaLib.VideoStreaming.ffmpeg
     /// </summary>
     public sealed unsafe class VideoStreamDecoder : IDisposable
     {
-        private AVFrame* framePtr;
-        private AVFrame* receivedFrame;
-        private AVPacket* packetPtr;
-        private AVFormatContext* avfCtxPtr;
+        private readonly AVFrame* framePtr;
+        private readonly AVFrame* receivedFrame;
+        private readonly AVPacket* packetPtr;
+        private readonly AVFormatContext* avfCtxPtr;
         private readonly int streamIndex;
         private readonly AVCodecContext* codecContextPtr;
 
@@ -31,7 +31,7 @@ namespace FlaneerMediaLib.VideoStreaming.ffmpeg
         /// </summary>
         public readonly AVPixelFormat SourcePixelFormat;
 
-        private Logger logger;
+        private readonly Logger logger;
 
         /// <summary>
         /// ctor

@@ -8,7 +8,7 @@ namespace FlaneerMediaLib;
 /// </summary>
 public class AckReceiver : IService
 {
-    private Dictionary<int, bool> prevAcks = new ();
+    private readonly Dictionary<int, bool> prevAcks = new ();
     private readonly Logger logger;
 
     /// <summary>

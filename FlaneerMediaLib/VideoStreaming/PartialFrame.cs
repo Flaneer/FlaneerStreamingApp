@@ -4,13 +4,13 @@ namespace FlaneerMediaLib.VideoStreaming
 {
     internal class PartialFrame
     {
-        private byte[] frameData;
+        private readonly byte[] frameData;
 
         private readonly TransmissionVideoFrame seedFrame;
 
         private int bufferedPieces;
 
-        private Action<uint, ManagedVideoFrame> FrameReadyCallback;
+        private readonly Action<uint, ManagedVideoFrame> FrameReadyCallback;
 
         public PartialFrame(TransmissionVideoFrame seedFrame, Action<uint, ManagedVideoFrame> onFrameReady)
         {

@@ -14,9 +14,9 @@ public class UDPVideoSink : IVideoSink
     private IVideoSource videoSource = null!;
     private UInt32 nextFrame;
 
-    private UDPSender udpSender;
+    private readonly UDPSender udpSender;
     
-    private Logger logger;
+    private readonly Logger logger;
 
     /// <summary>
     /// ctor
