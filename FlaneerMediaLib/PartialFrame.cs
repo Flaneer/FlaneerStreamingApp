@@ -20,8 +20,7 @@ internal class PartialFrame
         frameData = new byte[seedFrame.FrameDataSize];
         frameData.Initialize();
     }
-
-
+    
     public void BufferPiece(byte[] framePacket, int packetIdx)
     {
         var partialFrameDataLength = framePacket.Length - TransmissionVideoFrame.HeaderSize;

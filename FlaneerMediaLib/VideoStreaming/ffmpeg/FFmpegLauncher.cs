@@ -2,6 +2,8 @@
 using FFmpeg.AutoGen;
 using FlaneerMediaLib.Logging;
 
+using FF = FFmpeg.AutoGen.ffmpeg;
+
 namespace FlaneerMediaLib.VideoStreaming.ffmpeg
 {
     /// <summary>
@@ -31,24 +33,24 @@ namespace FlaneerMediaLib.VideoStreaming.ffmpeg
 
         private static unsafe void SetupLogging()
         {
-            FFmpeg.AutoGen.ffmpeg.av_log_set_level(FFmpeg.AutoGen.ffmpeg.AV_LOG_VERBOSE);
+            FF.av_log_set_level(FF.AV_LOG_VERBOSE);
 
             // do not convert to local function
             av_log_set_callback_callback logCallback = (p0, level, format, vl) =>
             {
-                if (level > FFmpeg.AutoGen.ffmpeg.av_log_get_level()) return;
+                if (level > FF.av_log_get_level()) return;
 
                 var lineSize = 1024;
                 var lineBuffer = stackalloc byte[lineSize];
                 var printPrefix = 1;
-                FFmpeg.AutoGen.ffmpeg.av_log_format_line(p0, level, format, vl, lineBuffer, lineSize, &printPrefix);
+                FF.av_log_format_line(p0, level, format, vl, lineBuffer, lineSize, &printPrefix);
                 var line = Marshal.PtrToStringAnsi((IntPtr) lineBuffer);
                 Console.ForegroundColor = ConsoleColor.Yellow;
                 Console.WriteLine(line);
                 Console.ResetColor();
             };
 
-            FFmpeg.AutoGen.ffmpeg.av_log_set_callback(logCallback);
+            FF.av_log_set_callback(logCallback);
         }
         
         /// <summary>
@@ -63,27 +65,27 @@ namespace FlaneerMediaLib.VideoStreaming.ffmpeg
             var lineSize = 1024;
             var lineBuffer = stackalloc byte[lineSize];
             var printPrefix = 1;
-            FFmpeg.AutoGen.ffmpeg.av_log_format_line(avcl, level, fmt, vl, lineBuffer, lineSize, &printPrefix);
+            FF.av_log_format_line(avcl, level, fmt, vl, lineBuffer, lineSize, &printPrefix);
             var line = Marshal.PtrToStringAnsi((IntPtr) lineBuffer);
             line ??= "";
         
             switch (level)
             {
-                case FFmpeg.AutoGen.ffmpeg.AV_LOG_DEBUG:
+                case FF.AV_LOG_DEBUG:
                     Instance.logger.Debug(line);
                     break;
-                case FFmpeg.AutoGen.ffmpeg.AV_LOG_ERROR:
-                case FFmpeg.AutoGen.ffmpeg.AV_LOG_FATAL:
-                case FFmpeg.AutoGen.ffmpeg.AV_LOG_PANIC:
-                case FFmpeg.AutoGen.ffmpeg.AV_LOG_WARNING:
+                case FF.AV_LOG_ERROR:
+                case FF.AV_LOG_FATAL:
+                case FF.AV_LOG_PANIC:
+                case FF.AV_LOG_WARNING:
                     Instance.logger.Error(line);
                     break;
-                case FFmpeg.AutoGen.ffmpeg.AV_LOG_INFO:
+                case FF.AV_LOG_INFO:
                     Instance.logger.Info(line);
                     break;
-                case FFmpeg.AutoGen.ffmpeg.AV_LOG_QUIET:
-                case FFmpeg.AutoGen.ffmpeg.AV_LOG_TRACE:
-                case FFmpeg.AutoGen.ffmpeg.AV_LOG_VERBOSE:
+                case FF.AV_LOG_QUIET:
+                case FF.AV_LOG_TRACE:
+                case FF.AV_LOG_VERBOSE:
                     Instance.logger.Trace(line);
                     break;
                 default:
@@ -108,7 +110,7 @@ namespace FlaneerMediaLib.VideoStreaming.ffmpeg
                     if (Directory.Exists(ffmpegBinaryPath))
                     {
                         Console.WriteLine($"FFmpeg binaries found in: {ffmpegBinaryPath}");
-                        FFmpeg.AutoGen.ffmpeg.RootPath = ffmpegBinaryPath;
+                        FF.RootPath = ffmpegBinaryPath;
                         return;
                     }
 
