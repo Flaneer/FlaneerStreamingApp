@@ -160,6 +160,8 @@
     <ClInclude Include="nvEncodeAPI.h" />
     <ClInclude Include="NvEncoder.h" />
     <ClInclude Include="NvEncoderD3D11.h" />
+    <ClInclude Include="RGBToNV12.h" />
+    <ClInclude Include="Utils.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="CaptureRuntime.cpp" />
@@ -167,6 +169,7 @@
     <ClCompile Include="InteropRuntime.cpp" />
     <ClCompile Include="NvEncoder.cpp" />
     <ClCompile Include="NvEncoderD3D11.cpp" />
+    <ClCompile Include="RGBToNV12.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

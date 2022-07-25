@@ -1,5 +1,8 @@
 ﻿using FlaneerMediaLib;
 using FlaneerMediaLib.VideoDataTypes;
+using FlaneerMediaLib.VideoStreaming;
+
+namespace UDPTestBroadcaster;
 
 class Program
 {
@@ -8,7 +11,7 @@ class Program
         CommandLineArgumentStore.CreateAndRegister(args);
         
         NetworkSubsystem.InitServer();
-     
+
         var videoSettings = new VideoSettings();
         InitialiseMediaEncoder(videoSettings);
 

@@ -5,7 +5,7 @@
 /// </summary>
 public class CommandLineArgumentStore : IService
 {
-    private Dictionary<string, List<string>> arguments = new();
+    private readonly Dictionary<string, List<string>> arguments = new();
 
     /// <summary>
     /// Parse command line arguments and put them in the store

@@ -3,9 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using FlaneerMediaLib;
 using FlaneerMediaLib.Logging;
-using Spectre.Console;
 using Xunit;
 
 namespace MediaLibTests;

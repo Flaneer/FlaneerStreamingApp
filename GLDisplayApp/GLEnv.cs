@@ -1,10 +1,9 @@
 ﻿using FlaneerMediaLib;
 using FlaneerMediaLib.Logging;
-using GLDisplayApp;
 using Silk.NET.OpenGL;
 using Silk.NET.Windowing;
 
-namespace GLFWTestApp;
+namespace GLDisplayApp;
 
 public class GLEnv
 {
@@ -24,7 +23,7 @@ public class GLEnv
     private DateTime lastDisplay = DateTime.Now;
     
     private DateTime StartTime = DateTime.Now;
-    private int framesDisplayed = 0;
+    private int framesDisplayed;
 
     private Logger logger;
 
@@ -93,11 +92,9 @@ public class GLEnv
         unsafe
         {
             var frame = imageSource.GetImage();
-            fixed (void* p = frame.Stream.GetBuffer())
-            {
+            if(frame.Height != 0)
                 Gl.TexImage2D(TextureTarget.Texture2D, 0, InternalFormat.Rgba, (uint) frame.Width, (uint) frame.Height, 0,
-                                PixelFormat.Rgba, PixelType.UnsignedByte, p);
-            }
+                            PixelFormat.Rgb, PixelType.UnsignedByte, frame.FrameData);
         }
 
         window.Title = "Flaneer Streaming: " + StatLogging.GetPerfStats();
@@ -129,8 +126,7 @@ public class GLEnv
         
         framesDisplayed++;
         var averageFrameTime = (DateTime.Now - StartTime) / framesDisplayed;
-        StatLogging.LogPerfStat("AverageFrameTime", averageFrameTime);
-        StatLogging.LogPerfStat("FPS", 1000/averageFrameTime.Milliseconds);
+        StatLogging.LogPerfStat("GL-FPS", 1000/averageFrameTime.Milliseconds);
     }
     
     private void OnClose()

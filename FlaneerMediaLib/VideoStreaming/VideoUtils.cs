@@ -1,7 +1,7 @@
 ﻿using FlaneerMediaLib.VideoDataTypes;
 using NvEncWrapper;
 
-namespace FlaneerMediaLib
+namespace FlaneerMediaLib.VideoStreaming
 {
     internal class VideoUtils
     {
@@ -9,10 +9,15 @@ namespace FlaneerMediaLib
         /// 8 plus the current UDP header size
         /// </summary>
         public const int UDPHEADERSIZE = 8 + TransmissionVideoFrame.HeaderSize;
+
+        /// <summary>
+        /// The size of the UDP packet with space for the header
+        /// </summary>
+        public const int FRAMEWRITABLESIZE = Int16.MaxValue - VideoUtils.UDPHEADERSIZE;
         
         public static NvEncWrapper.H264CodecSettings FromCodecSettings(ICodecSettings settings)
         {
-            if (settings is FlaneerMediaLib.H264CodecSettings h264CodecSettings)
+            if (settings is H264CodecSettings h264CodecSettings)
             {
                 return new NvEncWrapper.H264CodecSettings
                 {

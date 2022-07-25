@@ -1,9 +1,9 @@
 ﻿namespace FlaneerMediaLib.VideoDataTypes;
 
 /// <summary>
-/// Video frame that uses an pointer to move frame data 
+/// Base class for unmanaged frames for both pointer types
 /// </summary>
-public class UnmanagedVideoFrame : IVideoFrame
+public abstract class BaseUnmanagedVideoFrame : IVideoFrame
 {
     /// <inheritdoc/>
     public VideoCodec Codec { get; set; }
@@ -12,11 +12,30 @@ public class UnmanagedVideoFrame : IVideoFrame
     /// <inheritdoc/>
     public short Height { get; set; }
     /// <summary>
+    /// Size of the frame data
+    /// TODO: convert this to a uint since we cannot have a negative frame size
+    /// </summary>
+    public int FrameSize;
+}
+
+/// <summary>
+/// Video frame that uses an pointer to move frame data 
+/// </summary>
+public class UnmanagedVideoFrame : BaseUnmanagedVideoFrame
+{
+    /// <summary>
     /// Pointer to the frame data
     /// </summary>
     public IntPtr FrameData;
+}
+
+/// <summary>
+/// Video frame that uses an pointer to move frame data 
+/// </summary>
+public unsafe class UnsafeUnmanagedVideoFrame : BaseUnmanagedVideoFrame
+{
     /// <summary>
-    /// Size of the frame data
+    /// Pointer to the frame data
     /// </summary>
-    public int FrameSize;
+    public byte* FrameData;
 }

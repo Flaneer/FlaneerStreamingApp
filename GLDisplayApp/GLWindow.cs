@@ -2,7 +2,7 @@
 using Silk.NET.Maths;
 using Silk.NET.Windowing;
 
-namespace GLFWTestApp;
+namespace GLDisplayApp;
 
 public class GLWindow
 {

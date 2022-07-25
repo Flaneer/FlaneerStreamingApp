@@ -1,4 +1,5 @@
 ﻿using FlaneerMediaLib.VideoDataTypes;
+using FlaneerMediaLib.VideoStreaming;
 
 namespace FlaneerMediaLib;
 
@@ -22,7 +23,7 @@ public class MediaEncoderLifeCycleManager : IDisposable
                 ServiceRegistry.AddService(this.videoSource);
                 break;
             case VideoSource.UDPH264:
-                this.videoSource = new UDPVideoSource(11000);
+                this.videoSource = new UDPVideoSource();
                 ServiceRegistry.AddService(this.videoSource);
                 break;
             case VideoSource.TestH264:

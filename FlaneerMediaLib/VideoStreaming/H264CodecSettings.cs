@@ -1,6 +1,6 @@
 ﻿using FlaneerMediaLib.VideoDataTypes;
 
-namespace FlaneerMediaLib
+namespace FlaneerMediaLib.VideoStreaming
 {
     /// <summary>
     /// Specific settings for H264 encoders

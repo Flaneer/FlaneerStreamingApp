@@ -1,60 +1,96 @@
 ﻿using System.Net.Sockets;
+using FFmpeg.AutoGen;
 using FlaneerMediaLib;
 using FlaneerMediaLib.Logging;
 using FlaneerMediaLib.VideoDataTypes;
+using FlaneerMediaLib.VideoStreaming;
+using FlaneerMediaLib.VideoStreaming.ffmpeg;
 
 namespace GLDisplayApp;
 
 public class UDPImageSource
 {
     private readonly IVideoSource videoSource;
-    private readonly FFMpegDecoder videoConv;
     
-    private Logger logger;
+    private readonly Logger logger;
     
     private readonly short width;
     private readonly short height;
+
+    private bool ffmpegInitialised;
+    private VideoStreamDecoder? vsd;
+    private AVIOReader? avioReader;
+    private VideoFrameConverter? vfc;
 
     public UDPImageSource()
     {
         logger = Logger.GetLogger(this);
         
-        
         ServiceRegistry.TryGetService<CommandLineArgumentStore>(out var clas);
         var frameSettings = clas.GetParams(CommandLineArgs.FrameSettings);
         width =  Int16.Parse(frameSettings[0]);
         height = Int16.Parse(frameSettings[1]);
-        
+
         ServiceRegistry.TryGetService(out videoSource);
-        videoConv = new FFMpegDecoder();
     }
-    
-    public ManagedVideoFrame GetImage()
+
+    private unsafe void InitialiseFFMpeg(ref MemoryStream inFrameStream)
+    {
+        FFmpegLauncher.InitialiseFFMpeg();
+        avioReader = new AVIOReader(inFrameStream);
+        vsd = new VideoStreamDecoder(avioReader.AvioCtx);
+        var destinationSize = vsd.SourceSize;
+        var destinationPixelFormat = AVPixelFormat.AV_PIX_FMT_RGB24;
+        vfc = new VideoFrameConverter(vsd.SourceSize, vsd.SourcePixelFormat, destinationSize, destinationPixelFormat);
+        ffmpegInitialised = true;
+    }
+
+    public UnsafeUnmanagedVideoFrame GetImage()
     {
         try
         {
-            var frameIn = videoSource.GetFrame();
-            ManagedVideoFrame? frame = frameIn as ManagedVideoFrame;
-            if(frame == null || frame.Stream.Length == 0)
-                return new ManagedVideoFrame();
-
-            if(!File.Exists("out.h264"))
-                File.WriteAllBytes("out.h264",frame.Stream.ToArray());
-            
-            var frameOut = videoConv.DecodeFrame(frame.Stream);
-            
-            return new ManagedVideoFrame()
+            unsafe
             {
-                Width = width,
-                Height = height,
-                Stream = frameOut
-            };
+                var frameAvailable = videoSource.GetFrame(out var frameIn);
+                if(!frameAvailable)
+                    return new UnsafeUnmanagedVideoFrame();
+                
+                var frame = frameIn as ManagedVideoFrame;
+
+                if (frame == null)
+                    throw new Exception("Trying to use wrong frame type in ImageDecode");
+
+                if (frame.Stream == null)
+                    throw new Exception("Frame passed with empty stream");
+                
+                logger.Trace($"Decoding new frame of size {frame.Stream.Length}");
+                
+                if(!File.Exists("out.h264"))
+                    File.WriteAllBytes("out.h264",frame.Stream.ToArray());
+
+                var inStream = frame.Stream;
+                
+                if(!ffmpegInitialised)
+                    InitialiseFFMpeg(ref inStream);
+                else
+                    avioReader!.RefreshInputStream(inStream);
+                
+                var convertedFrame = vfc!.Convert(vsd!.DecodeNextFrame());
+                var convertedFrameSize = convertedFrame.height * convertedFrame.linesize[0];
+                return new UnsafeUnmanagedVideoFrame()
+                {
+                    Width = width,
+                    Height = height,
+                    FrameData = convertedFrame.data[0],
+                    FrameSize = convertedFrameSize
+                };
+            }
         }
         catch (SocketException e)
         {
             logger.Error(e);
         }
 
-        return new ManagedVideoFrame();
+        return new UnsafeUnmanagedVideoFrame();
     }
 }

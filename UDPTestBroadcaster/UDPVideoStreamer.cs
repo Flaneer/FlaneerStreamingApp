@@ -1,16 +1,17 @@
-﻿using FlaneerMediaLib;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Net;
 using System.Net.Sockets;
+using FlaneerMediaLib;
 using FlaneerMediaLib.VideoDataTypes;
+using FlaneerMediaLib.VideoStreaming;
 
-namespace LocalMediaFileOut
+namespace UDPTestBroadcaster
 {
     internal class UDPVideoStreamer
     {
         readonly IEncoder? encoder;
 
-        Socket s = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
+        readonly Socket s = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
         private readonly IPAddress broadcast;
         private readonly int port;
 

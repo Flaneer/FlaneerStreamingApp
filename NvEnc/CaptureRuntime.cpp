@@ -130,35 +130,43 @@ HRESULT CaptureRuntime::InitEnc()
 {
     if (!m_encoder)
     {
-        //std::cout << "Video details: Width:" << w << " Height:" << h << " Format:" << fmt << "\n";
+        auto initEnc = EncInitSettings();
+        initEnc.Width = m_width;
+        initEnc.Height = m_height;
+        initEnc.MaxFPS = m_maxFPS;
+        initEnc.GoPLength = m_gopLength;
+        initEnc.Format = m_bufferFormat;
 
-        m_encoder = new NvEncoderD3D11(m_d3dDevice, m_width, m_height, m_bufferFormat);
+        m_encoder = new NvEncoderD3D11(m_d3dDevice, initEnc);
         if (!m_encoder)
         {
             returnIfError(E_FAIL);
         }
 
-        ZeroMemory(&m_encInitParams, sizeof(m_encInitParams));
-        m_encInitParams.encodeConfig = &m_encConfig;
-        m_encInitParams.encodeWidth = m_width;
-        m_encInitParams.encodeHeight = m_height;
-        m_encInitParams.maxEncodeWidth = UHD_W;
-        m_encInitParams.maxEncodeHeight = UHD_H;
-        m_encInitParams.frameRateNum = m_maxFPS;
-        m_encInitParams.frameRateDen = 1;
-
-        ZeroMemory(&m_encConfig, sizeof(m_encConfig));
-        m_encConfig.gopLength = m_gopLength;
-
         try
         {
-            m_encoder->CreateDefaultEncoderParams(&m_encInitParams, m_codecId, NV_ENC_PRESET_LOW_LATENCY_HP_GUID);
+            ZeroMemory(&m_encInitParams, sizeof(m_encInitParams));
+            m_encInitParams.encodeConfig = &m_encConfig; 
+            ZeroMemory(&m_encConfig, sizeof(m_encConfig));
+            m_encoder->SetEncoderParams(&m_encInitParams, m_codecId, NV_ENC_PRESET_LOW_LATENCY_HP_GUID);
             m_encoder->CreateEncoder(&m_encInitParams);
         }
         catch (...)
         {
             returnIfError(E_FAIL);
         }
+    }
+    return S_OK;
+}
+
+/// Initialize preprocessor
+HRESULT CaptureRuntime::InitColorConv()
+{
+    if (!m_colorConv)
+    {
+        m_colorConv = new RGBToNV12(m_d3dDevice, m_deviceContext);
+        HRESULT hr = m_colorConv->Init();
+        returnIfError(hr);
     }
     return S_OK;
 }
@@ -174,6 +182,9 @@ HRESULT CaptureRuntime::Init()
     returnIfError(hr);
 
     hr = InitEnc();
+    returnIfError(hr);
+
+    hr = InitColorConv();
     returnIfError(hr);
 
     return hr;
@@ -194,7 +205,12 @@ HRESULT CaptureRuntime::Preproc()
     HRESULT hr = S_OK;
     const NvEncInputFrame* pEncInput = m_encoder->GetNextInputFrame();
     m_encBuf = (ID3D11Texture2D*)pEncInput->inputPtr;
-    m_deviceContext->CopySubresourceRegion(m_encBuf, D3D11CalcSubresource(0, 0, 1), 0, 0, 0, m_dupTex2D, 0, NULL);
+
+    if(m_bufferFormat == NV_ENC_BUFFER_FORMAT_NV12)
+        hr = m_colorConv->Convert(m_dupTex2D, m_encBuf);
+    else
+        m_deviceContext->CopySubresourceRegion(m_encBuf, D3D11CalcSubresource(0, 0, 1), 0, 0, 0, m_dupTex2D, 0, NULL);
+
     SAFE_RELEASE(m_dupTex2D);
     returnIfError(hr);
 
@@ -251,6 +267,11 @@ void CaptureRuntime::Cleanup()
         m_ddaWrapper->Cleanup();
         delete m_ddaWrapper;
         m_ddaWrapper = nullptr;
+    }
+
+    if (m_colorConv)
+    {
+        m_colorConv->Cleanup();
     }
 
     if (m_encoder)

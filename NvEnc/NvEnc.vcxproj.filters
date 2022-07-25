@@ -36,6 +36,12 @@
     <ClInclude Include="InteropStructs.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="RGBToNV12.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Utils.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="DDAImpl.cpp">
@@ -51,6 +57,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="InteropRuntime.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="RGBToNV12.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

@@ -1,10 +1,9 @@
 ﻿using System.Diagnostics;
-using System.Net;
-using System.Net.Sockets;
 using FlaneerMediaLib.Logging;
+using FlaneerMediaLib.UnreliableDataChannel;
 using FlaneerMediaLib.VideoDataTypes;
 
-namespace FlaneerMediaLib;
+namespace FlaneerMediaLib.VideoStreaming;
 
 /// <summary>
 /// Video sink that broadcasts frames over UDP
@@ -13,11 +12,11 @@ public class UDPVideoSink : IVideoSink
 {
     private IEncoder encoder = null!;
     private IVideoSource videoSource = null!;
-    private UInt32 nextFrame = 0;
+    private UInt32 nextFrame;
 
-    private UDPSender udpSender;
+    private readonly UDPSender udpSender;
     
-    private Logger logger;
+    private readonly Logger logger;
 
     /// <summary>
     /// ctor
@@ -99,15 +98,14 @@ public class UDPVideoSink : IVideoSink
         stopWatch.Stop();
     }
 
-    private int sentPacketCount = 0;
+    private int sentPacketCount;
     private unsafe void SendFrame(UnmanagedVideoFrame frame, TimeSpan frameTime)
     {
         using var uStream = new UnmanagedMemoryStream((byte*) frame.FrameData, frame.FrameSize);
         var frameBytes = new byte[frame.FrameSize];
         uStream.Read(frameBytes, 0, frame.FrameSize);
-            
-        var frameWritableSize = Int16.MaxValue - VideoUtils.UDPHEADERSIZE;
-        var numberOfPackets = (byte) Math.Ceiling((double)frame.FrameSize / frameWritableSize);
+        
+        var numberOfPackets = (byte) Math.Ceiling((double)frame.FrameSize / VideoUtils.FRAMEWRITABLESIZE);
         
         var sent = 0;
         for (byte i = 0; i < numberOfPackets; i++)
@@ -119,10 +117,14 @@ public class UDPVideoSink : IVideoSink
                 NumberOfPackets = numberOfPackets,
                 PacketIdx = i,
                 FrameDataSize = frame.FrameSize,
-                SequenceIDX = nextFrame
+                SequenceIDX = nextFrame,
             };
+
+            //TODO: set this properly
+            var gopLength = 5;
+            frameHeader.IsIFrame = frameHeader.SequenceIDX % gopLength == 0; 
             
-            var packetSize = Math.Min(frameWritableSize, frame.FrameSize - sent);
+            var packetSize = Math.Min(VideoUtils.FRAMEWRITABLESIZE, frame.FrameSize - sent);
             var transmissionArraySize = TransmissionVideoFrame.HeaderSize + packetSize;
             
             frameHeader.PacketSize = (ushort) transmissionArraySize;

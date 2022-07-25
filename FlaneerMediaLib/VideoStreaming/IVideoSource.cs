@@ -1,6 +1,6 @@
 ﻿using FlaneerMediaLib.VideoDataTypes;
 
-namespace FlaneerMediaLib
+namespace FlaneerMediaLib.VideoStreaming
 {
     /// <summary>
     /// Base interface for all video sources
@@ -21,8 +21,10 @@ namespace FlaneerMediaLib
         /// </summary>
         public bool Init(FrameSettings frameSettingsIn, ICodecSettings codecSettingsIn);
         /// <summary>
-        /// Returns a frame from the video source
+        /// Get a frame from the video source
         /// </summary>
-        IVideoFrame GetFrame();
+        /// <param name="frame">The frame if available</param>
+        /// <returns>true if there is a frame available</returns>
+         bool GetFrame(out IVideoFrame frame);
     }
 }

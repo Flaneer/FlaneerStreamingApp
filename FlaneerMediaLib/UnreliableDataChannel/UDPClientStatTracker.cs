@@ -1,6 +1,6 @@
 ﻿using FlaneerMediaLib.Logging;
 
-namespace FlaneerMediaLib;
+namespace FlaneerMediaLib.UnreliableDataChannel;
 
 /// <summary>
 /// Class that performs full logging of the UDP connection
@@ -10,12 +10,12 @@ public class UDPClientStatTracker
     private readonly Logger logger;
     private int packetCount;
     private int emptyPacketCount;
-    private SimpleMovingAverage bitrateAverage = new SimpleMovingAverage(5);
-    private SimpleMovingAverage latencyAverage = new SimpleMovingAverage(5);
+    private readonly SimpleMovingAverage bitrateAverage = new SimpleMovingAverage(5);
+    private readonly SimpleMovingAverage latencyAverage = new SimpleMovingAverage(5);
     private int lastSecond = DateTime.Now.Second;
-    private int bytesThisSecond = 0;
-    private uint lastPacket = 0;
-    private uint droppedPackets = 0;
+    private int bytesThisSecond;
+    private uint lastPacket;
+    private uint droppedPackets;
     
     /// <summary>
     /// ctor
@@ -41,15 +41,13 @@ public class UDPClientStatTracker
         long ticks = PacketInfoParser.TimeStamp(packet);
         var latencyTicks = DateTime.UtcNow.Ticks - ticks;
         var latency = TimeSpan.FromTicks(latencyAverage.Update(latencyTicks));
-        StatLogging.LogPerfStat("Latency", latency);
+        StatLogging.LogPerfStat("Latency(ms)", latency.Milliseconds);
 
         var packetId = PacketInfoParser.PacketId(packet);
         droppedPackets += packetId - (lastPacket + 1);
         lastPacket = packetId;
         StatLogging.LogPerfStat("Dropped Packets", droppedPackets);
-        
-        
-        StatLogging.LogPerfStat("Packets Received", ++packetCount);
+
         if (packet.Length == 0)
         {
             StatLogging.LogPerfStat("EmptyPackets", ++emptyPacketCount);

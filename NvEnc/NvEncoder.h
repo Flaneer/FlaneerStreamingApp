@@ -19,65 +19,8 @@
 #include <iostream>
 #include <sstream>
 #include <string.h>
-
-/**
-* @brief Exception class for error reporting from NvEncodeAPI calls.
-*/
-class NVENCException : public std::exception
-{
-public:
-    NVENCException(const std::string& errorStr, const NVENCSTATUS errorCode)
-        : m_errorString(errorStr), m_errorCode(errorCode) {}
-
-    virtual ~NVENCException() throw() {}
-    virtual const char* what() const throw() { return m_errorString.c_str(); }
-    NVENCSTATUS  getErrorCode() const { return m_errorCode; }
-    const std::string& getErrorString() const { return m_errorString; }
-    static NVENCException makeNVENCException(const std::string& errorStr, const NVENCSTATUS errorCode,
-        const std::string& functionName, const std::string& fileName, int lineNo);
-private:
-    std::string m_errorString;
-    NVENCSTATUS m_errorCode;
-};
-
-inline NVENCException NVENCException::makeNVENCException(const std::string& errorStr, const NVENCSTATUS errorCode, const std::string& functionName,
-    const std::string& fileName, int lineNo)
-{
-    std::ostringstream errorLog;
-    errorLog << functionName << " : " << errorStr << " at " << fileName << ":" << lineNo << std::endl;
-    NVENCException exception(errorLog.str(), errorCode);
-    return exception;
-}
-
-#define NVENC_THROW_ERROR( errorStr, errorCode )                                                         \
-    do                                                                                                   \
-    {                                                                                                    \
-        throw NVENCException::makeNVENCException(errorStr, errorCode, __FUNCTION__, __FILE__, __LINE__); \
-    } while (0)
-
-
-#define NVENC_API_CALL( nvencAPI )                                                                                 \
-    do                                                                                                             \
-    {                                                                                                              \
-        NVENCSTATUS errorCode = nvencAPI;                                                                          \
-        if( errorCode != NV_ENC_SUCCESS)                                                                           \
-        {                                                                                                          \
-            std::ostringstream errorLog;                                                                           \
-            errorLog << #nvencAPI << " returned error " << errorCode;                                              \
-            throw NVENCException::makeNVENCException(errorLog.str(), errorCode, __FUNCTION__, __FILE__, __LINE__); \
-        }                                                                                                          \
-    } while (0)
-
-struct NvEncInputFrame
-{
-    void* inputPtr = nullptr;
-    uint32_t chromaOffsets[2];
-    uint32_t numChromaPlanes;
-    uint32_t pitch;
-    uint32_t chromaPitch;
-    NV_ENC_BUFFER_FORMAT bufferFormat;
-    NV_ENC_INPUT_RESOURCE_TYPE resourceType;
-};
+#include "InteropStructs.h"
+#include "Utils.h"
 
 /**
 * @brief Shared base class for different encoder interfaces.
@@ -176,7 +119,7 @@ public:
     *  directly or override them with application-specific settings before
     *  using them in CreateEncoder() function.
     */
-    void CreateDefaultEncoderParams(NV_ENC_INITIALIZE_PARAMS* intializeParams, GUID codecGuid, GUID presetGuid);
+    void SetEncoderParams(NV_ENC_INITIALIZE_PARAMS* intializeParams, GUID codecGuid, GUID presetGuid);
 
     /**
     *  @brief  This function is used to get the current initialization parameters,
@@ -255,8 +198,7 @@ protected:
     *  @brief  NvEncoder class constructor.
     *  NvEncoder class constructor cannot be called directly by the application.
     */
-    NvEncoder(NV_ENC_DEVICE_TYPE deviceType, void *device, uint32_t width, uint32_t height,
-        NV_ENC_BUFFER_FORMAT bufferFormat, uint32_t outputDelay, bool motionEstimationOnly);
+    NvEncoder(NV_ENC_DEVICE_TYPE deviceType, void *device, EncInitSettings initSettings, uint32_t outputDelay, bool motionEstimationOnly);
 
     /**
     *  @brief This function is used to check if hardware encoder is properly initialized.

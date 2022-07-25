@@ -1,6 +1,6 @@
 ﻿using FlaneerMediaLib.VideoDataTypes;
 
-namespace FlaneerMediaLib;
+namespace FlaneerMediaLib.VideoStreaming;
 
 /// <summary>
 /// Uses local frames to emulate a UDP video source
@@ -10,7 +10,7 @@ public class LocalFramesVideoSource : IVideoSource
     private string framesPath = "";
     private string frameNameTemplate = "";
     private int numberOfLocalFrames;
-    private int currentFrame = 0;
+    private int currentFrame;
     
     private string FileNameFromIdx(int idx) => Path.Join(framesPath, frameNameTemplate.Replace("{}", $"{idx}"));
 
@@ -61,16 +61,17 @@ public class LocalFramesVideoSource : IVideoSource
     }
     
     /// <inheritdoc />
-    public IVideoFrame GetFrame()
+    public bool GetFrame(out IVideoFrame frame)
     {
         IterateCurrentFrame();
-        return new ManagedVideoFrame
+        frame = new ManagedVideoFrame
         {
             Codec = VideoCodec.H264,
             Height = (short) FrameSettings.Height,
             Width = (short) FrameSettings.Width,
             Stream = new MemoryStream(File.ReadAllBytes(FileNameFromIdx(currentFrame)))
         };
+        return true;
     }
     
     /// <inheritdoc />

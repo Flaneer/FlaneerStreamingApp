@@ -1,11 +1,11 @@
 ﻿using Silk.NET.OpenGL;
 
-namespace GLFWTestApp;
+namespace GLDisplayApp;
 
 public class Texture
 {
-    private uint handle;
-    private GL gl;
+    private readonly uint handle;
+    private readonly GL gl;
 
     public unsafe Texture(GLEnv GLIn, string path)
     {

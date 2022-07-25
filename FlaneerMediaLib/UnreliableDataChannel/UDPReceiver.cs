@@ -2,7 +2,7 @@
 using System.Net.Sockets;
 using FlaneerMediaLib.Logging;
 
-namespace FlaneerMediaLib;
+namespace FlaneerMediaLib.UnreliableDataChannel;
 
 /// <summary>
 /// Receives UDP network traffic
@@ -12,7 +12,7 @@ public class UDPReceiver : IService
     private readonly UdpClient listener;
     private IPEndPoint groupEP;
     
-    private Dictionary<PacketType, List<Action<byte[]>>> receptionTrafficDestinations = new();
+    private readonly Dictionary<PacketType, List<Action<byte[]>>> receptionTrafficDestinations = new();
     private bool receiving;
     private readonly Logger logger;
     private readonly UDPClientStatTracker clientStatTracker;

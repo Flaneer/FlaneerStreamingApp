@@ -1,7 +1,7 @@
 ﻿using FlaneerMediaLib.VideoDataTypes;
 using NvEncWrapper;
 
-namespace FlaneerMediaLib
+namespace FlaneerMediaLib.VideoStreaming
 {
     internal class NvEncVideoSource : IVideoSource, IEncoder
     {
@@ -26,6 +26,12 @@ namespace FlaneerMediaLib
                     throw new ArgumentOutOfRangeException(nameof(codecSettingsIn));
             }
             return Wrapper.Init(VideoUtils.FromFrameSettings(frameSettingsIn), VideoUtils.FromCodecSettings(codecSettingsIn));
+        }
+
+        public bool GetFrame(out IVideoFrame frame)
+        {
+            frame = GetFrame();
+            return true;
         }
 
         public IVideoFrame GetFrame()

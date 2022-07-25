@@ -1,12 +1,13 @@
 ﻿using FlaneerMediaLib;
 using System.Diagnostics;
 using FlaneerMediaLib.VideoDataTypes;
+using FlaneerMediaLib.VideoStreaming;
 
 namespace LocalMediaFileOut
 {
     internal class MP4VideoSink : IVideoSink
     {
-        IEncoder encoder;
+        readonly IEncoder encoder;
 
         public MP4VideoSink()
         {

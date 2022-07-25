@@ -1,6 +1,6 @@
 ﻿using System.Text;
 
-namespace FlaneerMediaLib;
+namespace FlaneerMediaLib.UnreliableDataChannel;
 
 /// <summary>
 /// This class is sent in response to a packet being received

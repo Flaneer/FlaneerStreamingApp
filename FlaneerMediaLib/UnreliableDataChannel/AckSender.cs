@@ -1,13 +1,13 @@
-﻿namespace FlaneerMediaLib;
+﻿namespace FlaneerMediaLib.UnreliableDataChannel;
 
 /// <summary>
 /// Sends Acks
 /// </summary>
 public class AckSender : IService
 {
-    private UDPSender udpSender;
+    private readonly UDPSender udpSender;
 
-    private List<UInt32> ackBuffer = new(){};
+    private readonly List<UInt32> ackBuffer = new(){};
 
     /// <summary>
     /// ctor

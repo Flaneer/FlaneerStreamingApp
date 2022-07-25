@@ -21,7 +21,7 @@
 class NvEncoderD3D11 : public NvEncoder
 {
 public:
-    NvEncoderD3D11(ID3D11Device* d3d11Device, uint32_t width, uint32_t height, NV_ENC_BUFFER_FORMAT bufferFormat, 
+    NvEncoderD3D11(ID3D11Device* d3d11Device, EncInitSettings initSettings,
         uint32_t extraOutputDelay = 3, bool motionEstimationOnly = false);
     virtual ~NvEncoderD3D11();
 private:

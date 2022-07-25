@@ -1,14 +1,13 @@
-﻿using System.Diagnostics;
-using FlaneerMediaLib.Logging;
+﻿using FlaneerMediaLib.Logging;
 
-namespace FlaneerMediaLib;
+namespace FlaneerMediaLib.UnreliableDataChannel;
 
 /// <summary>
 /// Receives acks and parses them
 /// </summary>
 public class AckReceiver : IService
 {
-    private Dictionary<int, bool> prevAcks = new ();
+    private readonly Dictionary<int, bool> prevAcks = new ();
     private readonly Logger logger;
 
     /// <summary>

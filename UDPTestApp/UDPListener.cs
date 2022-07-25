@@ -1,4 +1,7 @@
 ﻿using FlaneerMediaLib;
+using FlaneerMediaLib.VideoStreaming;
+
+namespace UDPTestApp;
 
 public class UDPListener
 {
@@ -16,51 +19,51 @@ public class UDPListener
         int it = 0;
 
         /*int it = 0;
-        while (it < 3)
+    while (it < 3)
+    {
+        try
         {
-            try
+            ManagedVideoFrame frame = videoSource.GetFrame() as ManagedVideoFrame;
+            if(frame.Stream.Length == 0)
+                continue;
+
+            MemoryStream outStream = new MemoryStream();
+
+            var task = ffMpeg.ConvertLiveMedia(frame.Stream, Format.h264, outStream, Format.mjpeg, new ConvertSettings
             {
-                ManagedVideoFrame frame = videoSource.GetFrame() as ManagedVideoFrame;
-                if(frame.Stream.Length == 0)
-                    continue;
+                CustomInputArgs = $"-video_size {videoSource.FrameSettings.Width}x{videoSource.FrameSettings.Height}"
+            });
 
-                MemoryStream outStream = new MemoryStream();
+            task.Start();
 
-                var task = ffMpeg.ConvertLiveMedia(frame.Stream, Format.h264, outStream, Format.mjpeg, new ConvertSettings
-                {
-                    CustomInputArgs = $"-video_size {videoSource.FrameSettings.Width}x{videoSource.FrameSettings.Height}"
-                });
-
-                task.Start();
-
-                File.WriteAllBytes($"{it++}.jpeg", outStream.GetBuffer());
-                
-                Console.WriteLine("------------------------------------------------------------");
-            }
-            catch (SocketException e)
-            {
-                Console.WriteLine(e);
-            }
-        }*/
+            File.WriteAllBytes($"{it++}.jpeg", outStream.GetBuffer());
+            
+            Console.WriteLine("------------------------------------------------------------");
+        }
+        catch (SocketException e)
+        {
+            Console.WriteLine(e);
+        }
+    }*/
     }
     
     /*using (Process myProcess = new Process())
-    {
-        myProcess.StartInfo.FileName = "ffprobe.exe";
-        myProcess.StartInfo.Arguments = " -i - -select_streams v -show_frames -of csv -show_entries frame=pict_type";
-        myProcess.StartInfo.UseShellExecute = false;
-        myProcess.StartInfo.RedirectStandardInput = true;
-        myProcess.StartInfo.RedirectStandardOutput = true;
+{
+    myProcess.StartInfo.FileName = "ffprobe.exe";
+    myProcess.StartInfo.Arguments = " -i - -select_streams v -show_frames -of csv -show_entries frame=pict_type";
+    myProcess.StartInfo.UseShellExecute = false;
+    myProcess.StartInfo.RedirectStandardInput = true;
+    myProcess.StartInfo.RedirectStandardOutput = true;
 
-        myProcess.Start();
+    myProcess.Start();
 
-        StreamWriter myStreamWriter = myProcess.StandardInput;
-        myStreamWriter.Write(frame.Stream.ToArray());
+    StreamWriter myStreamWriter = myProcess.StandardInput;
+    myStreamWriter.Write(frame.Stream.ToArray());
 
-        myProcess.OutputDataReceived += (sender, args) => Console.WriteLine($"FFPROBE: {args.Data}");
-                    
-        myStreamWriter.Close();
+    myProcess.OutputDataReceived += (sender, args) => Console.WriteLine($"FFPROBE: {args.Data}");
+                
+    myStreamWriter.Close();
 
-        myProcess.WaitForExit();
-    }*/
+    myProcess.WaitForExit();
+}*/
 }
