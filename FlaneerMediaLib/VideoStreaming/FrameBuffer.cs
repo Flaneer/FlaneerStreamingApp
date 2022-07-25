@@ -16,6 +16,9 @@ internal class FrameBuffer
     private readonly VideoCodec codec;
     private readonly Logger logger;
 
+    private int currentSecond = DateTime.Now.Second;
+    private int currentSecondBytesIn;
+    
     /// <summary>
     /// ctor
     /// </summary>
@@ -30,6 +33,18 @@ internal class FrameBuffer
     /// </summary>
     public void BufferFrame(byte[] framePacket)
     {
+        //Bandwidth measurements
+        if (DateTime.Now.Second == currentSecond)
+        {
+            currentSecondBytesIn += framePacket.Length;
+        }
+        else
+        {
+            logger.AmountStat("Bandwidth b/s", currentSecondBytesIn);
+            currentSecond = DateTime.Now.Second;
+            currentSecondBytesIn = 0;
+        }
+        
         TransmissionVideoFrame receivedFrame = TransmissionVideoFrame.FromUDPPacket(framePacket);
 
         //Check the frame is new, we dont want to do anything with old frames 
