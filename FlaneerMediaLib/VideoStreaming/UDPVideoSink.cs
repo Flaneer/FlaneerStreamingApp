@@ -18,6 +18,9 @@ public class UDPVideoSink : IVideoSink
     
     private readonly Logger logger;
 
+    private int encodeCount;
+    private TimeSpan totalEncodeTime;
+
     /// <summary>
     /// ctor
     /// </summary>
@@ -87,8 +90,15 @@ public class UDPVideoSink : IVideoSink
             try
             {
                 var startEncodeTime = DateTime.Now;
+                //Get a new frame
                 var frame = encoder.GetFrame();
-                logger.TimeStat("Encode", DateTime.Now - startEncodeTime);   
+                //Stats
+                var encodeTime = DateTime.Now - startEncodeTime;
+                logger.TimeStat("Encode", encodeTime);
+                encodeCount++;
+                totalEncodeTime += encodeTime;
+                logger.TimeStat("AverageEncodeTime", totalEncodeTime/encodeCount);
+                
                 if(frame is UnmanagedVideoFrame unmanagedFrame)
                     SendFrame(unmanagedFrame, frameTime);
             }
@@ -101,6 +111,7 @@ public class UDPVideoSink : IVideoSink
     }
 
     private int sentPacketCount;
+
     private unsafe void SendFrame(UnmanagedVideoFrame frame, TimeSpan frameTime)
     {
         using var uStream = new UnmanagedMemoryStream((byte*) frame.FrameData, frame.FrameSize);
