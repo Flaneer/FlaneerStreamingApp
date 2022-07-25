@@ -86,7 +86,9 @@ public class UDPVideoSink : IVideoSink
 
             try
             {
+                var startEncodeTime = DateTime.Now;
                 var frame = encoder.GetFrame();
+                logger.TimeStat("Encode", DateTime.Now - startEncodeTime);   
                 if(frame is UnmanagedVideoFrame unmanagedFrame)
                     SendFrame(unmanagedFrame, frameTime);
             }
