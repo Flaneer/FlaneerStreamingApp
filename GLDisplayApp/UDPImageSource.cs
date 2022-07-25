@@ -25,6 +25,8 @@ public class UDPImageSource
     private int decodeCount;
     private TimeSpan totalDecodeTime;
 
+    private bool alsoWriteToFile = false;
+
     public UDPImageSource()
     {
         logger = Logger.GetLogger(this);
@@ -68,8 +70,7 @@ public class UDPImageSource
                 
                 logger.Trace($"Decoding new frame of size {frame.Stream.Length}");
                 
-                if(!File.Exists("out.h264"))
-                    File.WriteAllBytes("out.h264",frame.Stream.ToArray());
+                WriteToFile(frame.Stream.ToArray());
 
                 var inStream = frame.Stream;
                 
@@ -104,5 +105,22 @@ public class UDPImageSource
         }
 
         return new UnsafeUnmanagedVideoFrame();
+    }
+
+    private void WriteToFile(byte[] frameBytes)
+    {
+        if (alsoWriteToFile)
+        {
+            try
+            {
+                var f = File.Open("out.h264", FileMode.Append);
+                f.Write(frameBytes);
+                f.Close();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+            }
+        }
     }
 }
