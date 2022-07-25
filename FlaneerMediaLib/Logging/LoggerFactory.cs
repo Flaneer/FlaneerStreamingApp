@@ -107,9 +107,15 @@ internal class LoggerFactory
         }
     }
 
-    internal void Time(string processName, TimeSpan timeTaken)
+    internal void TimeStat(string processName, TimeSpan timeTaken)
     {
         var message = $"{GetMarkupLogPrefix("bold blue", processName)} {timeTaken:ss:ffff}";
+        AnsiConsole.MarkupLine(message);
+    }
+
+    internal void AmountStat(string processName, double amount)
+    {
+        var message = $"{GetMarkupLogPrefix("bold blue", processName)} {amount:F2}";
         AnsiConsole.MarkupLine(message);
     }
 }

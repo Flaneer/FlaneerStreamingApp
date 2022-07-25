@@ -48,7 +48,12 @@ public class Logger
     public void Error(string error) => factory.Error(error, typeString);
 
     /// <summary>
-    /// Log a time for benchamrking
+    /// Log a time for benchamarking
     /// </summary>
-    public void Time(string processName, TimeSpan timeTaken) => factory.Time(processName, timeTaken);
+    public void TimeStat(string processName, TimeSpan timeTaken) => factory.TimeStat(processName, timeTaken);
+
+    /// <summary>
+    /// Log an amount for benchmarking
+    /// </summary>
+    public void AmountStat(string processName, double amount) => factory.AmountStat(processName, amount);
 }
