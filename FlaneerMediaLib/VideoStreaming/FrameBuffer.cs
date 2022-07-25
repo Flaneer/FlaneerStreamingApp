@@ -18,6 +18,9 @@ internal class FrameBuffer
 
     private int currentSecond = DateTime.Now.Second;
     private int currentSecondBytesIn;
+
+    private int packetCount;
+    private long totalBytesIn;
     
     /// <summary>
     /// ctor
@@ -34,13 +37,18 @@ internal class FrameBuffer
     public void BufferFrame(byte[] framePacket)
     {
         //Bandwidth measurements
+        packetCount++;
         if (DateTime.Now.Second == currentSecond)
         {
             currentSecondBytesIn += framePacket.Length;
         }
         else
         {
-            logger.AmountStat("Bandwidth b/s", currentSecondBytesIn);
+            logger.AmountStat("Bandwidth B/s", currentSecondBytesIn);
+
+            totalBytesIn += currentSecondBytesIn;
+            logger.AmountStat("Average Bandwidth B/s", totalBytesIn/packetCount);
+            
             currentSecond = DateTime.Now.Second;
             currentSecondBytesIn = 0;
         }

@@ -22,6 +22,9 @@ public class UDPImageSource
     private AVIOReader? avioReader;
     private VideoFrameConverter? vfc;
 
+    private int decodeCount;
+    private TimeSpan totalDecodeTime;
+
     public UDPImageSource()
     {
         logger = Logger.GetLogger(this);
@@ -77,7 +80,13 @@ public class UDPImageSource
                 
                 var decodeStartTime = DateTime.Now;
                 var convertedFrame = vfc!.Convert(vsd!.DecodeNextFrame());
-                logger.TimeStat("Decode Frame Time", DateTime.Now - decodeStartTime);
+                var decodeTime = DateTime.Now - decodeStartTime;
+                logger.TimeStat("Decode", decodeTime);
+
+                totalDecodeTime += decodeTime;
+                decodeCount++;
+                
+                logger.TimeStat("Average Decode", totalDecodeTime/decodeCount);
                 
                 var convertedFrameSize = convertedFrame.height * convertedFrame.linesize[0];
                 return new UnsafeUnmanagedVideoFrame()
