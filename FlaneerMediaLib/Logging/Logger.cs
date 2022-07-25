@@ -46,4 +46,9 @@ public class Logger
     /// Logs at the error level
     /// </summary>
     public void Error(string error) => factory.Error(error, typeString);
+
+    /// <summary>
+    /// Log a time for benchamrking
+    /// </summary>
+    public void Time(string processName, TimeSpan timeTaken) => factory.Time(processName, timeTaken);
 }
