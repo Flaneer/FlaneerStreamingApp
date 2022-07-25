@@ -109,7 +109,7 @@ internal class LoggerFactory
 
     internal void TimeStat(string processName, TimeSpan timeTaken)
     {
-        var message = $"{GetMarkupLogPrefix("bold blue", processName)} {timeTaken.ToString("ss:ffff")}";
+        var message = $"{GetMarkupLogPrefix("bold blue", processName)} {timeTaken}";
         AnsiConsole.MarkupLine(message);
     }
 
