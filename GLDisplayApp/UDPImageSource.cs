@@ -75,7 +75,10 @@ public class UDPImageSource
                 else
                     avioReader!.RefreshInputStream(inStream);
                 
+                var decodeStartTime = DateTime.Now;
                 var convertedFrame = vfc!.Convert(vsd!.DecodeNextFrame());
+                logger.TimeStat("Decode Frame Time", DateTime.Now - decodeStartTime);
+                
                 var convertedFrameSize = convertedFrame.height * convertedFrame.linesize[0];
                 return new UnsafeUnmanagedVideoFrame()
                 {
