@@ -22,6 +22,11 @@ public class UDPImageSource
     private AVIOReader? avioReader;
     private VideoFrameConverter? vfc;
 
+    private int decodeCount;
+    private TimeSpan totalDecodeTime;
+
+    private bool alsoWriteToFile = false;
+
     public UDPImageSource()
     {
         logger = Logger.GetLogger(this);
@@ -65,8 +70,7 @@ public class UDPImageSource
                 
                 logger.Trace($"Decoding new frame of size {frame.Stream.Length}");
                 
-                if(!File.Exists("out.h264"))
-                    File.WriteAllBytes("out.h264",frame.Stream.ToArray());
+                WriteToFile(frame.Stream.ToArray());
 
                 var inStream = frame.Stream;
                 
@@ -75,7 +79,16 @@ public class UDPImageSource
                 else
                     avioReader!.RefreshInputStream(inStream);
                 
+                var decodeStartTime = DateTime.Now;
                 var convertedFrame = vfc!.Convert(vsd!.DecodeNextFrame());
+                var decodeTime = DateTime.Now - decodeStartTime;
+                logger.TimeStat("Decode", decodeTime);
+
+                totalDecodeTime += decodeTime;
+                decodeCount++;
+                
+                logger.TimeStat("Average Decode", totalDecodeTime/decodeCount);
+                
                 var convertedFrameSize = convertedFrame.height * convertedFrame.linesize[0];
                 return new UnsafeUnmanagedVideoFrame()
                 {
@@ -92,5 +105,22 @@ public class UDPImageSource
         }
 
         return new UnsafeUnmanagedVideoFrame();
+    }
+
+    private void WriteToFile(byte[] frameBytes)
+    {
+        if (alsoWriteToFile)
+        {
+            try
+            {
+                var f = File.Open("out.h264", FileMode.Append);
+                f.Write(frameBytes);
+                f.Close();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+            }
+        }
     }
 }

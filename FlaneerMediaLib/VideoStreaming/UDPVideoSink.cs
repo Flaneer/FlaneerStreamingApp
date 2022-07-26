@@ -18,6 +18,9 @@ public class UDPVideoSink : IVideoSink
     
     private readonly Logger logger;
 
+    private int encodeCount;
+    private TimeSpan totalEncodeTime;
+
     /// <summary>
     /// ctor
     /// </summary>
@@ -86,7 +89,16 @@ public class UDPVideoSink : IVideoSink
 
             try
             {
+                var startEncodeTime = DateTime.Now;
+                //Get a new frame
                 var frame = encoder.GetFrame();
+                //Stats
+                var encodeTime = DateTime.Now - startEncodeTime;
+                logger.TimeStat("Encode", encodeTime);
+                encodeCount++;
+                totalEncodeTime += encodeTime;
+                logger.TimeStat("AverageEncodeTime", totalEncodeTime/encodeCount);
+                
                 if(frame is UnmanagedVideoFrame unmanagedFrame)
                     SendFrame(unmanagedFrame, frameTime);
             }
@@ -99,11 +111,15 @@ public class UDPVideoSink : IVideoSink
     }
 
     private int sentPacketCount;
+    private bool alsoWriteToFile  = false;
+
     private unsafe void SendFrame(UnmanagedVideoFrame frame, TimeSpan frameTime)
     {
         using var uStream = new UnmanagedMemoryStream((byte*) frame.FrameData, frame.FrameSize);
         var frameBytes = new byte[frame.FrameSize];
         uStream.Read(frameBytes, 0, frame.FrameSize);
+
+        WriteToFile(frameBytes);
         
         var numberOfPackets = (byte) Math.Ceiling((double)frame.FrameSize / VideoUtils.FRAMEWRITABLESIZE);
         
@@ -143,5 +159,22 @@ public class UDPVideoSink : IVideoSink
             Thread.Sleep(frameTime/numberOfPackets);
         }
         nextFrame++;
+    }
+    
+    private void WriteToFile(byte[] frameBytes)
+    {
+        if (alsoWriteToFile)
+        {
+            try
+            {
+                var f = File.Open("in.h264", FileMode.Append);
+                f.Write(frameBytes);
+                f.Close();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+            }
+        }
     }
 }

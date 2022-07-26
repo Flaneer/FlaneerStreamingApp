@@ -106,4 +106,16 @@ internal class LoggerFactory
             AnsiConsole.WriteLine(message);
         }
     }
+
+    internal void TimeStat(string processName, TimeSpan timeTaken)
+    {
+        var message = $"{GetMarkupLogPrefix("bold blue", processName)} {timeTaken}";
+        AnsiConsole.MarkupLine(message);
+    }
+
+    internal void AmountStat(string processName, double amount)
+    {
+        var message = $"{GetMarkupLogPrefix("bold blue", processName)} {amount:F2}";
+        AnsiConsole.MarkupLine(message);
+    }
 }

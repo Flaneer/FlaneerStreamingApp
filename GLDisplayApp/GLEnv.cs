@@ -26,6 +26,9 @@ public class GLEnv
     private int framesDisplayed;
 
     private Logger logger;
+    
+    private int currentSecond = DateTime.Now.Second;
+    private int currentSecondFramesDisplayed;
 
     // OpenGL has image origin in the bottom-left corner.
     private static readonly float[] ScreenSpaceQuadVertices =
@@ -93,8 +96,21 @@ public class GLEnv
         {
             var frame = imageSource.GetImage();
             if(frame.Height != 0)
+            {
                 Gl.TexImage2D(TextureTarget.Texture2D, 0, InternalFormat.Rgba, (uint) frame.Width, (uint) frame.Height, 0,
-                            PixelFormat.Rgb, PixelType.UnsignedByte, frame.FrameData);
+                    PixelFormat.Rgb, PixelType.UnsignedByte, frame.FrameData);
+                
+                if (currentSecond == DateTime.Now.Second)
+                {
+                    currentSecondFramesDisplayed++;
+                }
+                else
+                {
+                    logger.AmountStat("FPS", currentSecondFramesDisplayed);
+                    currentSecond = DateTime.Now.Second;
+                    currentSecondFramesDisplayed = 0;
+                }
+            }
         }
 
         window.Title = "Flaneer Streaming: " + StatLogging.GetPerfStats();
