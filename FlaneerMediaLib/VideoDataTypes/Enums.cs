@@ -12,6 +12,7 @@ namespace FlaneerMediaLib.VideoDataTypes;
 public enum VideoSource : byte
 {
     NvEncH264,
+    ffmpegH264,
     UDPH264,
     TestH264
 }

@@ -1,5 +1,6 @@
 ﻿using FlaneerMediaLib.VideoDataTypes;
 using FlaneerMediaLib.VideoStreaming;
+using FlaneerMediaLib.VideoStreaming.ffmpeg;
 
 namespace FlaneerMediaLib;
 
@@ -29,6 +30,9 @@ public class MediaEncoderLifeCycleManager : IDisposable
             case VideoSource.TestH264:
                 this.videoSource = new LocalFramesVideoSource();
                 ServiceRegistry.AddService(this.videoSource);
+                break;
+            case VideoSource.ffmpegH264:
+                this.videoSource = new DesktopCapture();
                 break;
             default:
                 throw new ArgumentOutOfRangeException(nameof(videoSource), videoSource, null);
