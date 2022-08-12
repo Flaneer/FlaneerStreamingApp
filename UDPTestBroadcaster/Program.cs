@@ -35,7 +35,7 @@ class Program
             Format = videoSettings.Format,
             GoPLength = (short)videoSettings.GoPLength
         };
-        MediaEncoderLifeCycleManager encoderLifeCycleManager = new MediaEncoderLifeCycleManager(VideoSource.NvEncH264);
+        MediaEncoderLifeCycleManager encoderLifeCycleManager = new MediaEncoderLifeCycleManager(VideoSource.ffmpegH264);
         encoderLifeCycleManager.InitVideoSource(frameSettings, codecSettings);
     }
 }

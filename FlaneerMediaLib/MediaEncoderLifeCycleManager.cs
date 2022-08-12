@@ -33,6 +33,7 @@ public class MediaEncoderLifeCycleManager : IDisposable
                 break;
             case VideoSource.ffmpegH264:
                 this.videoSource = new DesktopCapture();
+                ServiceRegistry.AddService(this.videoSource);
                 break;
             default:
                 throw new ArgumentOutOfRangeException(nameof(videoSource), videoSource, null);
