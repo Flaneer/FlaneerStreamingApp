@@ -1,4 +1,5 @@
-﻿using FFmpeg.AutoGen;
+﻿using System.Diagnostics.CodeAnalysis;
+using FFmpeg.AutoGen;
 using FlaneerMediaLib.VideoDataTypes;
 using FF = FFmpeg.AutoGen.ffmpeg;
 
@@ -7,149 +8,380 @@ namespace FlaneerMediaLib.VideoStreaming.ffmpeg;
 /// <summary>
 /// 
 /// </summary>
-public unsafe class DesktopCapture : IVideoSource
+public unsafe class DesktopCapture : IVideoSource, IEncoder
 {
+    private int videoStreamIndx;
+    private AVFormatContext* ifmtCtx;
+    private AVCodecContext* avcodecContx;
+    private AVFormatContext* ofmtCtx;
+    private AVStream* videoStream;
+    private AVCodecContext* avCntxOut;
+    private AVPacket* avPkt;
+    private AVFrame* avFrame;
+    private AVFrame* outFrame;
+    private SwsContext* swsCtx;
+    private int encPacketCounter;
+
     /// <inheritdoc />
     public ICodecSettings CodecSettings { get; private set; }
 
     /// <inheritdoc />
     public FrameSettings FrameSettings { get; private set; }
-    
-    private AVFormatContext *pFormatCtx;
-    private AVCodecContext *pCodecCtx;
-    private AVCodec *pCodec;
-    
-    private AVFrame* framePtr;
-    private AVPacket* packetPtr;
-    
-    int i, videoindex;
+
     /// <summary>
     /// ctor
     /// </summary>
     public DesktopCapture()
     {
+        FF.avdevice_register_all();
     }
-    
+
     /// <inheritdoc />
     public bool Init(FrameSettings frameSettingsIn, ICodecSettings codecSettingsIn)
     {
-        FrameSettings = frameSettingsIn;
         CodecSettings = codecSettingsIn;
+        //TODO: if is h264 etc...
+        FrameSettings = frameSettingsIn;
         
-        var ctx = FF.avformat_alloc_context();
-        
-        //Use gdigrab
-        AVDictionary* options;
-        FF.av_dict_set(&options,"framerate",$"{frameSettingsIn.MaxFPS}",0);
-        FF.av_dict_set(&options,"video_size",$"{frameSettingsIn.Width}x{frameSettingsIn.Height}",0);
-        AVInputFormat *ifmt = FF.av_find_input_format("gdigrab");
-        FF.avformat_open_input(&ctx, "desktop", ifmt, &options);
+        AVCodecParameters* avCodecParOut = ConfigureAvCodec();
 
-        FF.avformat_find_stream_info(pFormatCtx, null);
-        
-        videoindex=-1;
-        for(i=0; i<pFormatCtx->nb_streams; i++)
+        AVDictionary* options = ConfigureScreenCapture();
+
+        AVInputFormat* ifmt = FF.av_find_input_format("gdigrab");
+        var ifmtCtxLocal = FF.avformat_alloc_context();
+        if (FF.avformat_open_input(&ifmtCtxLocal, "desktop", ifmt, &options) < 0)
         {
-            if(pFormatCtx->streams[i]->codecpar->codec_type == AVMediaType.AVMEDIA_TYPE_VIDEO)
+            Console.Error.WriteLine("Error in opening file");
+            return false;
+        }
+        ifmtCtx = ifmtCtxLocal;
+        
+        videoStreamIndx = GetVideoStreamIndex();
+
+        AVCodecParameters* avCodecParIn = FF.avcodec_parameters_alloc();
+        avCodecParIn = ifmtCtx->streams[videoStreamIndx]->codecpar;
+        
+        AVCodec* avCodec = FF.avcodec_find_decoder(avCodecParIn->codec_id);
+        if (avCodec == null)
+        {
+            Console.Error.WriteLine("unable to find the decoder");
+            return false;
+        }
+
+        avcodecContx = FF.avcodec_alloc_context3(avCodec);
+        if (FF.avcodec_parameters_to_context(avcodecContx, avCodecParIn) < 0)
+        {
+            Console.Error.WriteLine("error in converting the codec contexts");
+            return false;
+        }
+
+        //av_dict_set
+        int value = FF.avcodec_open2(avcodecContx, avCodec, null); //Initialize the AVCodecContext to use the given AVCodec.
+        if (value < 0)
+        {
+            Console.Error.WriteLine("unable to open the av codec");
+            return false;
+        }
+        
+        AVOutputFormat* ofmt = FF.av_guess_format("h264", null, null);
+        
+        if (ofmt == null)
+        {
+            Console.Error.WriteLine("error in guessing the video format. try with correct format");
+            return false;
+        }
+
+        var ofmtCtxLocal = FF.avformat_alloc_context();
+        FF.avformat_alloc_output_context2(&ofmtCtxLocal, ofmt, null, null);
+        if (ofmtCtxLocal == null)
+        {
+            Console.Error.WriteLine("error in allocating av format output context");
+            return false;
+        }
+        ofmtCtx = ofmtCtxLocal;
+
+        AVCodec* avCodecOut = FF.avcodec_find_encoder(avCodecParOut->codec_id);
+        if (avCodecOut == null)
+        {
+            Console.Error.WriteLine("unable to find the encoder");
+            return false;
+        }
+
+        videoStream = FF.avformat_new_stream(ofmtCtx, avCodecOut);
+        if (videoStream == null)
+        {
+            Console.Error.WriteLine("error in creating a av format new stream");
+            return false;
+        }
+
+        avCntxOut = FF.avcodec_alloc_context3(avCodecOut);
+        if (avCntxOut == null)
+        {
+            Console.Error.WriteLine("error in allocating the codec contexts");
+            return false;
+        }
+
+        if (FF.avcodec_parameters_copy(videoStream->codecpar, avCodecParOut) < 0)
+        {
+            Console.Error.WriteLine("Codec parameter cannot copied");
+            return false;
+        }
+
+        if (FF.avcodec_parameters_to_context(avCntxOut, avCodecParOut) < 0)
+        {
+            Console.Error.WriteLine("error in converting the codec contexts");
+            return false;
+        }
+
+        avCntxOut->gop_size = 30; //3; //Use I-Frame frame every 30 frames.
+        avCntxOut->max_b_frames = 0;
+        avCntxOut->time_base.num = 1;
+        avCntxOut->time_base.den = FrameSettings.MaxFPS;
+        
+        //ffmpeg.avio_open(&ofmtCtx->pb, "", ffmpeg.AVIO_FLAG_READ_WRITE);
+        
+        if (FF.avformat_write_header(ofmtCtx, null) < 0)
+        {
+            Console.Error.WriteLine("error in writing the header context");
+            return false;
+        }
+
+        value = FF.avcodec_open2(avCntxOut, avCodecOut, null); //Initialize the AVCodecContext to use the given AVCodec.
+        if (value < 0)
+        {
+            Console.Error.WriteLine("unable to open the av codec");
+            return false;
+        }
+
+        if (avcodecContx->codec_id == AVCodecID.AV_CODEC_ID_H264)
+        {
+            FF.av_opt_set(avCntxOut->priv_data, "preset", "ultrafast", 0);
+            FF.av_opt_set(avCntxOut->priv_data, "tune", "zerolatency", 0);
+        }
+
+        if ((ofmtCtx->oformat->flags & FF.AVFMT_GLOBALHEADER) != 0)
+        {
+            avCntxOut->flags |= FF.AV_CODEC_FLAG_GLOBAL_HEADER;
+        }
+        
+        CreateFrames(avCodecParIn, avCodecParOut);
+
+        swsCtx = FF.sws_alloc_context();
+        if (FF.sws_init_context(swsCtx, null, null) < 0)
+        {
+            Console.Error.WriteLine("Unable to Initialize the swscaler context sws_context.");
+            return false;
+        }
+
+        swsCtx = FF.sws_getContext(avcodecContx->width, avcodecContx->height, avcodecContx->pix_fmt,
+            avCntxOut->width, avCntxOut->height, avCntxOut->pix_fmt, FF.SWS_FAST_BILINEAR,
+            null, null, null);
+        if (swsCtx == null)
+        {
+            Console.Error.WriteLine(" Cannot allocate SWC Context");
+            return false;
+        }
+
+        return true;
+    }
+
+
+    /// <inheritdoc />
+    public bool GetFrame(out IVideoFrame frame)
+    {
+        frame = GetFrame();
+        return frame != new UnmanagedVideoFrame();
+    }
+
+    /// <inheritdoc />
+    public IVideoFrame GetFrame()
+    {
+        var frame = CaptureEncodedFrame();
+        if (frame.Item1 == IntPtr.Zero)
+            return new UnmanagedVideoFrame();
+        return new UnmanagedVideoFrame()
+        {
+            Codec = VideoCodec.H264, //TODO: Set this better
+            Height = (short) FrameSettings.Height,
+            Width = (short) FrameSettings.Width,
+            FrameData = frame.Item1,
+            FrameSize = frame.Item2
+        };
+    }
+    
+    private Tuple<IntPtr, int> CaptureEncodedFrame()
+    {
+        Tuple<IntPtr, int> ret = new Tuple<IntPtr, int>(IntPtr.Zero, 0);
+        
+        avPkt = FF.av_packet_alloc();
+        AVPacket* outPacket = FF.av_packet_alloc();
+        
+        while (FF.av_read_frame(ifmtCtx, avPkt) >= 0)
+        {
+            if (avPkt->stream_index != videoStreamIndx) continue;
+            
+            FF.avcodec_send_packet(avcodecContx, avPkt);
+            if (FF.avcodec_receive_frame(avcodecContx, avFrame) >= 0) // Frame successfully decoded :)
             {
-                videoindex=i;
+                outPacket->data = null; // packet data will be allocated by the encoder
+                outPacket->size = 0;
+
+                outPacket->pts = FF.av_rescale_q(encPacketCounter, avCntxOut->time_base, videoStream->time_base);
+                if (outPacket->dts != FF.AV_NOPTS_VALUE)
+                    outPacket->dts = FF.av_rescale_q(encPacketCounter, avCntxOut->time_base, videoStream->time_base);
+                
+                outPacket->dts = FF.av_rescale_q(encPacketCounter, avCntxOut->time_base, videoStream->time_base);
+                outPacket->duration = FF.av_rescale_q(1, avCntxOut->time_base, videoStream->time_base);
+                
+                outFrame->pts = FF.av_rescale_q(encPacketCounter, avCntxOut->time_base, videoStream->time_base);
+                outFrame->pkt_duration = FF.av_rescale_q(encPacketCounter, avCntxOut->time_base, videoStream->time_base);
+                encPacketCounter++;
+                
+                int sts = FF.sws_scale(swsCtx,
+                    avFrame->data, avFrame->linesize,  0, avFrame->height,
+                    outFrame->data, outFrame->linesize);
+
+                if (sts < 0)
+                    Console.Error.WriteLine("Error while executing sws_scale");
+
+                /* make sure the frame data is writable */
+                var err = FF.av_frame_make_writable(outFrame);
+                if (err < 0)
+                    break;
+                ret = Encode(avCntxOut, outFrame, outPacket);
+            }
+            FF.av_frame_unref(avFrame);
+            FF.av_packet_unref(avPkt);
+        }
+
+        return ret;
+    }
+    
+    private Tuple<IntPtr, int> Encode(AVCodecContext *encCtx, AVFrame *frame, AVPacket *pkt)
+    {
+        /* send the frame to the encoder */
+        int err = FF.avcodec_send_frame(encCtx, frame);
+        if (err < 0) 
+        {
+            Console.Error.WriteLine("error sending a frame for encoding");
+            return new Tuple<IntPtr, int>(IntPtr.Zero, 0);
+        }
+
+        while (true) 
+        {
+            err = FF.avcodec_receive_packet(encCtx, pkt);
+            if (err == FF.AVERROR(FF.EAGAIN) || err == FF.AVERROR_EOF)
+                return new Tuple<IntPtr, int>(IntPtr.Zero, 0);
+            if (err < 0)
+            {
+                Console.Error.WriteLine("error during encoding");
+                return new Tuple<IntPtr, int>(IntPtr.Zero, 0);
+            }
+
+            Console.WriteLine($"encoded frame {pkt->pts} (size={pkt->size})");
+            FF.av_packet_unref(pkt);
+            return new Tuple<IntPtr, int>((IntPtr)pkt->data, pkt->size);
+        }
+    }
+    
+    [return: MaybeNull]
+    private AVDictionary* ConfigureScreenCapture()
+    {
+        AVDictionary* options = null;
+        //Try adding "-rtbufsize 100M" as in https://stackoverflow.com/questions/6766333/capture-windows-screen-with-ffmpeg
+        FF.av_dict_set(&options, "rtbufsize", "100M", 0);
+        FF.av_dict_set(&options, "framerate", FrameSettings.MaxFPS.ToString(), 0);
+        FF.av_dict_set(&options, "video_size", FrameSettings.Width + "x" + FrameSettings.Height, 0);
+        return options;
+    }
+
+    private AVCodecParameters* ConfigureAvCodec()
+    {
+        AVCodecParameters* avCodecParOut = FF.avcodec_parameters_alloc();
+        avCodecParOut->width = FrameSettings.Width;
+        avCodecParOut->height = FrameSettings.Height;
+        avCodecParOut->bit_rate = 40000;
+        avCodecParOut->codec_id = AVCodecID.AV_CODEC_ID_H264; //TODO: Set this better
+        avCodecParOut->codec_type = AVMediaType.AVMEDIA_TYPE_VIDEO;
+        avCodecParOut->format = 0;
+        return avCodecParOut;
+    }
+
+    private int GetVideoStreamIndex()
+    {
+        int videoStreamIdx = -1;
+        FF.avformat_find_stream_info(ifmtCtx, null);
+        /* find the first video stream index . Also there is an API available to do the below operations */
+        for (int i = 0; i < (int) ifmtCtx->nb_streams; i++) // find video stream position/index.
+        {
+            if (ifmtCtx->streams[i]->codecpar->codec_type == AVMediaType.AVMEDIA_TYPE_VIDEO)
+            {
+                videoStreamIdx = i;
                 break;
             }
         }
 
-        if(videoindex==-1)
+        if (videoStreamIdx == -1)
         {
-            return false;
+            Console.Error.WriteLine("unable to find the video stream index. (-1)");
         }
-        
-        pCodec = FF.avcodec_find_encoder(AVCodecID.AV_CODEC_ID_H264);
-        
-        pCodecCtx = FF.avcodec_alloc_context3(pCodec);
-        
-        pCodec=FF.avcodec_find_decoder(pCodecCtx->codec_id);
-        
-        FF.avcodec_open2(pCodecCtx, pCodec, null);
-        
-        framePtr = FF.av_frame_alloc();
-        packetPtr = FF.av_packet_alloc();
-        
-        pFormatCtx = ctx;
-        
-        return true;
+
+        return videoStreamIdx;
+    }
+
+    private void CreateFrames(AVCodecParameters* avCodecParIn, AVCodecParameters* avCodecParOut)
+    {
+
+        avFrame = FF.av_frame_alloc();
+        avFrame->width = avcodecContx->width;
+        avFrame->height = avcodecContx->height;
+        avFrame->format = avCodecParIn->format;
+        FF.av_frame_get_buffer(avFrame, 0);
+
+        outFrame = FF.av_frame_alloc();
+        outFrame->width = avCntxOut->width;
+        outFrame->height = avCntxOut->height;
+        outFrame->format = avCodecParOut->format;
+        FF.av_frame_get_buffer(outFrame, 0);
     }
 
     /// <inheritdoc />
     public void Dispose()
     {
-        var pFrame = framePtr;
-        FF.av_frame_free(&pFrame);
-
-        var pPacket = packetPtr;
-        FF.av_packet_free(&pPacket);
-
-        FF.avcodec_close(pCodecCtx);
-        var pFormatContext = pFormatCtx;
-        FF.avformat_close_input(&pFormatContext);
-    }
-    
-    /// <inheritdoc />
-    public bool GetFrame(out IVideoFrame frame)
-    {
-        var avFrame = EncodeDesktopFrame();
-        var convertedFrameSize = avFrame.height * avFrame.linesize[0];
-        if (avFrame.height == FrameSettings.Height)
+        var ifmtCtxLocal = ifmtCtx;
+        FF.avformat_close_input(&ifmtCtxLocal);
+        if (ifmtCtxLocal == null)
         {
-            frame = new UnmanagedVideoFrame()
-            {
-                Codec = VideoCodec.H264,
-                Height = (short)FrameSettings.Height,
-                Width = (short)FrameSettings.Width,
-                FrameData = (IntPtr)avFrame.data[0],
-                FrameSize = convertedFrameSize
-                
-            };
-            return true;
+            Console.Error.WriteLine("file closed successfully");
         }
         else
         {
-            frame = new UnmanagedVideoFrame();
-            return false;
+            Console.Error.WriteLine("unable to close the file");
+            return;
         }
-    }
-    
-    /// <summary>
-    /// Capture and encode a frame from desktop capture
-    /// </summary>
-    private AVFrame EncodeDesktopFrame()
-    {
-        FF.av_frame_unref(framePtr);
 
-        int error;
-        do
+        FF.avformat_free_context(ifmtCtxLocal);
+        if (ifmtCtxLocal == null)
         {
-            try
-            {
-                do
-                {
-                    FF.av_packet_unref(packetPtr);
-                    error = FF.av_read_frame(pFormatCtx, packetPtr);
+            Console.Error.WriteLine("avformat free successfully");
+        }
+        else
+        {
+            Console.Error.WriteLine("unable to free avformat context");
+            return;
+        }
 
-                    if (error == FF.AVERROR_EOF)
-                    {
-                        throw new Exception("error == ffmpeg.AVERROR_EOF");
-                    }
-                } while (packetPtr->stream_index != 0);
+        //Free codec context.
+        var avCntxOutLocal = avcodecContx;
+        FF.avcodec_free_context(&avCntxOutLocal);
 
-                FF.avcodec_send_packet(pCodecCtx, packetPtr);
-            }
-            finally
-            {
-                FF.av_packet_unref(packetPtr);
-            }
-
-            error = FF.avcodec_receive_frame(pCodecCtx, framePtr);
-        } while (error == FF.AVERROR(FF.EAGAIN));
-
-        return *framePtr;
+        if (avCntxOutLocal == null)
+        {
+            Console.Error.WriteLine("avcodec free successfully");
+        }
+        else
+        {
+            Console.Error.WriteLine("unable to free avcodec context");
+        }
     }
 }
