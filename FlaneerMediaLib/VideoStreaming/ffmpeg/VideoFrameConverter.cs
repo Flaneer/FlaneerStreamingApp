@@ -25,23 +25,16 @@ namespace FlaneerMediaLib.VideoStreaming.ffmpeg
         {
             this.destinationSize = destinationSize;
 
-            pConvertContext = FF.sws_getContext(sourceSize.Width,
-                sourceSize.Height,
-                sourcePixelFormat,
-                destinationSize.Width,
-                destinationSize.Height,
-                destinationPixelFormat,
-                FF.SWS_FAST_BILINEAR,
-                null,
-                null,
-                null);
+            pConvertContext = FF.sws_getContext(sourceSize.Width, sourceSize.Height, sourcePixelFormat,
+                destinationSize.Width, destinationSize.Height, destinationPixelFormat,
+                FF.SWS_FAST_BILINEAR, null, null, null);
+            
             if (pConvertContext == null)
                 throw new ApplicationException("Could not initialize the conversion context.");
 
             var convertedFrameBufferSize = FF.av_image_get_buffer_size(destinationPixelFormat,
-                destinationSize.Width,
-                destinationSize.Height,
-                1);
+                destinationSize.Width, destinationSize.Height, 1);
+            
             convertedFrameBufferPtr = Marshal.AllocHGlobal(convertedFrameBufferSize);
             dstData = new byte_ptrArray4();
             dstLinesize = new int_array4();
