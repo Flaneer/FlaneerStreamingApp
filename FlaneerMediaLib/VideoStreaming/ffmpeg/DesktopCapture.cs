@@ -156,7 +156,8 @@ public unsafe class DesktopCapture : IVideoSource, IEncoder
         if (avcodecContx->codec_id == AVCodecID.AV_CODEC_ID_H264)
         {
             FF.av_opt_set(avCntxOut->priv_data, "preset", "ultrafast", 0);
-            FF.av_opt_set(avCntxOut->priv_data, "tune", "zerolatency", 0);
+            FF.av_opt_set(avCntxOut->priv_data, "zerolatency", "1", 0);
+            FF.av_opt_set(avCntxOut->priv_data, "tune", "ull", 0);
         }
 
         if ((ofmtCtx->oformat->flags & FF.AVFMT_GLOBALHEADER) != 0)
@@ -249,6 +250,10 @@ public unsafe class DesktopCapture : IVideoSource, IEncoder
                 if (err < 0)
                     break;
                 ret = Encode(avCntxOut, outFrame, outPacket);
+                if (ret.Item1 == IntPtr.Zero)
+                    continue;
+                else
+                    return ret;
             }
             FF.av_frame_unref(avFrame);
             FF.av_packet_unref(avPkt);
@@ -259,6 +264,7 @@ public unsafe class DesktopCapture : IVideoSource, IEncoder
     
     private Tuple<IntPtr, int> Encode(AVCodecContext *encCtx, AVFrame *frame, AVPacket *pkt)
     {
+        FF.av_packet_unref(pkt);
         /* send the frame to the encoder */
         int err = FF.avcodec_send_frame(encCtx, frame);
         if (err < 0) 
@@ -279,7 +285,6 @@ public unsafe class DesktopCapture : IVideoSource, IEncoder
             }
 
             Console.WriteLine($"encoded frame {pkt->pts} (size={pkt->size})");
-            FF.av_packet_unref(pkt);
             return new Tuple<IntPtr, int>((IntPtr)pkt->data, pkt->size);
         }
     }
