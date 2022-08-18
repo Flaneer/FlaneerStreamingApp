@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics.CodeAnalysis;
+using System.Drawing;
 using FFmpeg.AutoGen;
 using FlaneerMediaLib.Logging;
 using FlaneerMediaLib.VideoDataTypes;
@@ -25,6 +26,7 @@ public unsafe class DesktopCapture : IVideoSource, IEncoder
 
     private FileStream fs = new FileStream("testOut.h264", FileMode.Create);
     private readonly Logger logger;
+    private VideoFrameConverter vfc;
 
     /// <inheritdoc />
     public ICodecSettings CodecSettings { get; private set; }
@@ -38,6 +40,7 @@ public unsafe class DesktopCapture : IVideoSource, IEncoder
     public DesktopCapture()
     {
         logger = Logger.GetLogger(this);
+
         FF.avdevice_register_all();
     }
 
@@ -188,6 +191,11 @@ public unsafe class DesktopCapture : IVideoSource, IEncoder
             return false;
         }
 
+        
+        var size = new Size(1920, 1080);
+        var destinationPixelFormat = AVPixelFormat.AV_PIX_FMT_RGB24;
+        vfc = new VideoFrameConverter(size, avcodecContx->pix_fmt, size, destinationPixelFormat);
+        
         return true;
     }
 
@@ -205,14 +213,24 @@ public unsafe class DesktopCapture : IVideoSource, IEncoder
         var frame = CaptureEncodedFrame();
         if (frame.Item1 == IntPtr.Zero)
             return new UnmanagedVideoFrame();
-        return new UnmanagedVideoFrame()
+
+        return new UnsafeUnmanagedVideoFrame()
+        {
+            Codec = VideoCodec.H264, //TODO: Set this better
+            Height = (short) FrameSettings.Height,
+            Width = (short) FrameSettings.Width,
+            FrameData = (byte*) frame.Item1,
+            FrameSize = frame.Item2
+        };
+
+        /*return new UnmanagedVideoFrame()
         {
             Codec = VideoCodec.H264, //TODO: Set this better
             Height = (short) FrameSettings.Height,
             Width = (short) FrameSettings.Width,
             FrameData = frame.Item1,
             FrameSize = frame.Item2
-        };
+        };*/
     }
     
     private Tuple<IntPtr, int> CaptureEncodedFrame()
@@ -221,6 +239,13 @@ public unsafe class DesktopCapture : IVideoSource, IEncoder
         
         avPkt = FF.av_packet_alloc();
         AVPacket* outPacket = FF.av_packet_alloc();
+        
+        FF.av_read_frame(ifmtCtx, avPkt);
+        FF.avcodec_send_packet(avcodecContx, avPkt);
+        FF.avcodec_receive_frame(avcodecContx, avFrame);
+        var f = vfc.Convert(*avFrame);
+        ret = new Tuple<IntPtr, int>((IntPtr)f.data[0], f.pkt_size);
+        return ret;
         
         while (FF.av_read_frame(ifmtCtx, avPkt) >= 0)
         {

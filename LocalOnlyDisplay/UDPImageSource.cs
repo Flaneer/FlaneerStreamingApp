@@ -55,6 +55,10 @@ public class UDPImageSource
                 if(!frameAvailable)
                     return new UnsafeUnmanagedVideoFrame();
 
+                var unsafeUnmanagedFrame = frameIn as UnsafeUnmanagedVideoFrame;
+                if (unsafeUnmanagedFrame != null)
+                    return unsafeUnmanagedFrame;
+                
                 var unmanagedFrame = frameIn as UnmanagedVideoFrame;
                 if (unmanagedFrame == null)
                     throw new Exception("Trying to use wrong frame type in ImageDecode");
@@ -76,7 +80,7 @@ public class UDPImageSource
                 if (frame.Stream == null)
                     throw new Exception("Frame passed with empty stream");
                 
-                logger.Trace($"Decoding new frame of size {frame.Stream.Length}");
+                //logger.Trace($"Decoding new frame of size {frame.Stream.Length}");
                 
                 if(!File.Exists("out.h264"))
                     File.WriteAllBytes("out.h264",frame.Stream.ToArray());
