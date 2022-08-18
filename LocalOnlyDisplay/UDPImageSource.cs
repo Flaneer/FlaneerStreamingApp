@@ -54,8 +54,21 @@ public class UDPImageSource
                 var frameAvailable = videoSource.GetFrame(out var frameIn);
                 if(!frameAvailable)
                     return new UnsafeUnmanagedVideoFrame();
+
+                var unmanagedFrame = frameIn as UnmanagedVideoFrame;
+                if (unmanagedFrame == null)
+                    throw new Exception("Trying to use wrong frame type in ImageDecode");
+
+                var frameStream = new MemoryStream(unmanagedFrame.FrameSize);
+                frameStream.Write(new Span<byte>((byte*)unmanagedFrame.FrameData, unmanagedFrame.FrameSize));
                 
-                var frame = frameIn as ManagedVideoFrame;
+                var frame = new ManagedVideoFrame
+                {
+                    Codec = frameIn.Codec,
+                    Height = frameIn.Height,
+                    Width = frameIn.Width,
+                    Stream = frameStream
+                };
 
                 if (frame == null)
                     throw new Exception("Trying to use wrong frame type in ImageDecode");

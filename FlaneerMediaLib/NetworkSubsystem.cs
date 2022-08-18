@@ -13,14 +13,14 @@ public static class NetworkSubsystem
     /// </summary>
     public static void InitClient()
     {
-        var UDPSender = new UDPSender();
-        ServiceRegistry.AddService(UDPSender);
+        /*var UDPSender = new UDPSender();
+        ServiceRegistry.AddService(UDPSender);*/
         
         var UDPReceiver = new UDPReceiver();
         ServiceRegistry.AddService(UDPReceiver);
 
-        var ackSender = new AckSender();
-        ServiceRegistry.AddService(ackSender);
+        /*var ackSender = new AckSender();
+        ServiceRegistry.AddService(ackSender);*/
         
         //add measures
         
@@ -33,12 +33,12 @@ public static class NetworkSubsystem
     {
         var UDPSender = new UDPSender();
         ServiceRegistry.AddService(UDPSender);
+
+        /*var UDPReceiver = new UDPReceiver();
+        ServiceRegistry.AddService(UDPReceiver);*/
         
-        var UDPReceiver = new UDPReceiver();
-        ServiceRegistry.AddService(UDPReceiver);
-        
-        var ackReceiver = new AckReceiver();
-        ServiceRegistry.AddService(ackReceiver);
+        /*var ackReceiver = new AckReceiver();
+        ServiceRegistry.AddService(ackReceiver);*/
         
         //add control
         var qualityManager = new QualityManager();

@@ -18,8 +18,10 @@ namespace FlaneerMediaLib.VideoStreaming.ffmpeg
         private readonly AVFormatContext* avfCtxPtr;
         private readonly AVCodecContext* codecContextPtr;
 
+        //private FileStream fs = new FileStream("testOut.h264", FileMode.Create);
+
         private int frameCount;
-        private bool usingHardwareDecoding => codecContextPtr->hw_device_ctx != null;
+        private bool usingHardwareDecoding => false;// codecContextPtr->hw_device_ctx != null;
         
         /// <summary>
         /// The height and width of the video frame
@@ -77,6 +79,8 @@ namespace FlaneerMediaLib.VideoStreaming.ffmpeg
         /// <inheritdoc />
         public void Dispose()
         {
+            //fs.Close();
+            
             var pFrame = framePtr;
             FF.av_frame_free(&pFrame);
 
@@ -87,11 +91,11 @@ namespace FlaneerMediaLib.VideoStreaming.ffmpeg
             var pFormatContext = avfCtxPtr;
             FF.avformat_close_input(&pFormatContext);
         }
-        
+
         /// <summary>
         /// Decode the next frame in the sequence
         /// </summary>
-        public AVFrame DecodeNextFrame()
+        /*public AVFrame DecodeNextFrame()
         {
             FF.av_frame_unref(framePtr);
             if(usingHardwareDecoding)
@@ -114,8 +118,9 @@ namespace FlaneerMediaLib.VideoStreaming.ffmpeg
                             throw new Exception("error == ffmpeg.AVERROR_EOF");
                         }
                     } while (packetPtr->stream_index != 0);
-
-                    FF.avcodec_send_packet(codecContextPtr, packetPtr);
+                    error = FF.avcodec_send_packet(codecContextPtr, packetPtr);
+                    if (error != 0)
+                        logger.Error($"Error sending packet: {FFmpegHelper.AVErr(error)}");
                 }
                 finally
                 {
@@ -136,10 +141,76 @@ namespace FlaneerMediaLib.VideoStreaming.ffmpeg
                 return *receivedFrame;
             }
 
+            uint idx = 0;
+            for (uint i = 0; i < 8; i++)
+            {
+                if (framePtr->data[i] != null)
+                {
+                    idx = i;
+                    break;
+                }
+            }
+
+            var span = new Span<byte>(framePtr->data[idx], framePtr->pkt_size);
+            fs.Write(span);
+            
+            return *framePtr;
+        }*/
+        public AVFrame DecodeNextFrame()
+        {
+            FF.av_frame_unref(framePtr);
+            FF.av_packet_unref(packetPtr);
+            int error;
+            frameCount++;
+            logger.Trace($"Decoding frame {frameCount}");
+
+            while (FF.av_read_frame(avfCtxPtr, packetPtr) >= 0)
+            {
+                    logger.Debug($"AVPacket->pts:{packetPtr->pts}");
+                    error = decode_packet(packetPtr, codecContextPtr, framePtr);
+                    if (error < 0)
+                    {
+                        logger.Error($"Error decoding packet: {FFmpegHelper.AVErr(error)}");
+                    }
+                    else if(error == 0)
+                    {
+                        break;
+                    }
+            }
+
             return *framePtr;
         }
+        
+        int decode_packet(AVPacket *pPacket, AVCodecContext *pCodecContext, AVFrame *pFrame)
+        {
+            // Supply raw packet data as input to a decoder
+            // https://ffmpeg.org/doxygen/trunk/group__lavc__decoding.html#ga58bc4bf1e0ac59e27362597e467efff3
+            int error = FF.avcodec_send_packet(pCodecContext, pPacket);
+
+            if (error < 0) 
+                return error;
+
+            while (error >= 0)
+            {
+                // Return decoded output data (into a frame) from a decoder
+                // https://ffmpeg.org/doxygen/trunk/group__lavc__decoding.html#ga11e6542c4e66d3028668788a1a74217c
+                error = FF.avcodec_receive_frame(pCodecContext, pFrame);
+                if (error == FF.AVERROR(FF.EAGAIN) || error == FF.AVERROR_EOF)
+                    break;
+                if (error < 0)
+                    return error;
+
+                logger.Trace($"Frame {codecContextPtr->frame_number}" +
+                             $"(type={Convert.ToChar(FF.av_get_picture_type_char(framePtr->pict_type))}," +
+                             $" size={framePtr->pkt_size} bytes, format={framePtr->format}) " +
+                             $"pts {framePtr->pts} key_frame {framePtr->key_frame} (DTS {framePtr->coded_picture_number})");
+                
+
+            }
+            return 0;
+        }
+
+        
     }
 }
-
-
 

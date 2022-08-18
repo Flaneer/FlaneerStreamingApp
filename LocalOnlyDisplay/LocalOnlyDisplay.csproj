@@ -1,0 +1,89 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <OutputType>Exe</OutputType>
+        <TargetFramework>net6.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    </PropertyGroup>
+
+
+    <ItemGroup>
+        <PackageReference Include="NReco.VideoConverter.LT" Version="1.1.4" />
+        <PackageReference Include="Silk.NET.Core" Version="2.15.0" />
+        <PackageReference Include="Silk.NET.GLFW" Version="2.15.0" />
+        <PackageReference Include="Silk.NET.Input" Version="2.15.0" />
+        <PackageReference Include="Silk.NET.OpenGL" Version="2.15.0" />
+        <PackageReference Include="Silk.NET.Windowing" Version="2.15.0" />
+        <PackageReference Include="Silk.NET.Windowing.Common" Version="2.15.0" />
+    </ItemGroup>
+    
+    <ItemGroup>
+      <None Update="shader.frag">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="shader.vert">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+    </ItemGroup>
+    
+    <ItemGroup>
+      <ProjectReference Include="..\FlaneerMediaLib\FlaneerMediaLib.csproj" />
+    </ItemGroup>
+    
+    <ItemGroup>
+      <Content Include="..\ffmpeg\avcodec-58.dll">
+        <Link>avcodec-58.dll</Link>
+      </Content>
+      <Content Include="..\ffmpeg\avcodec-59.dll">
+        <Link>avcodec-59.dll</Link>
+      </Content>
+      <Content Include="..\ffmpeg\avdevice-58.dll">
+        <Link>avdevice-58.dll</Link>
+      </Content>
+      <Content Include="..\ffmpeg\avdevice-59.dll">
+        <Link>avdevice-59.dll</Link>
+      </Content>
+      <Content Include="..\ffmpeg\avfilter-7.dll">
+        <Link>avfilter-7.dll</Link>
+      </Content>
+      <Content Include="..\ffmpeg\avfilter-8.dll">
+        <Link>avfilter-8.dll</Link>
+      </Content>
+      <Content Include="..\ffmpeg\avformat-58.dll">
+        <Link>avformat-58.dll</Link>
+      </Content>
+      <Content Include="..\ffmpeg\avformat-59.dll">
+        <Link>avformat-59.dll</Link>
+      </Content>
+      <Content Include="..\ffmpeg\avutil-56.dll">
+        <Link>avutil-56.dll</Link>
+      </Content>
+      <Content Include="..\ffmpeg\avutil-57.dll">
+        <Link>avutil-57.dll</Link>
+      </Content>
+      <Content Include="..\ffmpeg\ffmpeg.exe">
+        <Link>ffmpeg.exe</Link>
+      </Content>
+      <Content Include="..\ffmpeg\postproc-55.dll">
+        <Link>postproc-55.dll</Link>
+      </Content>
+      <Content Include="..\ffmpeg\postproc-56.dll">
+        <Link>postproc-56.dll</Link>
+      </Content>
+      <Content Include="..\ffmpeg\swresample-3.dll">
+        <Link>swresample-3.dll</Link>
+      </Content>
+      <Content Include="..\ffmpeg\swresample-4.dll">
+        <Link>swresample-4.dll</Link>
+      </Content>
+      <Content Include="..\ffmpeg\swscale-5.dll">
+        <Link>swscale-5.dll</Link>
+      </Content>
+      <Content Include="..\ffmpeg\swscale-6.dll">
+        <Link>swscale-6.dll</Link>
+      </Content>
+    </ItemGroup>
+
+</Project>

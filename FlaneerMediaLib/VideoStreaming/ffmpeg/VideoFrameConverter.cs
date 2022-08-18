@@ -1,7 +1,7 @@
 ﻿using System.Drawing;
 using System.Runtime.InteropServices;
 using FFmpeg.AutoGen;
-
+using FlaneerMediaLib.Logging;
 using FF = FFmpeg.AutoGen.ffmpeg;
 
 namespace FlaneerMediaLib.VideoStreaming.ffmpeg
@@ -17,12 +17,15 @@ namespace FlaneerMediaLib.VideoStreaming.ffmpeg
         private readonly int_array4 dstLinesize;
         private readonly SwsContext* pConvertContext;
 
+        private readonly Logger logger;
+        
         /// <summary>
         /// ctor
         /// </summary>
         public VideoFrameConverter(Size sourceSize, AVPixelFormat sourcePixelFormat,
             Size destinationSize, AVPixelFormat destinationPixelFormat)
         {
+            logger = Logger.GetLogger(this);
             this.destinationSize = destinationSize;
 
             pConvertContext = FF.sws_getContext(sourceSize.Width, sourceSize.Height, sourcePixelFormat,
@@ -60,13 +63,15 @@ namespace FlaneerMediaLib.VideoStreaming.ffmpeg
         /// </summary>
         public AVFrame Convert(AVFrame sourceFrame)
         {
-            FF.sws_scale(pConvertContext,
+            var sh = FF.sws_scale(pConvertContext,
                 sourceFrame.data,
                 sourceFrame.linesize,
                 0,
                 sourceFrame.height,
                 dstData,
                 dstLinesize);
+            
+            logger.Debug($"Frame slice height: {sh}");
 
             var data = new byte_ptrArray8();
             data.UpdateFrom(dstData);

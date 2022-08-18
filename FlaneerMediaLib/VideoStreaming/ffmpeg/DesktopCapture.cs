@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using FFmpeg.AutoGen;
+using FlaneerMediaLib.Logging;
 using FlaneerMediaLib.VideoDataTypes;
 using FF = FFmpeg.AutoGen.ffmpeg;
 
@@ -22,6 +23,9 @@ public unsafe class DesktopCapture : IVideoSource, IEncoder
     private SwsContext* swsCtx;
     private int encPacketCounter;
 
+    private FileStream fs = new FileStream("testOut.h264", FileMode.Create);
+    private readonly Logger logger;
+
     /// <inheritdoc />
     public ICodecSettings CodecSettings { get; private set; }
 
@@ -33,6 +37,7 @@ public unsafe class DesktopCapture : IVideoSource, IEncoder
     /// </summary>
     public DesktopCapture()
     {
+        logger = Logger.GetLogger(this);
         FF.avdevice_register_all();
     }
 
@@ -246,17 +251,21 @@ public unsafe class DesktopCapture : IVideoSource, IEncoder
                     Console.Error.WriteLine("Error while executing sws_scale");
 
                 /* make sure the frame data is writable */
-                var err = FF.av_frame_make_writable(outFrame);
+                var err = FF.av_frame_make_writable(outFrame); // SOMETHING IS WRONG WITH OUT FRAME ?!?!!?
                 if (err < 0)
                     break;
                 ret = Encode(avCntxOut, outFrame, outPacket);
                 if (ret.Item1 == IntPtr.Zero)
+                {
                     continue;
-                else
-                    return ret;
+                }
+                
+                logger.Trace($" size={ret.Item2} bytes)");
+                
+                FF.av_frame_unref(avFrame);
+                FF.av_packet_unref(avPkt);
+                return ret;
             }
-            FF.av_frame_unref(avFrame);
-            FF.av_packet_unref(avPkt);
         }
 
         return ret;
@@ -284,7 +293,10 @@ public unsafe class DesktopCapture : IVideoSource, IEncoder
                 return new Tuple<IntPtr, int>(IntPtr.Zero, 0);
             }
 
-            Console.WriteLine($"encoded frame {pkt->pts} (size={pkt->size})");
+            logger.Debug($"encoded frame {pkt->pts} (size={pkt->size})"+
+                         $"(type={Convert.ToChar(FF.av_get_picture_type_char(frame->pict_type))}," +
+                         $" size={frame->pkt_size} bytes, format={frame->format}) " +
+                         $"pts {frame->pts} key_frame {frame->key_frame} (DTS {frame->coded_picture_number})");
             return new Tuple<IntPtr, int>((IntPtr)pkt->data, pkt->size);
         }
     }
