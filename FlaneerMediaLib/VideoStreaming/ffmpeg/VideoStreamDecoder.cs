@@ -167,7 +167,7 @@ namespace FlaneerMediaLib.VideoStreaming.ffmpeg
             while (FF.av_read_frame(avfCtxPtr, packetPtr) >= 0)
             {
                     logger.Debug($"AVPacket->pts:{packetPtr->pts}");
-                    error = decode_packet(packetPtr, codecContextPtr, framePtr);
+                    error = DecodePacket(packetPtr, codecContextPtr, framePtr);
                     if (error < 0)
                     {
                         logger.Error($"Error decoding packet: {FFmpegHelper.AVErr(error)}");
@@ -181,11 +181,11 @@ namespace FlaneerMediaLib.VideoStreaming.ffmpeg
             return *framePtr;
         }
         
-        int decode_packet(AVPacket *pPacket, AVCodecContext *pCodecContext, AVFrame *pFrame)
+        private int DecodePacket(AVPacket *packet, AVCodecContext *codecContext, AVFrame *frame)
         {
             // Supply raw packet data as input to a decoder
             // https://ffmpeg.org/doxygen/trunk/group__lavc__decoding.html#ga58bc4bf1e0ac59e27362597e467efff3
-            int error = FF.avcodec_send_packet(pCodecContext, pPacket);
+            int error = FF.avcodec_send_packet(codecContext, packet);
 
             if (error < 0) 
                 return error;
@@ -194,7 +194,7 @@ namespace FlaneerMediaLib.VideoStreaming.ffmpeg
             {
                 // Return decoded output data (into a frame) from a decoder
                 // https://ffmpeg.org/doxygen/trunk/group__lavc__decoding.html#ga11e6542c4e66d3028668788a1a74217c
-                error = FF.avcodec_receive_frame(pCodecContext, pFrame);
+                error = FF.avcodec_receive_frame(codecContext, frame);
                 if (error == FF.AVERROR(FF.EAGAIN) || error == FF.AVERROR_EOF)
                     break;
                 if (error < 0)
@@ -204,8 +204,6 @@ namespace FlaneerMediaLib.VideoStreaming.ffmpeg
                              $"(type={Convert.ToChar(FF.av_get_picture_type_char(framePtr->pict_type))}," +
                              $" size={framePtr->pkt_size} bytes, format={framePtr->format}) " +
                              $"pts {framePtr->pts} key_frame {framePtr->key_frame} (DTS {framePtr->coded_picture_number})");
-                
-
             }
             return 0;
         }

@@ -71,7 +71,8 @@ namespace FlaneerMediaLib.VideoStreaming.ffmpeg
                 dstData,
                 dstLinesize);
             
-            logger.Debug($"Frame slice height: {sh}");
+            if(sh < 0)
+                logger.Error($"Error converting packet: {FFmpegHelper.AVErr(sh)}");
 
             var data = new byte_ptrArray8();
             data.UpdateFrom(dstData);

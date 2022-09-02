@@ -24,9 +24,9 @@ public unsafe class DesktopCapture : IVideoSource, IEncoder
     private SwsContext* swsCtx;
     private int encPacketCounter;
 
-    private FileStream fs = new FileStream("testOut.h264", FileMode.Create);
+    //private FileStream fs = new FileStream("testOut.h264", FileMode.Create);
     private readonly Logger logger;
-    private VideoFrameConverter vfc;
+    //private VideoFrameConverter vfc;
 
     /// <inheritdoc />
     public ICodecSettings CodecSettings { get; private set; }
@@ -190,11 +190,10 @@ public unsafe class DesktopCapture : IVideoSource, IEncoder
             Console.Error.WriteLine(" Cannot allocate SWC Context");
             return false;
         }
-
         
-        var size = new Size(1920, 1080);
+        /*var size = new Size(1920, 1080);
         var destinationPixelFormat = AVPixelFormat.AV_PIX_FMT_RGB24;
-        vfc = new VideoFrameConverter(size, avcodecContx->pix_fmt, size, destinationPixelFormat);
+        vfc = new VideoFrameConverter(size, avcodecContx->pix_fmt, size, destinationPixelFormat);*/
         
         return true;
     }
@@ -204,7 +203,7 @@ public unsafe class DesktopCapture : IVideoSource, IEncoder
     public bool GetFrame(out IVideoFrame frame)
     {
         frame = GetFrame();
-        return frame != new UnmanagedVideoFrame();
+        return frame.Height != 0;
     }
 
     /// <inheritdoc />
@@ -214,23 +213,23 @@ public unsafe class DesktopCapture : IVideoSource, IEncoder
         if (frame.Item1 == IntPtr.Zero)
             return new UnmanagedVideoFrame();
 
-        return new UnsafeUnmanagedVideoFrame()
+        /*return new UnsafeUnmanagedVideoFrame()
         {
             Codec = VideoCodec.H264, //TODO: Set this better
             Height = (short) FrameSettings.Height,
             Width = (short) FrameSettings.Width,
             FrameData = (byte*) frame.Item1,
             FrameSize = frame.Item2
-        };
+        };*/
 
-        /*return new UnmanagedVideoFrame()
+        return new UnmanagedVideoFrame()
         {
             Codec = VideoCodec.H264, //TODO: Set this better
             Height = (short) FrameSettings.Height,
             Width = (short) FrameSettings.Width,
             FrameData = frame.Item1,
             FrameSize = frame.Item2
-        };*/
+        };
     }
     
     private Tuple<IntPtr, int> CaptureEncodedFrame()
@@ -240,14 +239,52 @@ public unsafe class DesktopCapture : IVideoSource, IEncoder
         avPkt = FF.av_packet_alloc();
         AVPacket* outPacket = FF.av_packet_alloc();
         
-        FF.av_read_frame(ifmtCtx, avPkt);
+        //Direct output
+        /*FF.av_read_frame(ifmtCtx, avPkt);
         FF.avcodec_send_packet(avcodecContx, avPkt);
         FF.avcodec_receive_frame(avcodecContx, avFrame);
         var f = vfc.Convert(*avFrame);
         ret = new Tuple<IntPtr, int>((IntPtr)f.data[0], f.pkt_size);
+        return ret;*/
+
+        int error = 0;
+        error = FF.av_read_frame(ifmtCtx, avPkt);
+        if (error != 0)
+            logger.Error($"Error decoding packet: {FFmpegHelper.AVErr(error)}");
+        error = FF.avcodec_send_packet(avcodecContx, avPkt);
+        if (error != 0)
+            logger.Error($"Error decoding packet: {FFmpegHelper.AVErr(error)}");
+        error = FF.avcodec_receive_frame(avcodecContx, avFrame);
+        if (error != 0)
+            logger.Error($"Error decoding packet: {FFmpegHelper.AVErr(error)}");
+
+        outPacket->pts = FF.av_rescale_q(encPacketCounter, avCntxOut->time_base, videoStream->time_base);
+        if (outPacket->dts != FF.AV_NOPTS_VALUE)
+            outPacket->dts = FF.av_rescale_q(encPacketCounter, avCntxOut->time_base, videoStream->time_base);
+                
+        outPacket->dts = FF.av_rescale_q(encPacketCounter, avCntxOut->time_base, videoStream->time_base);
+        outPacket->duration = FF.av_rescale_q(1, avCntxOut->time_base, videoStream->time_base);
+                
+        outFrame->pts = FF.av_rescale_q(encPacketCounter, avCntxOut->time_base, videoStream->time_base);
+        outFrame->pkt_duration = FF.av_rescale_q(encPacketCounter, avCntxOut->time_base, videoStream->time_base);
+        encPacketCounter++;
+        
+        int sts = FF.sws_scale(swsCtx,
+            avFrame->data, avFrame->linesize,  0, avFrame->height,
+            outFrame->data, outFrame->linesize);
+        
+        if (sts < 0)
+            logger.Error("Error while executing sws_scale");
+        
+        ret = Encode(avCntxOut, outFrame, outPacket);
+        if (ret.Item1 == IntPtr.Zero)
+            logger.Error("Error while encoding");
+
+        FF.av_frame_unref(avFrame);
+        FF.av_packet_unref(avPkt);
         return ret;
         
-        while (FF.av_read_frame(ifmtCtx, avPkt) >= 0)
+        /*while (FF.av_read_frame(ifmtCtx, avPkt) >= 0)
         {
             if (avPkt->stream_index != videoStreamIndx) continue;
             
@@ -275,10 +312,11 @@ public unsafe class DesktopCapture : IVideoSource, IEncoder
                 if (sts < 0)
                     Console.Error.WriteLine("Error while executing sws_scale");
 
-                /* make sure the frame data is writable */
-                var err = FF.av_frame_make_writable(outFrame); // SOMETHING IS WRONG WITH OUT FRAME ?!?!!?
+                /* make sure the frame data is writable #1#
+                /*var err = FF.av_frame_make_writable(outFrame); // SOMETHING IS WRONG WITH OUT FRAME ?!?!!?
                 if (err < 0)
-                    break;
+                    break;#1#
+                
                 ret = Encode(avCntxOut, outFrame, outPacket);
                 if (ret.Item1 == IntPtr.Zero)
                 {
@@ -293,7 +331,7 @@ public unsafe class DesktopCapture : IVideoSource, IEncoder
             }
         }
 
-        return ret;
+        return ret;*/
     }
     
     private Tuple<IntPtr, int> Encode(AVCodecContext *encCtx, AVFrame *frame, AVPacket *pkt)
@@ -303,7 +341,7 @@ public unsafe class DesktopCapture : IVideoSource, IEncoder
         int err = FF.avcodec_send_frame(encCtx, frame);
         if (err < 0) 
         {
-            Console.Error.WriteLine("error sending a frame for encoding");
+            logger.Error("error sending a frame for encoding");
             return new Tuple<IntPtr, int>(IntPtr.Zero, 0);
         }
 
@@ -314,7 +352,7 @@ public unsafe class DesktopCapture : IVideoSource, IEncoder
                 return new Tuple<IntPtr, int>(IntPtr.Zero, 0);
             if (err < 0)
             {
-                Console.Error.WriteLine("error during encoding");
+                logger.Error("error during encoding");
                 return new Tuple<IntPtr, int>(IntPtr.Zero, 0);
             }
 
