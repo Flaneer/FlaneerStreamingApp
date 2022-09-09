@@ -24,9 +24,13 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SampleProjects", "SamplePro
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MSNativeTests", "MSNativeTests\MSNativeTests.vcxproj", "{B77C0807-FA76-4675-9EB7-997F64132E3B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GLFWTestApp", "GLFWTestApp\GLFWTestApp.csproj", "{0F764FA0-8B26-4F3A-903F-B9E8E2041B37}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GLFWTestApp", "GLFWTestApp\GLFWTestApp.csproj", "{0F764FA0-8B26-4F3A-903F-B9E8E2041B37}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GLDisplayApp", "GLDisplayApp\GLDisplayApp.csproj", "{79817801-83A9-4401-B923-1CA8862D0730}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GLDisplayApp", "GLDisplayApp\GLDisplayApp.csproj", "{79817801-83A9-4401-B923-1CA8862D0730}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "FFmpegDecoder", "FFmpegDecoder\FFmpegDecoder.vcxproj", "{BF5A3ACC-7CD8-4B1A-B0BF-76E362DBB252}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FFmpegDecoderWrapper", "FFmpegDecoderWrapper\FFmpegDecoderWrapper.csproj", "{A801B5B1-CB9B-4935-904B-FE56DB7AFDFD}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -158,6 +162,30 @@ Global
 		{79817801-83A9-4401-B923-1CA8862D0730}.Release|x64.Build.0 = Release|Any CPU
 		{79817801-83A9-4401-B923-1CA8862D0730}.Release|x86.ActiveCfg = Release|Any CPU
 		{79817801-83A9-4401-B923-1CA8862D0730}.Release|x86.Build.0 = Release|Any CPU
+		{BF5A3ACC-7CD8-4B1A-B0BF-76E362DBB252}.Debug|Any CPU.ActiveCfg = Debug|x64
+		{BF5A3ACC-7CD8-4B1A-B0BF-76E362DBB252}.Debug|Any CPU.Build.0 = Debug|x64
+		{BF5A3ACC-7CD8-4B1A-B0BF-76E362DBB252}.Debug|x64.ActiveCfg = Debug|x64
+		{BF5A3ACC-7CD8-4B1A-B0BF-76E362DBB252}.Debug|x64.Build.0 = Debug|x64
+		{BF5A3ACC-7CD8-4B1A-B0BF-76E362DBB252}.Debug|x86.ActiveCfg = Debug|Win32
+		{BF5A3ACC-7CD8-4B1A-B0BF-76E362DBB252}.Debug|x86.Build.0 = Debug|Win32
+		{BF5A3ACC-7CD8-4B1A-B0BF-76E362DBB252}.Release|Any CPU.ActiveCfg = Release|x64
+		{BF5A3ACC-7CD8-4B1A-B0BF-76E362DBB252}.Release|Any CPU.Build.0 = Release|x64
+		{BF5A3ACC-7CD8-4B1A-B0BF-76E362DBB252}.Release|x64.ActiveCfg = Release|x64
+		{BF5A3ACC-7CD8-4B1A-B0BF-76E362DBB252}.Release|x64.Build.0 = Release|x64
+		{BF5A3ACC-7CD8-4B1A-B0BF-76E362DBB252}.Release|x86.ActiveCfg = Release|Win32
+		{BF5A3ACC-7CD8-4B1A-B0BF-76E362DBB252}.Release|x86.Build.0 = Release|Win32
+		{A801B5B1-CB9B-4935-904B-FE56DB7AFDFD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A801B5B1-CB9B-4935-904B-FE56DB7AFDFD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A801B5B1-CB9B-4935-904B-FE56DB7AFDFD}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{A801B5B1-CB9B-4935-904B-FE56DB7AFDFD}.Debug|x64.Build.0 = Debug|Any CPU
+		{A801B5B1-CB9B-4935-904B-FE56DB7AFDFD}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{A801B5B1-CB9B-4935-904B-FE56DB7AFDFD}.Debug|x86.Build.0 = Debug|Any CPU
+		{A801B5B1-CB9B-4935-904B-FE56DB7AFDFD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A801B5B1-CB9B-4935-904B-FE56DB7AFDFD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A801B5B1-CB9B-4935-904B-FE56DB7AFDFD}.Release|x64.ActiveCfg = Release|Any CPU
+		{A801B5B1-CB9B-4935-904B-FE56DB7AFDFD}.Release|x64.Build.0 = Release|Any CPU
+		{A801B5B1-CB9B-4935-904B-FE56DB7AFDFD}.Release|x86.ActiveCfg = Release|Any CPU
+		{A801B5B1-CB9B-4935-904B-FE56DB7AFDFD}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
