@@ -5,9 +5,12 @@
 
 DecodingRuntime decodingRuntime;
 
-EXPORT void Init(VideoFrameSettings settings)
+EXPORT void Init(const VideoFrameSettings settings)
 {
-	decodingRuntime = DecodingRuntime(settings);
+	decodingRuntime = DecodingRuntime();
+	decodingRuntime.InitAVIOReader();
+	decodingRuntime.InitVSD();
+	decodingRuntime.InitVSC(settings);
 }
 
 EXPORT bool FulfilFrameRequest(FrameRequest& frame_request)

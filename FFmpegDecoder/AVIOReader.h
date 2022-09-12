@@ -20,7 +20,7 @@ public:
 
     void SetBuffer(buffer_data buffer);
 
-    ~AVIOReader();
+    void Cleanup() const;
 
 private:
     void AllocAvioContext();

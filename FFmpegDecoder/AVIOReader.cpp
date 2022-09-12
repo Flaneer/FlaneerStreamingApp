@@ -49,9 +49,9 @@ void AVIOReader::SetBuffer(buffer_data buffer)
     AllocAvioContext();
 }
 
-AVIOReader::~AVIOReader()
+void AVIOReader::Cleanup() const
 {
-    av_free(AvioCtx);
+	av_free(AvioCtx);
     av_free(bufferPtr);
 }
 

@@ -1,17 +1,30 @@
 #include "DecodingRuntime.h"
 
-DecodingRuntime::DecodingRuntime(VideoFrameSettings settings)
+#include <iostream>
+
+void DecodingRuntime::InitAVIOReader()
 {
 	avioReader = AVIOReader();
+	unsigned char initBuffData[] = { 0,0,0,0,0,0,0,0,0,0 };
+	const buffer_data initBuff = { initBuffData, 10 };
+	avioReader.SetBuffer(initBuff);
+}
+
+void DecodingRuntime::InitVSD()
+{
 	vsd = VideoStreamDecoder(avioReader.AvioCtx);
+}
+
+void DecodingRuntime::InitVSC(VideoFrameSettings settings)
+{
 	Size size = { settings.Height, settings.Width };
 	vsc = VideoStreamConverter(size, settings.PixelFormat,
-		size, settings.PixelFormat);
+	                           size, settings.PixelFormat);
 }
 
 bool DecodingRuntime::FulfilFrameRequest(FrameRequest& frame_request)
 {
-	buffer_data buffer = { frame_request.DataIn, static_cast<size_t>(frame_request.BufferSizeIn) };
+	const buffer_data buffer = { frame_request.DataIn, static_cast<size_t>(frame_request.BufferSizeIn) };
 	avioReader.SetBuffer(buffer);
 	auto frame = vsc.Convert(vsd.TryDecodeNextFrame());
 
@@ -25,9 +38,9 @@ bool DecodingRuntime::FulfilFrameRequest(FrameRequest& frame_request)
 	return true;
 }
 
-DecodingRuntime::~DecodingRuntime()
+void DecodingRuntime::Cleanup()
 {
-	avioReader.~AVIOReader();
-	vsd.~VideoStreamDecoder();
-	vsc.~VideoStreamConverter();
+	avioReader.Cleanup();
+	vsd.Cleanup();
+	vsc.Cleanup();
 }

@@ -39,12 +39,12 @@ VideoStreamConverter::VideoStreamConverter(Size sourceSize, AVPixelFormat source
         std::cout << "av_image_fill_arrays" << AVErr(error) << "\n";
 }
 
-VideoStreamConverter::~VideoStreamConverter()
+void VideoStreamConverter::Cleanup() const
 {
-    sws_freeContext(pConvertContext);
+	sws_freeContext(pConvertContext);
 }
 
-AVFrame VideoStreamConverter::Convert(AVFrame sourceFrame)
+AVFrame VideoStreamConverter::Convert(AVFrame sourceFrame) const
 {
     int height = sws_scale(pConvertContext,
         sourceFrame.data,

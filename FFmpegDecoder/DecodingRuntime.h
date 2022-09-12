@@ -14,10 +14,12 @@ private:
 public:
 	DecodingRuntime() = default;
 
-	DecodingRuntime(VideoFrameSettings settings);
+	void InitAVIOReader();
+	void InitVSD();
+	void InitVSC(VideoFrameSettings settings);
 
 	bool FulfilFrameRequest(FrameRequest& frame_request);
 
-	~DecodingRuntime();
+	void Cleanup();
 };
 

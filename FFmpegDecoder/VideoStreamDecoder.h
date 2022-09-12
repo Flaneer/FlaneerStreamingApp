@@ -24,8 +24,7 @@ public:
 
     VideoStreamDecoder() = default;
     VideoStreamDecoder(AVIOContext* avioCtx);
-
-    ~VideoStreamDecoder();
+    void Cleanup();
 
     AVFrame TryDecodeNextFrame();
 };

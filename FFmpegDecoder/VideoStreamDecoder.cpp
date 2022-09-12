@@ -60,9 +60,11 @@ VideoStreamDecoder::VideoStreamDecoder(AVIOContext* avioCtx)
     avfCtxPtr->pb = avioCtx;
 
     auto inFmt = av_find_input_format("h264");
-    int error = avformat_open_input(&avfCtxPtr, "", inFmt, nullptr);
+    const char* arbitraryText = "";
+    int error = avformat_open_input(&avfCtxPtr, arbitraryText, inFmt, nullptr);
+
     if(error != 0)
-        std::cout << "avformat_open_input" << AVErr(error) << "\n";
+        std::cout << "avformat_open_input: " << AVErr(error) << "\n";
 
     AVCodec* codec = avcodec_find_decoder(AV_CODEC_ID_H264);
     //Allocate an AVCodecContext and set its fields to default values. The resulting struct should be freed with avcodec_free_context().
@@ -93,17 +95,12 @@ VideoStreamDecoder::VideoStreamDecoder(AVIOContext* avioCtx)
     SourcePixelFormat = usingHardwareDecoding() ? GetHWPixelFormat(hwDec) : codecContextPtr->pix_fmt;
 }
 
-VideoStreamDecoder::~VideoStreamDecoder()
+void VideoStreamDecoder::Cleanup()
 {
-    auto pFrame = framePtr;
-    av_frame_free(&pFrame);
-
-    auto pPacket = packetPtr;
-    av_packet_free(&pPacket);
-
+    av_frame_free(&framePtr);    
+    av_packet_free(&packetPtr);
     avcodec_close(codecContextPtr);
-    auto pFormatContext = avfCtxPtr;
-    avformat_close_input(&pFormatContext);
+    avformat_close_input(&avfCtxPtr);
 }
 
 //AVFrame VideoStreamDecoder::TryDecodeNextFrame()
