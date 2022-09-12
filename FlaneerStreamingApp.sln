@@ -30,7 +30,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GLDisplayApp", "GLDisplayAp
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "FFmpegDecoder", "FFmpegDecoder\FFmpegDecoder.vcxproj", "{BF5A3ACC-7CD8-4B1A-B0BF-76E362DBB252}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FFmpegDecoderWrapper", "FFmpegDecoderWrapper\FFmpegDecoderWrapper.csproj", "{A801B5B1-CB9B-4935-904B-FE56DB7AFDFD}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FFmpegDecoderWrapper", "FFmpegDecoderWrapper\FFmpegDecoderWrapper.csproj", "{A801B5B1-CB9B-4935-904B-FE56DB7AFDFD}"
+	ProjectSection(ProjectDependencies) = postProject
+		{BF5A3ACC-7CD8-4B1A-B0BF-76E362DBB252} = {BF5A3ACC-7CD8-4B1A-B0BF-76E362DBB252}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

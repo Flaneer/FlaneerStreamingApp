@@ -22,7 +22,9 @@ public class UDPImageSource2
     private int decodeCount;
     private TimeSpan totalDecodeTime;
 
-    private bool alsoWriteToFile = false;
+    private bool alsoWriteToFile = true;
+
+    private bool ffmpegInitialised = false;
 
     public UDPImageSource2()
     {
@@ -34,14 +36,6 @@ public class UDPImageSource2
         height = Int16.Parse(frameSettings[1]);
 
         ServiceRegistry.TryGetService(out videoSource);
-
-        Wrapper.Init(new VideoFrameSettings
-        {
-            Height = height,
-            Width = width,
-            Codec = Codec.H264,
-            PixelFormat = AVPixelFormat.AV_PIX_FMT_YUV420P
-        });
     }
 
     public UnsafeUnmanagedVideoFrame GetImage()
@@ -70,8 +64,24 @@ public class UDPImageSource2
                 FrameRequest newFrame;
                 fixed (void* p = frame.Stream.GetBuffer())
                 {
-                    newFrame = Wrapper.RequestNewFrame((IntPtr) p, (int) frame.Stream.Length, width, height);
+                    if(ffmpegInitialised)
+                    {
+                        newFrame = Wrapper.RequestNewFrame((IntPtr) p, (int) frame.Stream.Length, width, height);
+                    }
+                    else
+                    {
+                        newFrame = Wrapper.Init(new VideoFrameSettings
+                        {
+                            Height = height,
+                            Width = width,
+                            Codec = Codec.H264,
+                            PixelFormat = AVPixelFormat.AV_PIX_FMT_YUV420P
+                        }, (IntPtr)p, (int)frame.Stream.Length);
+                        ffmpegInitialised = true;
+                    }
+
                 }
+
                 var decodeTime = DateTime.Now - decodeStartTime;
                 logger.TimeStat("Decode", decodeTime);
 

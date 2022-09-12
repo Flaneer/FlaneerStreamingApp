@@ -27,4 +27,5 @@ public:
     void Cleanup();
 
     AVFrame TryDecodeNextFrame();
+    int Decode() const;
 };

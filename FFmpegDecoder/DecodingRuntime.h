@@ -11,10 +11,12 @@ private:
 	VideoStreamDecoder vsd;
 	VideoStreamConverter vsc;
 
+	int it = 0;
+
 public:
 	DecodingRuntime() = default;
 
-	void InitAVIOReader();
+	void InitAVIOReader(FrameRequest& firstFrame);
 	void InitVSD();
 	void InitVSC(VideoFrameSettings settings);
 

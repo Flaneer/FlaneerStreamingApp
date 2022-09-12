@@ -2,9 +2,17 @@
 {
     public class Wrapper
     {
-        public static void Init(VideoFrameSettings capture_settings)
+        public static FrameRequest Init(VideoFrameSettings CaptureSettings, IntPtr DataIn, Int32 BufferSizeIn)
         {
-            InteropMethods.Init(capture_settings);
+            var interopFrame = new FrameRequest
+            {
+                Height = (Int16)CaptureSettings.Height,
+                Width = (Int16)CaptureSettings.Width,
+                DataIn = DataIn,
+                BufferSizeIn = BufferSizeIn
+            };
+            InteropMethods.Init(CaptureSettings, ref interopFrame);
+            return interopFrame;
         }
 
         public static FrameRequest RequestNewFrame(IntPtr DataIn, Int32 BufferSizeIn, int width, int height)

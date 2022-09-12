@@ -15,6 +15,6 @@ public:
     VideoStreamConverter(Size sourceSize, AVPixelFormat sourcePixelFormat, Size destinationSize,
         AVPixelFormat destinationPixelFormat);
     void Cleanup() const;
-    AVFrame Convert(AVFrame sourceFrame) const;
+    AVFrame Convert(const AVFrame& sourceFrame) const;
 };
 

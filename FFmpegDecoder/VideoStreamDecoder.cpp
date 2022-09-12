@@ -6,6 +6,8 @@
 
 static AVHWDeviceType GetHWDecoder()
 {
+    return AV_HWDEVICE_TYPE_NONE;
+
     AVHWDeviceType HWtype;
     std::vector<AVHWDeviceType> availableHWDecoders;
 
@@ -103,67 +105,59 @@ void VideoStreamDecoder::Cleanup()
     avformat_close_input(&avfCtxPtr);
 }
 
-//AVFrame VideoStreamDecoder::TryDecodeNextFrame()
-//{
-//    int response = 0;
-//    while (av_read_frame(avfCtxPtr, packetPtr) >= 0)
-//    {
-//        // if it's the video stream
-//        if (packetPtr->stream_index == 0) {
-//            //logging("AVPacket->pts %" PRId64, pPacket->pts);
-//            response = decode_packet(packetPtr, codecContextPtr, framePtr);
-//            if (response < 0)
-//                break;
-//        }
-//        av_packet_unref(packetPtr);
-//    }
-//    return *framePtr;
-//}
-
 AVFrame VideoStreamDecoder::TryDecodeNextFrame()
 {
     av_frame_unref(framePtr);
     if (usingHardwareDecoding())
         av_frame_unref(receivedFrame);
-
+    
     int error;
     frameCount++;
     do
     {
-	    try
-	    {
-		    do
-		    {
-			    av_packet_unref(packetPtr);
-			    error = av_read_frame(avfCtxPtr, packetPtr);
+        try
+        {
+            do
+            {
+                av_packet_unref(packetPtr);
+                error = av_read_frame(avfCtxPtr, packetPtr);
 
-			    if (error == AVERROR_EOF)
-			    {
-				    throw std::exception();
-			    }
-                else if(error != 0)
+                if (error == AVERROR_EOF)
                 {
-                    std::cout<<AVErr(error)<<"\n";
+                    throw std::exception();
                 }
-		    }
-	    	while (packetPtr->stream_index != 0);
+                else if (error != 0)
+                {
+                    std::cout << AVErr(error) << "\n";
+                }
+            } while (packetPtr->stream_index != 0);
 
-		    avcodec_send_packet(codecContextPtr, packetPtr);
-	    }
-	    catch (...)
-	    {
-			av_packet_unref(packetPtr);
-	    }
+            avcodec_send_packet(codecContextPtr, packetPtr);
+        }catch (...){}
+
+        av_packet_unref(packetPtr);
 
         error = avcodec_receive_frame(codecContextPtr, framePtr);
-    }
-	while (error == AVERROR(EAGAIN));
+    } while (error == AVERROR(EAGAIN));
+
+    char path[128];
+    sprintf_s(path, "Frame %d (type=%c, size=%d bytes, format=%d) pts %d key_frame %d [DTS %d]",
+        codecContextPtr->frame_number,
+        av_get_picture_type_char(framePtr->pict_type),
+        framePtr->pkt_size,
+        framePtr->format,
+        framePtr->pts,
+        framePtr->key_frame,
+        framePtr->coded_picture_number);
+    std::cout << path << "\n";
 
     if (usingHardwareDecoding())
     {
         av_hwframe_transfer_data(receivedFrame, framePtr, 0);
         return *receivedFrame;
     }
+
     return *framePtr;
 }
+
 

@@ -44,7 +44,7 @@ void VideoStreamConverter::Cleanup() const
 	sws_freeContext(pConvertContext);
 }
 
-AVFrame VideoStreamConverter::Convert(AVFrame sourceFrame) const
+AVFrame VideoStreamConverter::Convert(const AVFrame& sourceFrame) const
 {
     int height = sws_scale(pConvertContext,
         sourceFrame.data,
