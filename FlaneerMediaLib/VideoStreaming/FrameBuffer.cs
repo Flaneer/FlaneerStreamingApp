@@ -21,6 +21,8 @@ internal class FrameBuffer
 
     private int packetCount;
     private long totalBytesIn;
+
+    private bool displayedFirstFrame = false;
     
     /// <summary>
     /// ctor
@@ -59,14 +61,14 @@ internal class FrameBuffer
         var isOldFrame = receivedFrame.SequenceIDX < nextFrameIdx;
         if(isOldFrame)
             return;
-        /*
+        
         //Check if the frame is a new I frame, in which case we skip to it to reduce latency
         var receivedFrameIsNewIFrame = receivedFrame.IsIFrame && !isOldFrame;
-        if(receivedFrameIsNewIFrame)
+        if(receivedFrameIsNewIFrame && displayedFirstFrame)
         {
             logger.Trace($"Skipping to latest I frame: {receivedFrame.SequenceIDX}");
             nextFrameIdx = receivedFrame.SequenceIDX;
-        }*/
+        }
 
         if (receivedFrame.NumberOfPackets == 1)
             BufferFullFrame(receivedFrame, framePacket);
@@ -94,6 +96,10 @@ internal class FrameBuffer
         logger.Debug($"Sending {frameBuffer[nextFrameIdx].Stream!.Length}B Frame From Buffer");
         
         nextFrameIdx++;
+        
+        if (!displayedFirstFrame)
+            displayedFirstFrame = true;
+        
         return true;
     }
 
