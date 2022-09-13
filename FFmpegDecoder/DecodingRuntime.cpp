@@ -29,7 +29,7 @@ void DecodingRuntime::InitVSC(VideoFrameSettings settings)
 {
 	Size size = { settings.Height, settings.Width };
 	vsc = VideoStreamConverter(size, settings.PixelFormat,
-	                           size, settings.PixelFormat);
+	                           size, AV_PIX_FMT_RGB24);
 }
 
 static void save_gray_frame(unsigned char* buf, int wrap, int xsize, int ysize, int filename)
@@ -57,7 +57,7 @@ bool DecodingRuntime::FulfilFrameRequest(FrameRequest& frame_request)
 
 	avioReader.SetBuffer(buffer);
 	auto frameOut = vsd.TryDecodeNextFrame();
-	auto frame = vsc.Convert(frameOut);
+	frame = vsc.Convert(frameOut);
 
 	if(frame.data[0] == nullptr)
 		return false;

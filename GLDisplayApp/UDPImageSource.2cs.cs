@@ -79,7 +79,6 @@ public class UDPImageSource2
                         }, (IntPtr)p, (int)frame.Stream.Length);
                         ffmpegInitialised = true;
                     }
-
                 }
 
                 var decodeTime = DateTime.Now - decodeStartTime;
@@ -95,7 +94,7 @@ public class UDPImageSource2
                     Width = width,
                     Height = height,
                     FrameData = (byte*) newFrame.DataOut,
-                    FrameSize = newFrame.Linesize
+                    FrameSize = newFrame.BufferSizeOut
                 };
             }
         }

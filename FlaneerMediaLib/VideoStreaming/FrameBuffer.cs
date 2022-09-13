@@ -59,14 +59,14 @@ internal class FrameBuffer
         var isOldFrame = receivedFrame.SequenceIDX < nextFrameIdx;
         if(isOldFrame)
             return;
-        
+        /*
         //Check if the frame is a new I frame, in which case we skip to it to reduce latency
         var receivedFrameIsNewIFrame = receivedFrame.IsIFrame && !isOldFrame;
         if(receivedFrameIsNewIFrame)
         {
             logger.Trace($"Skipping to latest I frame: {receivedFrame.SequenceIDX}");
             nextFrameIdx = receivedFrame.SequenceIDX;
-        }
+        }*/
 
         if (receivedFrame.NumberOfPackets == 1)
             BufferFullFrame(receivedFrame, framePacket);

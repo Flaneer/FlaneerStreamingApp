@@ -12,6 +12,7 @@ private:
 	VideoStreamConverter vsc;
 
 	int it = 0;
+	AVFrame frame;
 
 public:
 	DecodingRuntime() = default;
