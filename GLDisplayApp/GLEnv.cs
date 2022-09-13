@@ -46,7 +46,7 @@ public class GLEnv
         1, 2, 3
     };
 
-    private readonly UDPImageSource2 imageSource;
+    private readonly UDPImageSource imageSource;
     private byte[] pixels;
 
     public GLEnv(GLWindow windowIn)
@@ -63,7 +63,7 @@ public class GLEnv
         
         window = windowIn.window;
 
-        imageSource = new UDPImageSource2();
+        imageSource = new UDPImageSource();
 
         window.Load += OnLoad;
         window.Render += OnRender;

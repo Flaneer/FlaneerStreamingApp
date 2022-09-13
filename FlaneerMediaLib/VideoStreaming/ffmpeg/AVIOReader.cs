@@ -61,13 +61,16 @@ namespace FlaneerMediaLib.VideoStreaming.ffmpeg
         private unsafe int Read(void* opaque, byte *buf, int bufSize)
         {
             inputStream.Position = 0;
-            if (inputStream.Length > imageBytes.Length)
-                imageBytes = new byte[inputStream.Length];
-            var bytesRead = inputStream.Read(imageBytes, 0, (int)inputStream.Length);
-            Marshal.Copy(imageBytes, 0, (IntPtr)buf, (int)inputStream.Length);
+
+            bufSize = (int)Math.Min(bufSize, inputStream.Length);
+
+            if (bufSize > imageBytes.Length)
+                imageBytes = new byte[bufSize];
+            var bytesRead = inputStream.Read(imageBytes, 0, (int)bufSize);
+            Marshal.Copy(imageBytes, 0, (IntPtr)buf, (int)bufSize);
             //https://ffmpeg.org/doxygen/trunk/avio_8h.html#a853f5149136a27ffba3207d8520172a5
             //"must never return 0 but rather a proper AVERROR code."
-            return bytesRead == 0 ? (int)inputStream.Length : bytesRead;
+            return bytesRead == 0 ? (int)bufSize : bytesRead;
         }
 
         private unsafe Int64 Seek(void* opaque, Int64 offset, int whence) 

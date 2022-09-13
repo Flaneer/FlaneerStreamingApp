@@ -110,7 +110,7 @@ AVFrame VideoStreamDecoder::TryDecodeNextFrame()
     av_frame_unref(framePtr);
     if (usingHardwareDecoding())
         av_frame_unref(receivedFrame);
-    
+
     int error;
     frameCount++;
     do
