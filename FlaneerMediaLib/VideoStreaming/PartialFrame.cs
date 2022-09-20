@@ -10,9 +10,10 @@ namespace FlaneerMediaLib.VideoStreaming
 
         private int bufferedPieces;
 
-        private readonly Action<uint, ManagedVideoFrame> FrameReadyCallback;
+        //TODO: refactor as eventhandler with type for args
+        private readonly Action<uint, ManagedVideoFrame, bool> FrameReadyCallback;
 
-        public PartialFrame(TransmissionVideoFrame seedFrame, Action<uint, ManagedVideoFrame> onFrameReady)
+        public PartialFrame(TransmissionVideoFrame seedFrame, Action<uint, ManagedVideoFrame, bool> onFrameReady)
         {
             this.seedFrame = seedFrame;
             FrameReadyCallback = onFrameReady;
@@ -42,7 +43,7 @@ namespace FlaneerMediaLib.VideoStreaming
                 Width = seedFrame.Width,
                 Stream = frameStream
             };
-            FrameReadyCallback(seedFrame.SequenceIDX, assembledFrame);
+            FrameReadyCallback(seedFrame.SequenceIDX, assembledFrame, seedFrame.IsIFrame);
         }
     }
 }

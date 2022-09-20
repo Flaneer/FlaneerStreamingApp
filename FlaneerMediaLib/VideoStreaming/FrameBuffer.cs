@@ -21,6 +21,8 @@ internal class FrameBuffer
 
     private int packetCount;
     private long totalBytesIn;
+
+    private bool displayedFirstFrame = false;
     
     /// <summary>
     /// ctor
@@ -59,14 +61,6 @@ internal class FrameBuffer
         var isOldFrame = receivedFrame.SequenceIDX < nextFrameIdx;
         if(isOldFrame)
             return;
-        
-        //Check if the frame is a new I frame, in which case we skip to it to reduce latency
-        var receivedFrameIsNewIFrame = receivedFrame.IsIFrame && !isOldFrame;
-        if(receivedFrameIsNewIFrame)
-        {
-            logger.Trace($"Skipping to latest I frame: {receivedFrame.SequenceIDX}");
-            nextFrameIdx = receivedFrame.SequenceIDX;
-        }
 
         if (receivedFrame.NumberOfPackets == 1)
             BufferFullFrame(receivedFrame, framePacket);
@@ -76,7 +70,7 @@ internal class FrameBuffer
 
     /// <summary>
     /// Returns the next frame if it is available
-    /// </summary>
+    /// </summary>z
     public bool GetNextFrame(out IVideoFrame nextFrame)
     {
         if (!frameBuffer.ContainsKey(nextFrameIdx))
@@ -94,6 +88,10 @@ internal class FrameBuffer
         logger.Debug($"Sending {frameBuffer[nextFrameIdx].Stream!.Length}B Frame From Buffer");
         
         nextFrameIdx++;
+        
+        if (!displayedFirstFrame)
+            displayedFirstFrame = true;
+        
         return true;
     }
 
@@ -101,24 +99,33 @@ internal class FrameBuffer
     {
         var frameSequenceIDX = receivedFrame.SequenceIDX;
         if(!partialFrames.ContainsKey(frameSequenceIDX))
-            partialFrames[frameSequenceIDX] = new PartialFrame(receivedFrame, OnPartialFrameAssembled);
+            partialFrames[frameSequenceIDX] = new PartialFrame(receivedFrame, NewFrameReady);
         partialFrames[frameSequenceIDX]!.BufferPiece(framePacket, receivedFrame.PacketIdx);
     }
 
-    private void OnPartialFrameAssembled(uint sequenceIdx, ManagedVideoFrame assembledFrame) => frameBuffer[sequenceIdx] = assembledFrame;
+    private void NewFrameReady(uint sequenceIdx, ManagedVideoFrame assembledFrame, bool isIFrame)
+    {
+        if(isIFrame && displayedFirstFrame)
+        {
+            logger.Trace($"Skipping to latest I frame: {sequenceIdx}");
+            nextFrameIdx = sequenceIdx;
+        }
+        frameBuffer[sequenceIdx] = assembledFrame;
+    }
 
     private void BufferFullFrame(TransmissionVideoFrame receivedFrame, byte[] frameData)
     {
         var frameDataLength = frameData.Length - TransmissionVideoFrame.HeaderSize;
         var frameStream = new MemoryStream(frameDataLength);
         frameStream.Write(frameData, TransmissionVideoFrame.HeaderSize, frameDataLength);
-            
-        frameBuffer[receivedFrame.SequenceIDX] = new ManagedVideoFrame()
+
+        var newFrame = new ManagedVideoFrame()
         {
             Codec = codec,
             Height = receivedFrame.Height,
             Width = receivedFrame.Width,
-            Stream = frameStream 
+            Stream = frameStream
         };
+        NewFrameReady(receivedFrame.SequenceIDX, newFrame, receivedFrame.IsIFrame);
     }
 }
