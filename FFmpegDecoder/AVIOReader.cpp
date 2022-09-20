@@ -3,31 +3,21 @@
 #include <fstream>
 #include <iostream>
 
-static void save_gray_frame(unsigned char* buf, int size, int filenameSuffix)
-{
-    std::ofstream fs;
-    char path[16];
-    sprintf_s(path, "%d.h264", filenameSuffix);
-    fs.open(path, std::ios::binary);
-    fs.write((char*)buf, size);
-    fs.close();
-}
-
 static int read(void* opaque, unsigned char* buf, int buf_size)
 {
     auto bd = static_cast<struct buffer_data*>(opaque);
 
-    std::cout << "Buf size: " << buf_size << " Read Size: " << bd->size << " Buf Size Bigger: " << (buf_size > bd->size) << "\n";
+    if(buf_size > bd->size)
+        std::cout << "Buf size: " << buf_size << " Read Size: " << bd->size << "\n";
 
 	buf_size = FFMIN(bd->size, buf_size);
-
-    //save_gray_frame(bd->ptr, bd->size, 108);
 
     memcpy(buf, bd->ptr, buf_size);
     bd->ptr += buf_size;
     bd->size -= buf_size;
 
-    //save_gray_frame(buf, buf_size, 104);
+    if(buf_size == 0)
+        throw;
 
     return buf_size;
 }
