@@ -70,7 +70,7 @@ internal class FrameBuffer
 
     /// <summary>
     /// Returns the next frame if it is available
-    /// </summary>z
+    /// </summary>
     public bool GetNextFrame(out IVideoFrame nextFrame)
     {
         if (!frameBuffer.ContainsKey(nextFrameIdx))
