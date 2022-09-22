@@ -17,7 +17,7 @@ internal class Program
         bool loop = true;
         while (loop)
         {
-            byte[] inBuf = new byte[2];
+            byte[] inBuf = new byte[16];
             EndPoint inEP = new IPEndPoint(IPAddress.Any, 11000);
             s.ReceiveFrom(inBuf, ref inEP);
             var inIp = inEP as IPEndPoint ?? throw new InvalidOperationException();

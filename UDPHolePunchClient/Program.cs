@@ -26,7 +26,8 @@ internal class Program
             EndPoint inEP = new IPEndPoint(IPAddress.Any, 11000);
             s.ReceiveFrom(inBuf, ref inEP);
 
-            var inIp = inEP as IPEndPoint;
+            var inIp = inEP as IPEndPoint ?? throw new InvalidOperationException();
+            Console.WriteLine($"Contact from {inIp}");
             //Message from server
             if (Equals(inIp?.Address, serverEndPoint.Address) && inIp.Port == serverEndPoint.Port)
             {
@@ -36,7 +37,7 @@ internal class Program
                 loop = true;
             }
             //Message from peer
-            else if(inIp != null)
+            else
             {
                 string message = System.Text.Encoding.UTF8.GetString(inBuf, 0, inBuf.Length);
                 Console.WriteLine($"Received message from peer: {message}");
@@ -46,6 +47,7 @@ internal class Program
             if (peer != null)
             {
                 string convert = "Hello there!";
+                Console.WriteLine($"Sending message to peer: {convert}");
                 byte[] buffer = System.Text.Encoding.UTF8.GetBytes(convert);
                 s.SendTo(buffer, peer);
             }
