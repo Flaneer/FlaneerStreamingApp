@@ -21,6 +21,8 @@ internal class Program
             EndPoint inEP = new IPEndPoint(IPAddress.Any, 11000);
             s.ReceiveFrom(inBuf, ref inEP);
             var inIp = inEP as IPEndPoint ?? throw new InvalidOperationException();
+            Console.WriteLine($"Contact from {inIp}");
+            
             Client newClient = Client.FromIpEndpoint(inIp);
             Console.WriteLine($"Added new client {newClient}");
 

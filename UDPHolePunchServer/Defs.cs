@@ -8,7 +8,7 @@ namespace UDPHolePunchServer;
 public struct Client
 {
     public UInt32 host;
-    public Int16 port;
+    public UInt16 port;
 
     public byte[] ToBytes()
     {
@@ -27,7 +27,7 @@ public struct Client
         var ret = new Client()
         {
             host = reader.ReadUInt32(),
-            port = reader.ReadInt16(),
+            port = reader.ReadUInt16(),
         };
         
         return ret;
@@ -38,7 +38,7 @@ public struct Client
         return new Client()
         {
             host = Utils.IpToUInt32(ep.Address.ToString()),
-            port = (Int16) ep.Port
+            port = (UInt16) ep.Port
         };
     }
 
