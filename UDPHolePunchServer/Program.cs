@@ -28,6 +28,7 @@ internal class Program
 
             foreach (var client in clients)
             {
+                Console.WriteLine($"Sending {newClient} to {client}");
                 s.SendTo(newClient.ToBytes(), client.ToEndPoint());
             }
             
