@@ -31,8 +31,8 @@ internal class Program
             //Message from server
             if (Equals(inIp?.Address, serverEndPoint.Address) && inIp.Port == serverEndPoint.Port)
             {
-                peer = inIp;
                 Client client = Client.FromBytes(inBuf);
+                peer = client.ToEndPoint();
                 Console.WriteLine($"Peer registered at: {client}");
                 loop = true;
             }
