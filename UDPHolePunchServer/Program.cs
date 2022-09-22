@@ -30,6 +30,8 @@ internal class Program
             {
                 Console.WriteLine($"Sending {newClient} to {client}");
                 s.SendTo(newClient.ToBytes(), client.ToEndPoint());
+                Console.WriteLine($"Sending {client} to {newClient}");
+                s.SendTo(client.ToBytes(), newClient.ToEndPoint());
             }
             
             clients.Add(newClient);
