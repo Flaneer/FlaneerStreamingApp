@@ -43,13 +43,12 @@ internal class Program
                 loop = false;
             }
             
+            if (peer != null)
+            {
+                string convert = "Hello there!";
+                byte[] buffer = System.Text.Encoding.UTF8.GetBytes(convert);
+                s.SendTo(buffer, peer);
+            }
         } while (loop);
-
-        if (peer != null)
-        {
-            string convert = "Hello there!";
-            byte[] buffer = System.Text.Encoding.UTF8.GetBytes(convert);
-            s.SendTo(buffer, peer);
-        }
     }
 }
