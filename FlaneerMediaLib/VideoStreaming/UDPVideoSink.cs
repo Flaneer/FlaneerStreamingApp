@@ -154,7 +154,7 @@ public class UDPVideoSink : IVideoSink
             Array.Copy(headerBytes, transmissionArray, headerBytes.Length);
             Array.Copy(frameBytes, sent, transmissionArray, headerBytes.Length, packetSize);
                 
-            udpSender.Send(transmissionArray);
+            udpSender.SendToPeer(transmissionArray);
 
             sent += packetSize;
             logger.Debug($"SENT CHUNK OF {nextFrame} | {sent} / {frame.FrameSize} [gray]Total Sent Packets = {sentPacketCount++}[/]");

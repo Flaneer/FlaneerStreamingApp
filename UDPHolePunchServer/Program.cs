@@ -1,5 +1,6 @@
 ﻿using System.Net;
 using System.Net.Sockets;
+using FlaneerMediaLib.UnreliableDataChannel;
 
 namespace UDPHolePunchServer;
 
@@ -12,24 +13,24 @@ internal class Program
         var ipMe = new IPEndPoint(IPAddress.Any, 11000);
         s.Bind(ipMe);
 
-        List<Client> clients = new List<Client>();
+        List<HolePunchInfoPacket> clients = new List<HolePunchInfoPacket>();
         
         bool loop = true;
         while (loop)
         {
-            byte[] inBuf = new byte[16];
+            byte[] inBuf = new byte[HolePunchInfoPacket.HeaderSize];
             EndPoint inEP = new IPEndPoint(IPAddress.Any, 11000);
             s.ReceiveFrom(inBuf, ref inEP);
             var inIp = inEP as IPEndPoint ?? throw new InvalidOperationException();
             Console.WriteLine($"Contact from {inIp}");
             
-            Client newClient = Client.FromIpEndpoint(inIp);
+            HolePunchInfoPacket newClient = HolePunchInfoPacket.FromIpEndpoint(inIp);
             Console.WriteLine($"Added new client {newClient}");
 
             foreach (var client in clients)
             {
                 Console.WriteLine($"Sending {newClient} to {client}");
-                s.SendTo(newClient.ToBytes(), client.ToEndPoint());
+                s.SendTo(newClient.ToUDPPacket(), client.ToEndPoint() ?? throw new InvalidOperationException());
             }
             
             clients.Add(newClient);

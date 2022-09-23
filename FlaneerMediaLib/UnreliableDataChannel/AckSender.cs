@@ -22,7 +22,7 @@ public class AckSender : IService
     private void OnPacketReceived(byte[] incomingPacket)
     {
         Ack ack = AckFromReceivedPacket(ackBuffer, incomingPacket);
-        udpSender.Send(ack.ToUDPPacket());
+        udpSender.SendToPeer(ack.ToUDPPacket());
     }
 
     internal static Ack AckFromReceivedPacket(List<UInt32> ackBuffer, byte[] incomingPacket)

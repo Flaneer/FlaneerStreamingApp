@@ -9,4 +9,8 @@
         <RootNamespace>UDPHolePunchServer</RootNamespace>
     </PropertyGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\FlaneerMediaLib\FlaneerMediaLib.csproj" />
+    </ItemGroup>
+
 </Project>
