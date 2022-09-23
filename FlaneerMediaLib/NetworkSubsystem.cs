@@ -21,9 +21,12 @@ public static class NetworkSubsystem
 
         var ackSender = new AckSender();
         ServiceRegistry.AddService(ackSender);
-        
+
+        var holePunchClient = new HolePunchClient();
+        ServiceRegistry.AddService(holePunchClient);
+
         //add measures
-        
+
     }
 
     /// <summary>
@@ -39,6 +42,9 @@ public static class NetworkSubsystem
         
         var ackReceiver = new AckReceiver();
         ServiceRegistry.AddService(ackReceiver);
+
+        var holePunchClient = new HolePunchClient();
+        ServiceRegistry.AddService(holePunchClient);
         
         //add control
         var qualityManager = new QualityManager();
