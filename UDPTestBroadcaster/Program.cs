@@ -15,7 +15,7 @@ class Program
         var videoSettings = new VideoSettings();
         InitialiseMediaEncoder(videoSettings);
 
-        IVideoSink videoSink = new UDPVideoSink();
+        IVideoSink videoSink = new UDPVideoSink(videoSettings);
         videoSink.ProcessFrames(600, videoSettings.MaxFPS);
         
         Console.WriteLine("Message sent to the broadcast address");
