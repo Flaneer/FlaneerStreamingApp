@@ -9,8 +9,24 @@ namespace FlaneerMediaLib.UnreliableDataChannel;
 /// </summary>
 public class UDPSender : IService
 {
+    /// <summary>
+    /// Whether or not a hole punched peer is registered
+    /// </summary>
+    public bool PeerRegistered = false;
+    
     private readonly Socket s = new(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
-    internal IPEndPoint? peerEndPoint = null;
+
+    internal IPEndPoint? PeerEndPoint
+    {
+        get => peerEndPoint;
+        set
+        {
+            if (value != null)
+                PeerRegistered = true;
+            peerEndPoint = value;
+        }
+    }
+    private IPEndPoint? peerEndPoint = null;
     private readonly IPEndPoint serverEndPoint;
 
     private UInt32 packetCount;
@@ -53,6 +69,7 @@ public class UDPSender : IService
         if (peerEndPoint == null)
         {
             logger.Error("Can't send packet, no peer registered!");
+            return;
         }
         
         if (PacketInfoParser.PacketType(bytes) != PacketType.Ack)

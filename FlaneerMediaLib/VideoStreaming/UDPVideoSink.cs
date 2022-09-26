@@ -85,10 +85,16 @@ public class UDPVideoSink : IVideoSink
         if(encoder == default! || videoSource == default!)
             return;
         
+        while (!udpSender.PeerRegistered)
+        {
+            logger.Trace("Waiting for peer to be registered");
+            Thread.Sleep(100);
+        }
+        
         Stopwatch stopWatch = new Stopwatch();
         stopWatch.Start();
         var frameTime = targetFramerate == -1 ? new TimeSpan(0) : new TimeSpan(0, 0, 0, 0, 1000 / targetFramerate);
-
+        
         for (int i = 0; i < numberOfFrames; i++)
         {
             while (stopWatch.Elapsed < (frameTime*i))
