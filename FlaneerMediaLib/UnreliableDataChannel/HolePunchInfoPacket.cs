@@ -54,6 +54,13 @@ public class HolePunchInfoPacket : IPacketInfo
     {
         using var stream = new MemoryStream(bytes, 0, HeaderSize);
         using var reader = new BinaryReader(stream, Encoding.UTF8, false);
+        
+        var packetType = reader.ReadByte();
+        if (packetType != (byte)PacketType.HolePunchInfo)
+        {
+            throw new Exception($"Trying to decode a {(PacketType) packetType} as a {PacketType.HolePunchInfo}");
+        }
+        
         var ret = new HolePunchInfoPacket()
         {
             PacketSize = reader.ReadUInt16(),
