@@ -9,7 +9,6 @@ namespace FlaneerMediaLib.UnreliableDataChannel;
 /// </summary>
 public class UDPReceiver : IService
 {
-    private readonly UdpClient listener;
     private IPEndPoint groupEP;
     
     private readonly Dictionary<PacketType, List<Action<byte[]>>> receptionTrafficDestinations = new();
@@ -32,11 +31,9 @@ public class UDPReceiver : IService
         var broadcastInfo = clas.GetParams(CommandLineArgs.BroadcastAddress);
         var listenPort = Int32.Parse(broadcastInfo[1]);
         
-        listener = new UdpClient(listenPort);
         groupEP = new IPEndPoint(IPAddress.Any, listenPort);
-        
-        
-        
+        s.Bind(groupEP);
+
         Task.Run(Reception);
     }
 
@@ -45,7 +42,6 @@ public class UDPReceiver : IService
         receiving = true;
         while (receiving)
         {
-            listener.Client.ReceiveBufferSize = Int32.MaxValue;
             try
             {
                 var endPoint = groupEP as EndPoint;
@@ -94,6 +90,5 @@ public class UDPReceiver : IService
     public void Dispose()
     {
         receiving = false;
-        listener.Dispose();
     }
 }
