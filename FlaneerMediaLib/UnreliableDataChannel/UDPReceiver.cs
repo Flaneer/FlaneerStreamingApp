@@ -17,6 +17,9 @@ public class UDPReceiver : IService
     private readonly Logger logger;
     private readonly UDPClientStatTracker clientStatTracker;
 
+    private Socket s = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
+    private byte[] receivedByteBuffer = new byte[Int16.MaxValue];
+
     /// <summary>
     /// ctor
     /// </summary>
@@ -32,6 +35,8 @@ public class UDPReceiver : IService
         listener = new UdpClient(listenPort);
         groupEP = new IPEndPoint(IPAddress.Any, listenPort);
         
+        
+        
         Task.Run(Reception);
     }
 
@@ -43,21 +48,22 @@ public class UDPReceiver : IService
             listener.Client.ReceiveBufferSize = Int32.MaxValue;
             try
             {
-                var receivedBytes = listener.Receive(ref groupEP);
-                if(receivedBytes.Length == 0)
+                var endPoint = groupEP as EndPoint;
+                s.ReceiveFrom(receivedByteBuffer, ref endPoint);
+                if(receivedByteBuffer.Length == 0)
                     continue;
 
-                var receivedType = PacketInfoParser.PacketType(receivedBytes);
-                var packetSize = PacketInfoParser.PacketSize(receivedBytes);
+                var receivedType = PacketInfoParser.PacketType(receivedByteBuffer);
+                var packetSize = PacketInfoParser.PacketSize(receivedByteBuffer);
 
-                if(packetSize != receivedBytes.Length)
+                if(packetSize != receivedByteBuffer.Length)
                     logger.Debug($"TransmittedPacketSize:{packetSize}");
                 
                 if (receptionTrafficDestinations.ContainsKey(receivedType))
                 {
                     foreach (var callback in receptionTrafficDestinations[receivedType])
                     {
-                        callback(receivedBytes);
+                        callback(receivedByteBuffer);
                     }
                 }
             }
