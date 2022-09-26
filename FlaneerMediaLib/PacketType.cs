@@ -14,6 +14,10 @@ public enum PacketType : byte
     /// </summary>
     Ack,
     /// <summary>
+    /// A packet containing the info to facilitate UDP hole punching
+    /// </summary>
+    HolePunchInfo,
+    /// <summary>
     /// A packet type used in unit testing
     /// </summary>
     TestPacket = Byte.MaxValue, 
