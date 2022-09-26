@@ -1,6 +1,6 @@
 ﻿using System.Net;
 using System.Net.Sockets;
-using UDPHolePunchServer;
+using FlaneerMediaLib.UnreliableDataChannel;
 
 namespace UDPHolePunchClient;
 
@@ -31,7 +31,7 @@ internal class Program
             //Message from server
             if (Equals(inIp?.Address, serverEndPoint.Address) && inIp.Port == serverEndPoint.Port)
             {
-                Client client = Client.FromBytes(inBuf);
+                HolePunchInfoPacket client = HolePunchInfoPacket.FromBytes(inBuf);
                 peer = client.ToEndPoint();
                 Console.WriteLine($"Peer registered at: {client}");
                 loop = true;
