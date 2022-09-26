@@ -52,7 +52,7 @@ public class HolePunchInfoPacket : IPacketInfo
     /// </summary>
     public static HolePunchInfoPacket FromBytes(byte[] bytes)
     {
-        using var stream = new MemoryStream(bytes, 0, 6);
+        using var stream = new MemoryStream(bytes, 0, HeaderSize);
         using var reader = new BinaryReader(stream, Encoding.UTF8, false);
         var ret = new HolePunchInfoPacket()
         {
