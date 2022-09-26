@@ -22,7 +22,7 @@ internal class Program
 
         do
         {
-            byte[] inBuf = new byte[16];
+            byte[] inBuf = new byte[HolePunchInfoPacket.HeaderSize];
             EndPoint inEP = new IPEndPoint(IPAddress.Any, 11000);
             s.ReceiveFrom(inBuf, ref inEP);
 
