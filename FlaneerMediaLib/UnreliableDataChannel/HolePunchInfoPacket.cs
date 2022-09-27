@@ -42,6 +42,7 @@ public class HolePunchInfoPacket : IPacketInfo
         writer.Write((byte) PacketType);
         writer.Write(PacketSize);
         writer.Write(DateTime.UtcNow.Ticks);
+        writer.Write(PacketId);
         writer.Write(Host);
         writer.Write(Port);
         return ret;
