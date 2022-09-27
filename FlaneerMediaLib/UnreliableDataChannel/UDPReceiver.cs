@@ -50,6 +50,10 @@ public class UDPReceiver : IService
                     continue;
 
                 var receivedType = PacketInfoParser.PacketType(receivedByteBuffer);
+
+                if (receivedType == PacketType.HolePunchInfo)
+                    groupEP = HolePunchInfoPacket.FromBytes(receivedByteBuffer).ToEndPoint() ?? throw new InvalidOperationException();
+                
                 var packetSize = PacketInfoParser.PacketSize(receivedByteBuffer);
 
                 if(packetSize != receivedByteBuffer.Length)

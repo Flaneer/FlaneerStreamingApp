@@ -1,4 +1,6 @@
-﻿namespace FlaneerMediaLib
+﻿using FlaneerMediaLib.Logging;
+
+namespace FlaneerMediaLib
 {
     /// <summary>
     /// Empty interface to allow for identification of services to put into the registry
@@ -18,9 +20,13 @@
         private readonly Dictionary<Type, IService> registry = new();
 
         private static ServiceRegistry instance = null!;
+        
+        private readonly Logger logger;
 
         private ServiceRegistry()
         {
+            logger = Logger.GetLogger(this);
+            ServiceAdded += service => logger.Info($"Registered new service of type: {service.GetType()}");
         }
 
         // ReSharper disable once ConstantNullCoalescingCondition
