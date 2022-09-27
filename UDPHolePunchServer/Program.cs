@@ -31,8 +31,9 @@ internal class Program
             {
                 Console.WriteLine($"Sending {newClient} to {client}");
                 s.SendTo(newClient.ToUDPPacket(), client.ToEndPoint() ?? throw new InvalidOperationException());
+                Console.WriteLine($"Sending {client} to {newClient}");
+                s.SendTo(client.ToUDPPacket(), newClient.ToEndPoint() ?? throw new InvalidOperationException());
             }
-            
             clients.Add(newClient);
         }
     }
