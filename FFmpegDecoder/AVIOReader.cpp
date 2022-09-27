@@ -34,8 +34,7 @@ void AVIOReader::SetBuffer(buffer_data buffer)
     bufferPtr = static_cast<unsigned char*>(av_malloc(bufferSize));
 
     bd = buffer;
-
-    //memcpy(bufferPtr, buffer.ptr, bufferSize);
+    
     AllocAvioContext();
 }
 
@@ -47,8 +46,5 @@ void AVIOReader::Cleanup() const
 
 void AVIOReader::AllocAvioContext()
 {
-    /*bd.ptr = bufferPtr;
-    bd.size = bufferSize;*/
-
     AvioCtx = avio_alloc_context(bufferPtr, bufferSize, 0, &bd, &read, NULL, &seek);
 }

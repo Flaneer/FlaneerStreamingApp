@@ -10,7 +10,7 @@ using AVPixelFormat = FFmpegDecoderWrapper.AVPixelFormat;
 
 namespace GLDisplayApp;
 
-public class UDPImageSource2
+public class UDPImageSourceNative
 {
     private readonly IVideoSource videoSource;
     
@@ -22,11 +22,11 @@ public class UDPImageSource2
     private int decodeCount;
     private TimeSpan totalDecodeTime;
 
-    private bool alsoWriteToFile = true;
+    private bool alsoWriteToFile = false;
 
     private bool ffmpegInitialised = false;
 
-    public UDPImageSource2()
+    public UDPImageSourceNative()
     {
         logger = Logger.GetLogger(this);
         
@@ -51,7 +51,7 @@ public class UDPImageSource2
                 var frame = frameIn as ManagedVideoFrame;
 
                 if (frame == null)
-                    throw new Exception("Trying to use wrong frame type in ImageDecode");
+                    throw new Exception($"Trying to use {frameIn.GetType()} instead of {typeof(ManagedVideoFrame)} in ImageDecode");
 
                 if (frame.Stream == null)
                     throw new Exception("Frame passed with empty stream");
@@ -70,13 +70,14 @@ public class UDPImageSource2
                     }
                     else
                     {
-                        newFrame = Wrapper.Init(new VideoFrameSettings
+                        var videoFrameSettings = new VideoFrameSettings
                         {
                             Height = height,
                             Width = width,
                             Codec = Codec.H264,
                             PixelFormat = AVPixelFormat.AV_PIX_FMT_YUV420P
-                        }, (IntPtr)p, (int)frame.Stream.Length);
+                        };
+                        newFrame = Wrapper.Init(videoFrameSettings, (IntPtr)p, (int)frame.Stream.Length);
                         ffmpegInitialised = true;
                     }
                 }
