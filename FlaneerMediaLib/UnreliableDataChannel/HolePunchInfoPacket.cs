@@ -27,11 +27,11 @@ public class HolePunchInfoPacket : IPacketInfo
     /// <summary>
     /// The IP address serialised into a single int
     /// </summary>
-    public UInt32 Host;
+    private UInt32 host;
     /// <summary>
     /// The port of the client
     /// </summary>
-    public UInt16 Port;
+    private UInt16 port;
     
     /// <inheritdoc/>
     public byte[] ToUDPPacket()
@@ -43,8 +43,8 @@ public class HolePunchInfoPacket : IPacketInfo
         writer.Write(PacketSize);
         writer.Write(DateTime.UtcNow.Ticks);
         writer.Write(PacketId);
-        writer.Write(Host);
-        writer.Write(Port);
+        writer.Write(host);
+        writer.Write(port);
         return ret;
     }
     
@@ -67,8 +67,8 @@ public class HolePunchInfoPacket : IPacketInfo
             PacketSize = reader.ReadUInt16(),
             TimeStamp = reader.ReadInt64(),
             PacketId = reader.ReadUInt32(),
-            Host = reader.ReadUInt32(),
-            Port = reader.ReadUInt16(),
+            host = reader.ReadUInt32(),
+            port = reader.ReadUInt16(),
         };
 
         return ret;
@@ -81,8 +81,8 @@ public class HolePunchInfoPacket : IPacketInfo
     {
         return new HolePunchInfoPacket()
         {
-            Host = IpToUInt32(ep.Address.ToString()),
-            Port = (UInt16) ep.Port
+            host = IpToUInt32(ep.Address.ToString()),
+            port = (UInt16) ep.Port
         };
     }
 
@@ -90,7 +90,7 @@ public class HolePunchInfoPacket : IPacketInfo
     /// <summary>
     /// Helper method for turning info packet into ip endpoint
     /// </summary>
-    public IPEndPoint? ToEndPoint() => new IPEndPoint(new IPAddress(Host), Port);
+    public IPEndPoint? ToEndPoint() => new IPEndPoint(new IPAddress(host), port);
 
     private static UInt32 IpToUInt32(string ip)
     {
@@ -99,5 +99,5 @@ public class HolePunchInfoPacket : IPacketInfo
     }
     
     /// <inheritdoc/>
-    public override string ToString() => $"{new IPAddress(Host)}:{Port}";
+    public override string ToString() => $"{new IPAddress(host)}:{port}";
 }
