@@ -94,26 +94,35 @@ public class GLEnv
     {
         unsafe
         {
-            var frame = imageSource.GetImage();
-            if(frame.Height != 0)
+            try
             {
-                Gl.TexImage2D(TextureTarget.Texture2D, 0, InternalFormat.Rgba, (uint) frame.Width, (uint) frame.Height, 0,
-                    PixelFormat.Rgb, PixelType.UnsignedByte, frame.FrameData);
+                var frame = imageSource.GetImage();
                 
-                if (currentSecond == DateTime.Now.Second)
+                if (frame.Height != 0)
                 {
-                    currentSecondFramesDisplayed++;
-                }
-                else
-                {
-                    logger.AmountStat("FPS", currentSecondFramesDisplayed);
-                    currentSecond = DateTime.Now.Second;
-                    currentSecondFramesDisplayed = 0;
+                    Gl.TexImage2D(TextureTarget.Texture2D, 0, InternalFormat.Rgba, (uint)frame.Width, (uint)frame.Height, 0,
+                    PixelFormat.Rgb, PixelType.UnsignedByte, frame.FrameData);
+                                    
+                    if (currentSecond == DateTime.Now.Second)
+                    {
+                        currentSecondFramesDisplayed++;
+                    }
+                    else
+                    {
+                        logger.AmountStat("FPS", currentSecondFramesDisplayed);
+                        currentSecond = DateTime.Now.Second;
+                        currentSecondFramesDisplayed = 0;
+                    }
                 }
             }
+            finally
+            {
+                window.Title = "Flaneer Streaming: " + StatLogging.GetPerfStats();
+            }
+            
         }
 
-        window.Title = "Flaneer Streaming: " + StatLogging.GetPerfStats();
+        
     }
     
     private unsafe void OnRender(double obj) //Method needs to be unsafe due to draw elements.

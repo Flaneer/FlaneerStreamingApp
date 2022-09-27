@@ -28,6 +28,7 @@
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\FFmpegDecoderWrapper\FFmpegDecoderWrapper.csproj" />
       <ProjectReference Include="..\FlaneerMediaLib\FlaneerMediaLib.csproj" />
     </ItemGroup>
 
