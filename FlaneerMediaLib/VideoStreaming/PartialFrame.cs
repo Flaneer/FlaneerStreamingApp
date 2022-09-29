@@ -26,7 +26,8 @@ namespace FlaneerMediaLib.VideoStreaming
         {
             //This tells us where in the frame to put this part of the frame data
             var partialFrameWriteIDX = packetIdx * VideoUtils.FRAMEWRITABLESIZE;
-            Buffer.BlockCopy(framePacket, TransmissionVideoFrame.HeaderSize, frameData, partialFrameWriteIDX, packetSize);
+            Buffer.BlockCopy(framePacket, TransmissionVideoFrame.HeaderSize, 
+                frameData, partialFrameWriteIDX, packetSize-TransmissionVideoFrame.HeaderSize);
             bufferedPieces++;
             if (bufferedPieces == seedFrame.NumberOfPackets)
                 AssembleFrame();

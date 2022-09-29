@@ -49,8 +49,6 @@ public class UDPReceiver : IService
                 var endPoint = receptionIpEndPoint as EndPoint;
                 s.ReceiveFrom(receivedByteBuffer, ref endPoint);
                 
-                logger.Trace($"Received packet from {endPoint}");
-                
                 if(receivedByteBuffer.Length == 0)
                     continue;
 
@@ -58,11 +56,6 @@ public class UDPReceiver : IService
 
                 if (receivedType == PacketType.HolePunchInfo)
                     receptionIpEndPoint = HolePunchInfoPacket.FromBytes(receivedByteBuffer).ToEndPoint() ?? throw new InvalidOperationException();
-                
-                var packetSize = PacketInfoParser.PacketSize(receivedByteBuffer);
-
-                if(packetSize != receivedByteBuffer.Length)
-                    logger.Debug($"TransmittedPacketSize:{packetSize}");
                 
                 if (receptionTrafficDestinations.ContainsKey(receivedType))
                 {

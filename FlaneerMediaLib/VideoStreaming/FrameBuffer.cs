@@ -116,7 +116,7 @@ internal class FrameBuffer
     private void BufferFullFrame(TransmissionVideoFrame receivedFrame, byte[] frameData)
     {
         var frameStream = new MemoryStream(receivedFrame.PacketSize);
-        frameStream.Write(frameData, TransmissionVideoFrame.HeaderSize, receivedFrame.PacketSize);
+        frameStream.Write(frameData, TransmissionVideoFrame.HeaderSize, receivedFrame.PacketSize-TransmissionVideoFrame.HeaderSize);
 
         var newFrame = new ManagedVideoFrame()
         {
