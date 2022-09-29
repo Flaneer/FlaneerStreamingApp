@@ -38,11 +38,12 @@ internal class FrameBuffer
     /// </summary>
     public void BufferFrame(byte[] framePacket)
     {
+        TransmissionVideoFrame receivedFrame = TransmissionVideoFrame.FromUDPPacket(framePacket);
         //Bandwidth measurements
         packetCount++;
         if (DateTime.Now.Second == currentSecond)
         {
-            currentSecondBytesIn += framePacket.Length;
+            currentSecondBytesIn += receivedFrame.PacketSize;
         }
         else
         {
@@ -55,7 +56,6 @@ internal class FrameBuffer
             currentSecondBytesIn = 0;
         }
         
-        TransmissionVideoFrame receivedFrame = TransmissionVideoFrame.FromUDPPacket(framePacket);
 
         //Check the frame is new, we dont want to do anything with old frames 
         var isOldFrame = receivedFrame.SequenceIDX < nextFrameIdx;
@@ -100,7 +100,7 @@ internal class FrameBuffer
         var frameSequenceIDX = receivedFrame.SequenceIDX;
         if(!partialFrames.ContainsKey(frameSequenceIDX))
             partialFrames[frameSequenceIDX] = new PartialFrame(receivedFrame, NewFrameReady);
-        partialFrames[frameSequenceIDX]!.BufferPiece(framePacket, receivedFrame.PacketIdx);
+        partialFrames[frameSequenceIDX]!.BufferPiece(framePacket, receivedFrame.PacketIdx, receivedFrame.PacketSize);
     }
 
     private void NewFrameReady(uint sequenceIdx, ManagedVideoFrame assembledFrame, bool isIFrame)
@@ -115,9 +115,8 @@ internal class FrameBuffer
 
     private void BufferFullFrame(TransmissionVideoFrame receivedFrame, byte[] frameData)
     {
-        var frameDataLength = frameData.Length - TransmissionVideoFrame.HeaderSize;
-        var frameStream = new MemoryStream(frameDataLength);
-        frameStream.Write(frameData, TransmissionVideoFrame.HeaderSize, frameDataLength);
+        var frameStream = new MemoryStream(receivedFrame.PacketSize);
+        frameStream.Write(frameData, TransmissionVideoFrame.HeaderSize, receivedFrame.PacketSize);
 
         var newFrame = new ManagedVideoFrame()
         {

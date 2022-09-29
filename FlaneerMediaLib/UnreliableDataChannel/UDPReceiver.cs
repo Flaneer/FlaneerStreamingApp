@@ -66,9 +66,17 @@ public class UDPReceiver : IService
                 
                 if (receptionTrafficDestinations.ContainsKey(receivedType))
                 {
-                    foreach (var callback in receptionTrafficDestinations[receivedType])
+                    try
                     {
-                        callback(receivedByteBuffer);
+                        foreach (var callback in receptionTrafficDestinations[receivedType])
+                        {
+                            callback(receivedByteBuffer);
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        logger.Error($"Error with callback of type {receivedType}: {e.ToString()}");
+                        throw;
                     }
                 }
             }

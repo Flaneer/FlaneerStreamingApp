@@ -22,12 +22,11 @@ namespace FlaneerMediaLib.VideoStreaming
             frameData.Initialize();
         }
     
-        public void BufferPiece(byte[] framePacket, int packetIdx)
+        public void BufferPiece(byte[] framePacket, int packetIdx, int packetSize)
         {
-            var partialFrameDataLength = framePacket.Length - TransmissionVideoFrame.HeaderSize;
             //This tells us where in the frame to put this part of the frame data
             var partialFrameWriteIDX = packetIdx * VideoUtils.FRAMEWRITABLESIZE;
-            Buffer.BlockCopy(framePacket, TransmissionVideoFrame.HeaderSize, frameData, partialFrameWriteIDX, partialFrameDataLength);
+            Buffer.BlockCopy(framePacket, TransmissionVideoFrame.HeaderSize, frameData, partialFrameWriteIDX, packetSize);
             bufferedPieces++;
             if (bufferedPieces == seedFrame.NumberOfPackets)
                 AssembleFrame();
