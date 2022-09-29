@@ -73,7 +73,8 @@ public class UDPSender : IService
             return;
         }
         
-        if (PacketInfoParser.PacketType(bytes) != PacketType.Ack)
+        //DEBUGDEBUGDEBUGDEBUGDEBUGDEBUGDEBUGDEBUGDEBUGDEBUGDEBUGDEBUGDEBUGDEBUGDEBUGDEBUGDEBUGDEBUGDEBUGDEBUG
+        /*if (PacketInfoParser.PacketType(bytes) != PacketType.Ack)
         {
             logger.Trace($"Sending {PacketInfoParser.PacketType(bytes)} to {peerEndPoint}");
             var packetCountBytes = BitConverter.GetBytes(++packetCount);
@@ -81,7 +82,7 @@ public class UDPSender : IService
             {
                 bytes[PacketInfoParser.PacketIdIdx + i] = packetCountBytes[i];
             }
-        }
+        }*/
         s.SendTo(bytes, peerEndPoint);
     }
 }
