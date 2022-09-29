@@ -37,9 +37,5 @@ public class HolePunchClient : IService
         HolePunchInfoPacket packet = HolePunchInfoPacket.FromBytes(obj);
         logger.Info($"Peer info received: {packet}");
         udpSender.PeerEndPoint = packet.ToEndPoint();
-        string convert = "Hello there!";
-        Console.WriteLine($"Sending message to peer: {convert}");
-        byte[] buffer = System.Text.Encoding.UTF8.GetBytes(convert);
-        udpSender.SendToPeer(buffer);
     }
 }
