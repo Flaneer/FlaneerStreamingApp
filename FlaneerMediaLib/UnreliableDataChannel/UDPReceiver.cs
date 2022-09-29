@@ -9,21 +9,22 @@ namespace FlaneerMediaLib.UnreliableDataChannel;
 /// </summary>
 public class UDPReceiver : IService
 {
-    private IPEndPoint groupEP;
+    private IPEndPoint receptionIpEndPoint;
     
     private readonly Dictionary<PacketType, List<Action<byte[]>>> receptionTrafficDestinations = new();
     private bool receiving;
     private readonly Logger logger;
     private readonly UDPClientStatTracker clientStatTracker;
 
-    private Socket s = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
+    private Socket s;
     private byte[] receivedByteBuffer = new byte[Int16.MaxValue];
 
     /// <summary>
     /// ctor
     /// </summary>
-    public UDPReceiver()
+    public UDPReceiver(Socket s)
     {
+        this.s = s;
         logger = Logger.GetLogger(this);
         clientStatTracker = new UDPClientStatTracker(this);
         
@@ -31,8 +32,9 @@ public class UDPReceiver : IService
         var broadcastInfo = clas.GetParams(CommandLineArgs.BroadcastAddress);
         var listenPort = Int32.Parse(broadcastInfo[1]);
         
-        groupEP = new IPEndPoint(IPAddress.Any, listenPort);
-        s.Bind(groupEP);
+        receptionIpEndPoint = new IPEndPoint(IPAddress.Any, listenPort);
+        
+        //s.Bind(receptionIpEndPoint);
 
         Task.Run(Reception);
     }
@@ -44,15 +46,18 @@ public class UDPReceiver : IService
         {
             try
             {
-                var endPoint = groupEP as EndPoint;
+                var endPoint = receptionIpEndPoint as EndPoint;
                 s.ReceiveFrom(receivedByteBuffer, ref endPoint);
+                
+                logger.Trace($"Received packet from {endPoint}");
+                
                 if(receivedByteBuffer.Length == 0)
                     continue;
 
                 var receivedType = PacketInfoParser.PacketType(receivedByteBuffer);
 
                 if (receivedType == PacketType.HolePunchInfo)
-                    groupEP = HolePunchInfoPacket.FromBytes(receivedByteBuffer).ToEndPoint() ?? throw new InvalidOperationException();
+                    receptionIpEndPoint = HolePunchInfoPacket.FromBytes(receivedByteBuffer).ToEndPoint() ?? throw new InvalidOperationException();
                 
                 var packetSize = PacketInfoParser.PacketSize(receivedByteBuffer);
 

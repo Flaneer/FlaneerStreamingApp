@@ -14,7 +14,7 @@ public class UDPSender : IService
     /// </summary>
     public bool PeerRegistered = false;
     
-    private readonly Socket s = new(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
+    private readonly Socket s;
 
     internal IPEndPoint? PeerEndPoint
     {
@@ -35,8 +35,9 @@ public class UDPSender : IService
     /// <summary>
     /// ctor
     /// </summary>
-    public UDPSender()
+    public UDPSender(Socket s)
     {
+        this.s = s;
         logger = Logger.GetLogger(this);
         ServiceRegistry.TryGetService<CommandLineArgumentStore>(out var clas);
         var frameSettings = clas.GetParams(CommandLineArgs.BroadcastAddress);

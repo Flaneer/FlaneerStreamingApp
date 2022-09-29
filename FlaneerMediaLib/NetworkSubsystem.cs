@@ -1,4 +1,5 @@
-﻿using FlaneerMediaLib.UnreliableDataChannel;
+﻿using System.Net.Sockets;
+using FlaneerMediaLib.UnreliableDataChannel;
 ﻿using FlaneerMediaLib.QualityManagement;
 
 namespace FlaneerMediaLib;
@@ -13,17 +14,20 @@ public static class NetworkSubsystem
     /// </summary>
     public static void InitClient()
     {
-        var UDPSender = new UDPSender();
-        ServiceRegistry.AddService(UDPSender);
+        Socket s = new(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
         
-        var UDPReceiver = new UDPReceiver();
-        ServiceRegistry.AddService(UDPReceiver);
+        var udpSender = new UDPSender(s);
+        ServiceRegistry.AddService(udpSender);
+        
+        var holePunchClient = new HolePunchClient();
+        ServiceRegistry.AddService(holePunchClient);
+        
+        var udpReceiver = new UDPReceiver(s);
+        ServiceRegistry.AddService(udpReceiver);
 
         var ackSender = new AckSender();
         ServiceRegistry.AddService(ackSender);
 
-        var holePunchClient = new HolePunchClient();
-        ServiceRegistry.AddService(holePunchClient);
 
         //add measures
 
@@ -34,17 +38,19 @@ public static class NetworkSubsystem
     /// </summary>
     public static void InitServer()
     {
-        var UDPSender = new UDPSender();
-        ServiceRegistry.AddService(UDPSender);
+        Socket s = new(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
         
-        var UDPReceiver = new UDPReceiver();
-        ServiceRegistry.AddService(UDPReceiver);
-        
-        var ackReceiver = new AckReceiver();
-        ServiceRegistry.AddService(ackReceiver);
+        var udpSender = new UDPSender(s);
+        ServiceRegistry.AddService(udpSender);
 
         var holePunchClient = new HolePunchClient();
         ServiceRegistry.AddService(holePunchClient);
+        
+        var udpReceiver = new UDPReceiver(s);
+        ServiceRegistry.AddService(udpReceiver);
+        
+        var ackReceiver = new AckReceiver();
+        ServiceRegistry.AddService(ackReceiver);
         
         //add control
         var qualityManager = new QualityManager();
