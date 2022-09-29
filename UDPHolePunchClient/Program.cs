@@ -21,6 +21,8 @@ internal class Program
         IPEndPoint? peer = null;
 
         Task? task = null;
+        var packetsToSend = 50;
+        var receivedPackets = 0;
         
         do
         {
@@ -43,6 +45,7 @@ internal class Program
             {
                 string message = System.Text.Encoding.UTF8.GetString(inBuf, 0, inBuf.Length);
                 Console.WriteLine($"Received message from peer: {message}");
+                loop = ++receivedPackets <= packetsToSend;
             }
             
             if (peer != null && task == null)
@@ -50,7 +53,7 @@ internal class Program
                 var peerLocal = peer;
                 task = Task.Run(() =>
                 {
-                    for (int i = 0; i < 50; i++)
+                    for (int i = 0; i < packetsToSend; i++)
                     {
                         string convert = $"Hello there for the {i}th time!";
                         Console.WriteLine($"Sending message to peer: {convert}");
@@ -58,8 +61,6 @@ internal class Program
                         s.SendTo(buffer, peerLocal);
                         Thread.Sleep(2);
                     }
-
-                    loop = false;
                 });
             }
         } while (loop);
