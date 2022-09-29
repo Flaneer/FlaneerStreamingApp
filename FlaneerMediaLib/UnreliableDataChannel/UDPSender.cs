@@ -75,6 +75,7 @@ public class UDPSender : IService
         
         if (PacketInfoParser.PacketType(bytes) != PacketType.Ack)
         {
+            logger.Trace($"Sending {PacketInfoParser.PacketType(bytes)} to {peerEndPoint}");
             var packetCountBytes = BitConverter.GetBytes(++packetCount);
             for (int i = 0; i < sizeof(Int32); i++)
             {

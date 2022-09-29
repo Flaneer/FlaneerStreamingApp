@@ -18,7 +18,14 @@ public class HolePunchInfoPacket : IPacketInfo
     /// <inheritdoc/>
     public PacketType PacketType => PacketType.HolePunchInfo;
     /// <inheritdoc/>
-    public ushort PacketSize { get; set; }
+    public ushort PacketSize
+    {
+        get=>packetSize;
+        set=> packetSize = value;
+    }
+
+    private ushort packetSize = HeaderSize; 
+    
     /// <inheritdoc/>
     public long TimeStamp { get; init; }
     /// <inheritdoc/>
