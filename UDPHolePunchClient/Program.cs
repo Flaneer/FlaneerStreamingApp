@@ -22,7 +22,7 @@ internal class Program
 
         do
         {
-            byte[] inBuf = new byte[HolePunchInfoPacket.HeaderSize];
+            byte[] inBuf = new byte[Int16.MaxValue];
             EndPoint inEP = new IPEndPoint(IPAddress.Any, 11000);
             s.ReceiveFrom(inBuf, ref inEP);
 
@@ -46,10 +46,13 @@ internal class Program
             
             if (peer != null)
             {
-                string convert = "Hello there!";
-                Console.WriteLine($"Sending message to peer: {convert}");
-                byte[] buffer = System.Text.Encoding.UTF8.GetBytes(convert);
-                s.SendTo(buffer, peer);
+                for (int i = 0; i < 50; i++)
+                {
+                    string convert = $"Hello there for the {i}th time!";
+                    Console.WriteLine($"Sending message to peer: {convert}");
+                    byte[] buffer = System.Text.Encoding.UTF8.GetBytes(convert);
+                    s.SendTo(buffer, peer);
+                }
             }
         } while (loop);
     }
