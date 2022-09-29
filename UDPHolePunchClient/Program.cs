@@ -20,6 +20,8 @@ internal class Program
 
         IPEndPoint? peer = null;
 
+        Task? task = null;
+        
         do
         {
             byte[] inBuf = new byte[Int16.MaxValue];
@@ -44,15 +46,20 @@ internal class Program
                 loop = false;
             }
             
-            if (peer != null)
+            if (peer != null && task == null)
             {
-                for (int i = 0; i < 50; i++)
+                var peerLocal = peer;
+                task = Task.Run(() =>
                 {
-                    string convert = $"Hello there for the {i}th time!";
-                    Console.WriteLine($"Sending message to peer: {convert}");
-                    byte[] buffer = System.Text.Encoding.UTF8.GetBytes(convert);
-                    s.SendTo(buffer, peer);
-                }
+                    for (int i = 0; i < 50; i++)
+                    {
+                        string convert = $"Hello there for the {i}th time!";
+                        Console.WriteLine($"Sending message to peer: {convert}");
+                        byte[] buffer = System.Text.Encoding.UTF8.GetBytes(convert);
+                        s.SendTo(buffer, peerLocal);
+                        Thread.Sleep(2);
+                    }
+                });
             }
         } while (loop);
     }
