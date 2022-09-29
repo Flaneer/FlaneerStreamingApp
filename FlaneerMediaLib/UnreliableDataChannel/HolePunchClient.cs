@@ -21,12 +21,19 @@ public class HolePunchClient : IService
         
         ServiceRegistry.TryGetService(out udpSender);
         
-        ServiceRegistry.TryGetService(out UDPReceiver receiver);
-        receiver.SubscribeToReceptionTraffic(PacketType.HolePunchInfo, OnInfoReceived);
-        
+        ServiceRegistry.ServiceAdded += service =>
+        {
+            if (service is UDPReceiver receiver)
+            {
+                receiver.SubscribeToReceptionTraffic(PacketType.HolePunchInfo, OnInfoReceived);      
+            }
+        };
+
         udpSender.SendToServer(new HolePunchInfoPacket().ToUDPPacket());
     }
 
+    
+    
     private void OnInfoReceived(byte[] obj)
     {
         HolePunchInfoPacket packet = HolePunchInfoPacket.FromBytes(obj);
