@@ -74,7 +74,6 @@ public class UDPReceiver : IService
             }
             catch (Exception e)
             {
-                var receivedType = PacketInfoParser.PacketType(receivedByteBuffer);
                 logger.Error(e.ToString());
                 return;
             }
