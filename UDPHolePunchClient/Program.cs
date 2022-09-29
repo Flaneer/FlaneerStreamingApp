@@ -43,7 +43,6 @@ internal class Program
             {
                 string message = System.Text.Encoding.UTF8.GetString(inBuf, 0, inBuf.Length);
                 Console.WriteLine($"Received message from peer: {message}");
-                loop = false;
             }
             
             if (peer != null && task == null)
@@ -59,6 +58,8 @@ internal class Program
                         s.SendTo(buffer, peerLocal);
                         Thread.Sleep(2);
                     }
+
+                    loop = false;
                 });
             }
         } while (loop);
