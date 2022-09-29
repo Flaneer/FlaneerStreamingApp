@@ -45,7 +45,7 @@ internal class Program
             {
                 string message = System.Text.Encoding.UTF8.GetString(inBuf, 0, inBuf.Length);
                 Console.WriteLine($"Received message from peer: {message}");
-                loop = ++receivedPackets <= packetsToSend;
+                loop = ++receivedPackets < packetsToSend;
             }
             
             if (peer != null && task == null)
@@ -55,9 +55,9 @@ internal class Program
                 {
                     for (int i = 0; i < packetsToSend; i++)
                     {
-                        string convert = $"Hello there for the {i}th time!";
-                        Console.WriteLine($"Sending message to peer: {convert}");
-                        byte[] buffer = System.Text.Encoding.UTF8.GetBytes(convert);
+                        byte[] buffer = new byte[Int16.MaxValue];
+                        Random random = Random.Shared;
+                        random.NextBytes(buffer);
                         s.SendTo(buffer, peerLocal);
                         Thread.Sleep(2);
                     }
