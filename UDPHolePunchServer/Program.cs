@@ -13,7 +13,7 @@ internal class Program
         var ipMe = new IPEndPoint(IPAddress.Any, 11000);
         s.Bind(ipMe);
 
-        List<HolePunchInfoPacket> clients = new List<HolePunchInfoPacket>();
+        HashSet<HolePunchInfoPacket> clients = new HashSet<HolePunchInfoPacket>();
         
         bool loop = true;
         while (loop)

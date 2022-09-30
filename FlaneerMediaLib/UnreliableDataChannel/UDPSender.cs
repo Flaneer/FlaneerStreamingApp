@@ -23,6 +23,7 @@ public class UDPSender : IService
         {
             if (value != null)
                 PeerRegistered = true;
+            //Ping the peer
             byte[] buf = {128, 128};
             s.SendTo(buf, value);
             peerEndPoint = value;
