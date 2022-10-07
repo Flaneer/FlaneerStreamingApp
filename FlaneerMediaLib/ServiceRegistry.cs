@@ -20,13 +20,9 @@ namespace FlaneerMediaLib
         private readonly Dictionary<Type, IService> registry = new();
 
         private static ServiceRegistry instance = null!;
-        
-        private readonly Logger logger;
 
         private ServiceRegistry()
         {
-            logger = Logger.GetLogger(this);
-            ServiceAdded += service => logger.Info($"Registered new service of type: {service.GetType()}");
         }
 
         // ReSharper disable once ConstantNullCoalescingCondition
@@ -39,6 +35,8 @@ namespace FlaneerMediaLib
         {
             Instance.registry.Add(service.GetType(), service);
             ServiceAdded?.Invoke(service);
+            var logger = Logger.GetLogger(new ServiceRegistry());
+            logger.Info($"Registered new service of type: {service.GetType()}");
             foreach (var ifce in service.GetType().GetInterfaces().Where(type => type != typeof(IService)))
             {
                 Instance.registry.Add(ifce, service);
