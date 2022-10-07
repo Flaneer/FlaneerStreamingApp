@@ -8,6 +8,8 @@ namespace FlaneerMediaLib.VideoStreaming
 
         private readonly TransmissionVideoFrame seedFrame;
 
+        internal int ExpectedPieces => seedFrame.NumberOfPackets;
+        internal int BufferedPieces => bufferedPieces;
         private int bufferedPieces;
 
         //TODO: refactor as eventhandler with type for args

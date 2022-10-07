@@ -31,6 +31,32 @@ internal class FrameBuffer
     {
         logger = Logger.GetLogger(this);
         this.codec = codec;
+
+        Task.Run(LogFrameBufferInfo);
+    }
+
+    private void LogFrameBufferInfo()
+    {
+        while (true)
+        {
+            logger.AmountStat("Frames In Buffer:", frameBuffer.Count);
+            string frameIdxs = "";
+            foreach (var frame in frameBuffer)
+            {
+                frameIdxs += $"{frame.Key}, ";
+            }
+            logger.Trace("Frame idxs: " + frameIdxs);
+
+            string partials = "";
+            foreach (var partialFrame in partialFrames)
+            {
+                partials += $"{partialFrame.Key}: {partialFrame.Value!.BufferedPieces}/{partialFrame.Value!.ExpectedPieces}, ";
+            }
+            logger.Trace("Partial idxs: " + partials);
+            
+            logger.AmountStat("Next Frame:", nextFrameIdx);
+            Thread.Sleep(1000);
+        }
     }
 
     /// <summary>
@@ -38,25 +64,15 @@ internal class FrameBuffer
     /// </summary>
     public void BufferFrame(byte[] framePacket)
     {
+        DateTime startTime = DateTime.Now;
         TransmissionVideoFrame receivedFrame = TransmissionVideoFrame.FromUDPPacket(framePacket);
         //Bandwidth measurements
         packetCount++;
-        if (DateTime.Now.Second == currentSecond)
-        {
-            currentSecondBytesIn += receivedFrame.PacketSize;
-        }
-        else
-        {
-            logger.AmountStat("Bandwidth B/s", currentSecondBytesIn);
-
-            totalBytesIn += currentSecondBytesIn;
-            logger.AmountStat("Average Bandwidth B/s", totalBytesIn/packetCount);
-            
-            currentSecond = DateTime.Now.Second;
-            currentSecondBytesIn = 0;
-        }
+        LogStats(receivedFrame.PacketSize);
         
-
+        if(receivedFrame.IsIFrame)
+            logger.Debug("IM AN I FRAME!!!!!!!!!!");
+        
         //Check the frame is new, we dont want to do anything with old frames 
         var isOldFrame = receivedFrame.SequenceIDX < nextFrameIdx;
         if(isOldFrame)
@@ -66,6 +82,26 @@ internal class FrameBuffer
             BufferFullFrame(receivedFrame, framePacket);
         else
             BufferPartialFrame(receivedFrame, framePacket);
+        
+        logger.Trace($"Frame Buffer Time: {DateTime.Now - startTime}");
+    }
+
+    private void LogStats(int packetsize)
+    {
+        if (DateTime.Now.Second == currentSecond)
+        {
+            currentSecondBytesIn += packetsize;
+        }
+        else
+        {
+            logger.AmountStat("Bandwidth B/s", currentSecondBytesIn);
+
+            totalBytesIn += currentSecondBytesIn;
+            logger.AmountStat("Average Bandwidth B/s", totalBytesIn / packetCount);
+
+            currentSecond = DateTime.Now.Second;
+            currentSecondBytesIn = 0;
+        }
     }
 
     /// <summary>
