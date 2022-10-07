@@ -64,14 +64,10 @@ internal class FrameBuffer
     /// </summary>
     public void BufferFrame(byte[] framePacket)
     {
-        DateTime startTime = DateTime.Now;
         TransmissionVideoFrame receivedFrame = TransmissionVideoFrame.FromUDPPacket(framePacket);
         //Bandwidth measurements
         packetCount++;
         LogStats(receivedFrame.PacketSize);
-        
-        if(receivedFrame.IsIFrame)
-            logger.Debug("IM AN I FRAME!!!!!!!!!!");
         
         //Check the frame is new, we dont want to do anything with old frames 
         var isOldFrame = receivedFrame.SequenceIDX < nextFrameIdx;
@@ -82,8 +78,6 @@ internal class FrameBuffer
             BufferFullFrame(receivedFrame, framePacket);
         else
             BufferPartialFrame(receivedFrame, framePacket);
-        
-        logger.Trace($"Frame Buffer Time: {DateTime.Now - startTime}");
     }
 
     private void LogStats(int packetsize)
