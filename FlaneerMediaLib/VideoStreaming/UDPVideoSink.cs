@@ -17,20 +17,29 @@ public class UDPVideoSink : IVideoSink
     private readonly UDPSender udpSender;
     
     private readonly Logger logger;
-
+    private readonly VideoSettings videoSettings;
     private int encodeCount;
     private TimeSpan totalEncodeTime;
+
+    private FileStream stream;
+
+    private int sentPacketCount;
+    private bool alsoWriteToFile = false;
 
     /// <summary>
     /// ctor
     /// </summary>
-    public UDPVideoSink()
+    public UDPVideoSink(VideoSettings videoSettings)
     {
         logger = Logger.GetLogger(this);
         ServiceRegistry.TryGetService(out udpSender);
         
+        if(alsoWriteToFile)
+            stream = new FileStream("out.h264", FileMode.Create, FileAccess.Write);
+
         GetEncoder();
         GetSource();
+        this.videoSettings = videoSettings;
     }
 
     private void GetEncoder()
@@ -76,10 +85,17 @@ public class UDPVideoSink : IVideoSink
         if(encoder == default! || videoSource == default!)
             return;
         
+        logger.Trace("Waiting for peer to be registered");
+        while (!udpSender.PeerRegistered)
+        {
+            Thread.Sleep(500);
+        }
+        logger.Trace("Peer registered");
+        
         Stopwatch stopWatch = new Stopwatch();
         stopWatch.Start();
         var frameTime = targetFramerate == -1 ? new TimeSpan(0) : new TimeSpan(0, 0, 0, 0, 1000 / targetFramerate);
-
+        
         for (int i = 0; i < numberOfFrames; i++)
         {
             while (stopWatch.Elapsed < (frameTime*i))
@@ -110,9 +126,6 @@ public class UDPVideoSink : IVideoSink
         stopWatch.Stop();
     }
 
-    private int sentPacketCount;
-    private bool alsoWriteToFile  = false;
-
     private unsafe void SendFrame(UnmanagedVideoFrame frame, TimeSpan frameTime)
     {
         using var uStream = new UnmanagedMemoryStream((byte*) frame.FrameData, frame.FrameSize);
@@ -122,7 +135,7 @@ public class UDPVideoSink : IVideoSink
         WriteToFile(frameBytes);
         
         var numberOfPackets = (byte) Math.Ceiling((double)frame.FrameSize / VideoUtils.FRAMEWRITABLESIZE);
-        
+
         var sent = 0;
         for (byte i = 0; i < numberOfPackets; i++)
         {
@@ -134,11 +147,8 @@ public class UDPVideoSink : IVideoSink
                 PacketIdx = i,
                 FrameDataSize = frame.FrameSize,
                 SequenceIDX = nextFrame,
+                IsIFrame = nextFrame % videoSettings.GoPLength == 0
             };
-
-            //TODO: set this properly
-            var gopLength = 5;
-            frameHeader.IsIFrame = frameHeader.SequenceIDX % gopLength == 0; 
             
             var packetSize = Math.Min(VideoUtils.FRAMEWRITABLESIZE, frame.FrameSize - sent);
             var transmissionArraySize = TransmissionVideoFrame.HeaderSize + packetSize;
@@ -151,7 +161,7 @@ public class UDPVideoSink : IVideoSink
             Array.Copy(headerBytes, transmissionArray, headerBytes.Length);
             Array.Copy(frameBytes, sent, transmissionArray, headerBytes.Length, packetSize);
                 
-            udpSender.Send(transmissionArray);
+            udpSender.SendToPeer(transmissionArray);
 
             sent += packetSize;
             logger.Debug($"SENT CHUNK OF {nextFrame} | {sent} / {frame.FrameSize} [gray]Total Sent Packets = {sentPacketCount++}[/]");
@@ -167,9 +177,7 @@ public class UDPVideoSink : IVideoSink
         {
             try
             {
-                var f = File.Open("in.h264", FileMode.Append);
-                f.Write(frameBytes);
-                f.Close();
+                stream.Write(frameBytes);
             }
             catch (Exception e)
             {

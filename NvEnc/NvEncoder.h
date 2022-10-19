@@ -346,4 +346,5 @@ private:
     int32_t m_got = 0;
     int32_t m_encoderBuffer = 0;
     int32_t m_outputDelay = 0;
+    int32_t m_gopLength = 5;
 };

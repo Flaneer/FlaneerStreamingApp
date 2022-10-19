@@ -21,7 +21,8 @@ NvEncoder::NvEncoder(NV_ENC_DEVICE_TYPE deviceType, void *device, EncInitSetting
     m_bufferFormat(initSettings.Format),
     m_motionEstimationOnly(motionEstimationOnly), 
     m_extraOutputDelay(extraOutputDelay), 
-    m_encoder(nullptr)
+    m_encoder(nullptr),
+    m_gopLength(initSettings.GoPLength)
 {
     LoadNvEncApi();
 
@@ -150,7 +151,7 @@ void NvEncoder::SetEncoderParams(NV_ENC_INITIALIZE_PARAMS* pIntializeParams, GUI
     memcpy(pIntializeParams->encodeConfig, &presetConfig.presetCfg, sizeof(NV_ENC_CONFIG));
     pIntializeParams->encodeConfig->frameIntervalP = 1;
     //TODO: set this with the param
-    pIntializeParams->encodeConfig->gopLength = 300;
+    pIntializeParams->encodeConfig->gopLength = m_gopLength;
 
     pIntializeParams->encodeConfig->rcParams.rateControlMode = NV_ENC_PARAMS_RC_VBR;
     //pIntializeParams->encodeConfig->rcParams.maxBitRate = 1;

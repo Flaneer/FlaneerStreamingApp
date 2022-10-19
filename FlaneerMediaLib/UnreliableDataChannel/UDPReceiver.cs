@@ -9,19 +9,22 @@ namespace FlaneerMediaLib.UnreliableDataChannel;
 /// </summary>
 public class UDPReceiver : IService
 {
-    private readonly UdpClient listener;
-    private IPEndPoint groupEP;
+    private IPEndPoint receptionIpEndPoint;
     
     private readonly Dictionary<PacketType, List<Action<byte[]>>> receptionTrafficDestinations = new();
     private bool receiving;
     private readonly Logger logger;
     private readonly UDPClientStatTracker clientStatTracker;
 
+    private Socket s;
+    private byte[] receivedByteBuffer = new byte[Int16.MaxValue];
+
     /// <summary>
     /// ctor
     /// </summary>
-    public UDPReceiver()
+    public UDPReceiver(Socket s)
     {
+        this.s = s;
         logger = Logger.GetLogger(this);
         clientStatTracker = new UDPClientStatTracker(this);
         
@@ -29,9 +32,10 @@ public class UDPReceiver : IService
         var broadcastInfo = clas.GetParams(CommandLineArgs.BroadcastAddress);
         var listenPort = Int32.Parse(broadcastInfo[1]);
         
-        listener = new UdpClient(listenPort);
-        groupEP = new IPEndPoint(IPAddress.Any, listenPort);
+        receptionIpEndPoint = new IPEndPoint(IPAddress.Any, listenPort);
         
+        //s.Bind(receptionIpEndPoint);
+
         Task.Run(Reception);
     }
 
@@ -40,24 +44,32 @@ public class UDPReceiver : IService
         receiving = true;
         while (receiving)
         {
-            listener.Client.ReceiveBufferSize = Int32.MaxValue;
             try
             {
-                var receivedBytes = listener.Receive(ref groupEP);
-                if(receivedBytes.Length == 0)
+                var endPoint = receptionIpEndPoint as EndPoint;
+                s.ReceiveFrom(receivedByteBuffer, ref endPoint);
+                
+                if(receivedByteBuffer.Length == 0)
                     continue;
 
-                var receivedType = PacketInfoParser.PacketType(receivedBytes);
-                var packetSize = PacketInfoParser.PacketSize(receivedBytes);
+                var receivedType = PacketInfoParser.PacketType(receivedByteBuffer);
 
-                if(packetSize != receivedBytes.Length)
-                    logger.Debug($"TransmittedPacketSize:{packetSize}");
+                if (receivedType == PacketType.HolePunchInfo)
+                    receptionIpEndPoint = HolePunchInfoPacket.FromBytes(receivedByteBuffer).ToEndPoint() ?? throw new InvalidOperationException();
                 
                 if (receptionTrafficDestinations.ContainsKey(receivedType))
                 {
-                    foreach (var callback in receptionTrafficDestinations[receivedType])
+                    try
                     {
-                        callback(receivedBytes);
+                        foreach (var callback in receptionTrafficDestinations[receivedType])
+                        {
+                            callback(receivedByteBuffer);
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        logger.Error($"Error with callback of type {receivedType}: {e.ToString()}");
+                        throw;
                     }
                 }
             }
@@ -88,6 +100,5 @@ public class UDPReceiver : IService
     public void Dispose()
     {
         receiving = false;
-        listener.Dispose();
     }
 }

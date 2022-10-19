@@ -1,4 +1,6 @@
-﻿namespace FlaneerMediaLib
+﻿using FlaneerMediaLib.Logging;
+
+namespace FlaneerMediaLib
 {
     /// <summary>
     /// Empty interface to allow for identification of services to put into the registry
@@ -33,6 +35,8 @@
         {
             Instance.registry.Add(service.GetType(), service);
             ServiceAdded?.Invoke(service);
+            var logger = Logger.GetLogger(new ServiceRegistry());
+            logger.Info($"Registered new service of type: {service.GetType()}");
             foreach (var ifce in service.GetType().GetInterfaces().Where(type => type != typeof(IService)))
             {
                 Instance.registry.Add(ifce, service);
