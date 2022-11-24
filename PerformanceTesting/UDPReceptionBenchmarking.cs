@@ -5,7 +5,7 @@ using FlaneerMediaLib.VideoStreaming;
 
 namespace PerformanceTesting;
 
-[MemoryDiagnoser]
+[MemoryDiagnoser][CsvExporter]
 public class UDPReceptionBenchmarking
 {
     private FrameBuffer fbH264 = new FrameBuffer(VideoCodec.H264);
@@ -18,7 +18,7 @@ public class UDPReceptionBenchmarking
     
     private List<List<Tuple<TransmissionVideoFrame, byte[]>>> partialFrameData = new();
 
-    private const int NumberOfPackets = 100;
+    private const int NumberOfPackets = 200;
 
     public UDPReceptionBenchmarking()
     {
