@@ -51,8 +51,8 @@ namespace FlaneerMediaLib.VideoStreaming.ffmpeg
             //Allocate an AVCodecContext and set its fields to default values. The resulting struct should be freed with avcodec_free_context().
             codecContextPtr = FF.avcodec_alloc_context3(codec);
             //TODO: Set this from config
-            codecContextPtr->width = 1920;
-            codecContextPtr->height = 1080;
+            codecContextPtr->width = 1280;
+            codecContextPtr->height = 720;
             codecContextPtr->pix_fmt = AVPixelFormat.AV_PIX_FMT_YUV420P;
 
             var hwDec = HwDecodeHelper.GetHWDecoder();
