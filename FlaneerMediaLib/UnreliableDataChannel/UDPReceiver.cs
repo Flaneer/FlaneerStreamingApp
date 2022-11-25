@@ -39,6 +39,14 @@ public class UDPReceiver : IService
         Task.Run(Reception);
     }
 
+#pragma warning disable CS8618
+    /// <summary>
+    /// Ctor used for tests
+    /// </summary>
+    /// <remarks>Are you using this not in a test. Don't. Don't do that.</remarks>
+    internal UDPReceiver(){}
+#pragma warning restore CS8618
+
     private void Reception()
     {
         receiving = true;
@@ -48,35 +56,41 @@ public class UDPReceiver : IService
             {
                 var endPoint = receptionIpEndPoint as EndPoint;
                 s.ReceiveFrom(receivedByteBuffer, ref endPoint);
-                
-                if(receivedByteBuffer.Length == 0)
-                    continue;
 
-                var receivedType = PacketInfoParser.PacketType(receivedByteBuffer);
-
-                if (receivedType == PacketType.HolePunchInfo)
-                    receptionIpEndPoint = HolePunchInfoPacket.FromBytes(receivedByteBuffer).ToEndPoint() ?? throw new InvalidOperationException();
-                
-                if (receptionTrafficDestinations.ContainsKey(receivedType))
-                {
-                    try
-                    {
-                        foreach (var callback in receptionTrafficDestinations[receivedType])
-                        {
-                            callback(receivedByteBuffer);
-                        }
-                    }
-                    catch (Exception e)
-                    {
-                        logger.Error($"Error with callback of type {receivedType}: {e.ToString()}");
-                        throw;
-                    }
-                }
+                ProcessReceivedPacket(receivedByteBuffer);
             }
             catch (Exception e)
             {
                 logger.Error(e.ToString());
                 return;
+            }
+        }
+    }
+
+    internal void ProcessReceivedPacket(byte[] newReceivedByteBuffer)
+    {
+        if (newReceivedByteBuffer.Length == 0)
+            return;
+
+        var receivedType = PacketInfoParser.PacketType(newReceivedByteBuffer);
+
+        if (receivedType == PacketType.HolePunchInfo)
+            receptionIpEndPoint = HolePunchInfoPacket.FromBytes(newReceivedByteBuffer).ToEndPoint() ??
+                                  throw new InvalidOperationException();
+
+        if (receptionTrafficDestinations.ContainsKey(receivedType))
+        {
+            try
+            {
+                foreach (var callback in receptionTrafficDestinations[receivedType])
+                {
+                    callback(newReceivedByteBuffer);
+                }
+            }
+            catch (Exception e)
+            {
+                logger.Error($"Error with callback of type {receivedType}: {e.ToString()}");
+                throw;
             }
         }
     }

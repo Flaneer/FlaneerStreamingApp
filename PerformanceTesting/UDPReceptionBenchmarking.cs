@@ -1,5 +1,7 @@
 ﻿using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Diagnostics.Windows.Configs;
+using FlaneerMediaLib;
+using FlaneerMediaLib.UnreliableDataChannel;
 using FlaneerMediaLib.VideoDataTypes;
 using FlaneerMediaLib.VideoStreaming;
 
@@ -20,6 +22,8 @@ public class UDPReceptionBenchmarking
 
     private const int NumberOfPackets = 200;
 
+    private UDPReceiver udpReceiver = new UDPReceiver();
+
     public UDPReceptionBenchmarking()
     {
         for (int i = 0; i < NumberOfPackets; i++)
@@ -38,12 +42,20 @@ public class UDPReceptionBenchmarking
         {
             fbH264.BufferFullFrame(frameData.Item1, frameData.Item2);
         }
+        udpReceiver.SubscribeToReceptionTraffic(PacketType.VideoStreamPacket, delegate { });
     }
 
     [Benchmark]
+    public void ProcessReceptionPacket()
+    {
+        Random rnd = new Random();
+        int num = rnd.Next(rawPackets.Count);
+        udpReceiver.ProcessReceivedPacket(rawPackets[num]);
+    }
+    
+    [Benchmark]
     public TransmissionVideoFrame TransmissionFrameParse()
     {
-        
         Random rnd = new Random();
         int num = rnd.Next(rawPackets.Count);
         return TransmissionVideoFrame.FromUDPPacket(rawPackets[num]);

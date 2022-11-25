@@ -58,16 +58,12 @@ internal class FrameBuffer
             Thread.Sleep(1000);
         }
     }
-
-
-    private int packetNum = 0;
+    
     /// <summary>
     /// Adds a frame to the frame buffer
     /// </summary>
     public void BufferFrame(byte[] framePacket)
     {
-        File.WriteAllBytes($"packet{packetNum++}.bin", framePacket);
-        
         TransmissionVideoFrame receivedFrame = TransmissionVideoFrame.FromUDPPacket(framePacket);
         //Bandwidth measurements
         packetCount++;

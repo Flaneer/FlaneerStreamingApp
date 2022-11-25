@@ -37,5 +37,5 @@ public class VideoSettings
     /// <summary>
     /// The group of pictures length
     /// </summary>
-    public int GoPLength = 100;
+    public int GoPLength = 10;
 }
