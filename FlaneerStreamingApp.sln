@@ -39,6 +39,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UDPHolePunchServer", "UDPHo
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UDPHolePunchClient", "UDPHolePunchClient\UDPHolePunchClient.csproj", "{2AF7E69D-B1D9-4A9A-B64E-AA7E71FB8696}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PerformanceTesting", "PerformanceTesting\PerformanceTesting.csproj", "{55E3637F-97FE-4048-8FA3-5283D8D79B01}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -217,6 +219,18 @@ Global
 		{2AF7E69D-B1D9-4A9A-B64E-AA7E71FB8696}.Release|x64.Build.0 = Release|Any CPU
 		{2AF7E69D-B1D9-4A9A-B64E-AA7E71FB8696}.Release|x86.ActiveCfg = Release|Any CPU
 		{2AF7E69D-B1D9-4A9A-B64E-AA7E71FB8696}.Release|x86.Build.0 = Release|Any CPU
+		{55E3637F-97FE-4048-8FA3-5283D8D79B01}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{55E3637F-97FE-4048-8FA3-5283D8D79B01}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{55E3637F-97FE-4048-8FA3-5283D8D79B01}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{55E3637F-97FE-4048-8FA3-5283D8D79B01}.Debug|x64.Build.0 = Debug|Any CPU
+		{55E3637F-97FE-4048-8FA3-5283D8D79B01}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{55E3637F-97FE-4048-8FA3-5283D8D79B01}.Debug|x86.Build.0 = Debug|Any CPU
+		{55E3637F-97FE-4048-8FA3-5283D8D79B01}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{55E3637F-97FE-4048-8FA3-5283D8D79B01}.Release|Any CPU.Build.0 = Release|Any CPU
+		{55E3637F-97FE-4048-8FA3-5283D8D79B01}.Release|x64.ActiveCfg = Release|Any CPU
+		{55E3637F-97FE-4048-8FA3-5283D8D79B01}.Release|x64.Build.0 = Release|Any CPU
+		{55E3637F-97FE-4048-8FA3-5283D8D79B01}.Release|x86.ActiveCfg = Release|Any CPU
+		{55E3637F-97FE-4048-8FA3-5283D8D79B01}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

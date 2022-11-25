@@ -21,11 +21,11 @@ public class VideoSettings
     /// <summary>
     /// The height of the video in pixels
     /// </summary>
-    public int Height = 600;
+    public int Height = 720;
     /// <summary>
     /// The width of the video in pixels
     /// </summary>
-    public int Width = 800;
+    public int Width = 1280;
     /// <summary>
     /// The framerate cap
     /// </summary>
@@ -37,5 +37,5 @@ public class VideoSettings
     /// <summary>
     /// The group of pictures length
     /// </summary>
-    public int GoPLength = 100;
+    public int GoPLength = 10;
 }

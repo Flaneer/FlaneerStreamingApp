@@ -58,7 +58,7 @@ internal class FrameBuffer
             Thread.Sleep(1000);
         }
     }
-
+    
     /// <summary>
     /// Adds a frame to the frame buffer
     /// </summary>
@@ -125,7 +125,7 @@ internal class FrameBuffer
         return true;
     }
 
-    private void BufferPartialFrame(TransmissionVideoFrame receivedFrame, byte[] framePacket)
+    internal void BufferPartialFrame(TransmissionVideoFrame receivedFrame, byte[] framePacket)
     {
         var frameSequenceIDX = receivedFrame.SequenceIDX;
         if(!partialFrames.ContainsKey(frameSequenceIDX))
@@ -143,7 +143,7 @@ internal class FrameBuffer
         frameBuffer[sequenceIdx] = assembledFrame;
     }
 
-    private void BufferFullFrame(TransmissionVideoFrame receivedFrame, byte[] frameData)
+    internal void BufferFullFrame(TransmissionVideoFrame receivedFrame, byte[] frameData)
     {
         var frameStream = new MemoryStream(receivedFrame.PacketSize);
         frameStream.Write(frameData, TransmissionVideoFrame.HeaderSize, receivedFrame.PacketSize-TransmissionVideoFrame.HeaderSize);
