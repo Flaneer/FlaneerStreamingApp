@@ -20,6 +20,7 @@ internal class SmartBufferManager : IService
     {
         var ret = buffers[nextBufferIdx];
         ret.CheckedOut = true;
+        nextBufferIdx = -1;
         for (int i = 0; i < buffers.Count; i++)
         {
             if (!buffers[i].CheckedOut)
@@ -28,6 +29,10 @@ internal class SmartBufferManager : IService
                 break;
             }
         }
+        
+        if(nextBufferIdx == -1)
+            nextBufferIdx = ExpandBuffers();
+        
         return ret;
     }
 
@@ -36,12 +41,14 @@ internal class SmartBufferManager : IService
         buffer.CheckedOut = false;
     }
     
-    private void ExpandBuffers()
+    private int ExpandBuffers()
     {
-        var upper = buffers.Count / 2;
+        var ret = buffers.Count;
+        var upper = ret / 2;
         for (int i = 0; i < upper; i++)
         {
             buffers.Add(new SmartBuffer());
         }
+        return ret;
     }
 }
