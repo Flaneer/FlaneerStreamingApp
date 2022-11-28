@@ -28,7 +28,7 @@ public class UDPReceptionBenchmarking
     {
         for (int i = 0; i < NumberOfPackets; i++)
         {
-            rawPackets.Add(File.ReadAllBytes($"C:/Users/Tom/Code/FlaneerStreamingApp/TestResources/SamplePackets/packet{i}.bin"));
+            rawPackets.Add(File.ReadAllBytes(BenchmarkingUtils.GetPacket(i)));
         }
 
         packetScanner.PopulateFullFrameList(fullFrameData);

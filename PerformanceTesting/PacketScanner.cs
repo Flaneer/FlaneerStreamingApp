@@ -16,7 +16,7 @@ public class PacketScanner
     {
         for (int i = 0; i < 100; i++)
         {
-            var packet = File.ReadAllBytes($"C:/Users/Tom/Code/FlaneerStreamingApp/TestResources/SamplePackets/packet{i}.bin");
+            var packet = File.ReadAllBytes(BenchmarkingUtils.GetPacket(i));
             var tvf = TransmissionVideoFrame.FromUDPPacket(packet);
             if (tvf.NumberOfPackets == 1)
             {
@@ -38,7 +38,7 @@ public class PacketScanner
     {
         foreach (var fullFrame in fullFrames)
         {
-            var packet = File.ReadAllBytes($"C:/Users/Tom/Code/FlaneerStreamingApp/TestResources/SamplePackets/packet{fullFrame}.bin");
+            var packet = File.ReadAllBytes(BenchmarkingUtils.GetPacket(fullFrame));
             TransmissionVideoFrame tvf = TransmissionVideoFrame.FromUDPPacket(packet);
             fullFrameData.Add(new Tuple<TransmissionVideoFrame, byte[]>(tvf, packet));
         }
@@ -52,7 +52,7 @@ public class PacketScanner
             partialFrameData.Add(newList);
             foreach (var frameIdx in partialFrame.Value)
             {
-                var packet = File.ReadAllBytes($"C:/Users/Tom/Code/FlaneerStreamingApp/TestResources/SamplePackets/packet{frameIdx}.bin");
+                var packet = File.ReadAllBytes(BenchmarkingUtils.GetPacket(frameIdx));
                 TransmissionVideoFrame tvf = TransmissionVideoFrame.FromUDPPacket(packet);
                 newList.Add(new Tuple<TransmissionVideoFrame, byte[]>(tvf, packet));
             }
