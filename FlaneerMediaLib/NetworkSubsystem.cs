@@ -14,23 +14,12 @@ public static class NetworkSubsystem
     /// </summary>
     public static void InitClient()
     {
-        Socket s = new(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
-        
-        var udpSender = new UDPSender(s);
-        ServiceRegistry.AddService(udpSender);
-        
-        var holePunchClient = new HolePunchClient();
-        ServiceRegistry.AddService(holePunchClient);
-        
-        var udpReceiver = new UDPReceiver(s);
-        ServiceRegistry.AddService(udpReceiver);
+        CommonInit();
 
         var ackSender = new AckSender();
         ServiceRegistry.AddService(ackSender);
 
-
         //add measures
-
     }
 
     /// <summary>
@@ -38,17 +27,9 @@ public static class NetworkSubsystem
     /// </summary>
     public static void InitServer()
     {
-        Socket s = new(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
         
-        var udpSender = new UDPSender(s);
-        ServiceRegistry.AddService(udpSender);
+        CommonInit();
 
-        var holePunchClient = new HolePunchClient();
-        ServiceRegistry.AddService(holePunchClient);
-        
-        var udpReceiver = new UDPReceiver(s);
-        ServiceRegistry.AddService(udpReceiver);
-        
         var ackReceiver = new AckReceiver();
         ServiceRegistry.AddService(ackReceiver);
         
@@ -56,5 +37,22 @@ public static class NetworkSubsystem
         var qualityManager = new QualityManager();
         ServiceRegistry.AddService(qualityManager);
 
+    }
+
+    private static void CommonInit()
+    {
+        var smartBuffer = new SmartBufferManager();
+        ServiceRegistry.AddService(smartBuffer);
+
+        Socket s = new(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
+
+        var udpSender = new UDPSender(s);
+        ServiceRegistry.AddService(udpSender);
+
+        var holePunchClient = new HolePunchClient();
+        ServiceRegistry.AddService(holePunchClient);
+
+        var udpReceiver = new UDPReceiver(s);
+        ServiceRegistry.AddService(udpReceiver);
     }
 }
