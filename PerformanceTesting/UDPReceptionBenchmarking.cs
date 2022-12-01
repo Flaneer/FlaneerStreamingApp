@@ -4,85 +4,52 @@ using FlaneerMediaLib;
 using FlaneerMediaLib.UnreliableDataChannel;
 using FlaneerMediaLib.VideoDataTypes;
 using FlaneerMediaLib.VideoStreaming;
+using OfflinePacketSimulator;
 
 namespace PerformanceTesting;
 
 [MemoryDiagnoser][CsvExporter]
 public class UDPReceptionBenchmarking
 {
-    private FrameBuffer fbH264 = new FrameBuffer(VideoCodec.H264);
-
-    private PacketScanner packetScanner = new PacketScanner();
-
-    private List<byte[]> rawPackets = new List<byte[]>();
-
-    private List<Tuple<TransmissionVideoFrame, byte[]>> fullFrameData = new();
-    
-    private List<List<Tuple<TransmissionVideoFrame, byte[]>>> partialFrameData = new();
-
-    private const int NumberOfPackets = 200;
-
-    private UDPReceiver udpReceiver = new UDPReceiver();
-
-    public UDPReceptionBenchmarking()
-    {
-        for (int i = 0; i < NumberOfPackets; i++)
-        {
-            rawPackets.Add(File.ReadAllBytes(BenchmarkingUtils.GetPacket(i)));
-        }
-
-        packetScanner.PopulateFullFrameList(fullFrameData);
-        packetScanner.PopulatePartialFrameList(partialFrameData);
-    }
+    private OfflinePacketBuffer offlinePacketBuffer = null!;
 
     [GlobalSetup]
-    public void SeedFrameBuffer()
+    public void Setup()
     {
-        foreach (var frameData in fullFrameData)
-        {
-            fbH264.BufferFullFrame(frameData.Item1, frameData.Item2);
-        }
-        udpReceiver.SubscribeToReceptionTraffic(PacketType.VideoStreamPacket, delegate { });
+        offlinePacketBuffer = new OfflinePacketBuffer();
     }
 
     [Benchmark]
     public void ProcessReceptionPacket()
     {
-        Random rnd = new Random();
-        int num = rnd.Next(rawPackets.Count);
-        udpReceiver.ProcessReceivedPacket(rawPackets[num]);
+        offlinePacketBuffer.UDPReceiver.ProcessReceivedPacket(offlinePacketBuffer.GetRandomPacket());
     }
     
     [Benchmark]
     public TransmissionVideoFrame TransmissionFrameParse()
     {
-        Random rnd = new Random();
-        int num = rnd.Next(rawPackets.Count);
-        return TransmissionVideoFrame.FromUDPPacket(rawPackets[num]);
+        return TransmissionVideoFrame.FromUDPPacket(offlinePacketBuffer.GetRandomPacket().Buffer);
     }
 
     [Benchmark]
     public void FullFrameBufferH264()
     {
-        Random rnd = new Random();
-        int num = rnd.Next(fullFrameData.Count);
-        fbH264.BufferFullFrame(fullFrameData[num].Item1, fullFrameData[num].Item2);
+        var randomFullFrame = offlinePacketBuffer.GetRandomFullFrame();
+        offlinePacketBuffer.FrameBuffer.BufferFullFrame(randomFullFrame.Item1, randomFullFrame.Item2);
     }
     
     [Benchmark]
     public void PartialFrameBufferH264()
     {
-        Random rnd = new Random();
-        int num = rnd.Next(partialFrameData.Count);
-        foreach (var partialFrame in partialFrameData[num])
+        foreach (var partialFrame in offlinePacketBuffer.GetRandomBlockOfPartialFrames())
         {
-            fbH264.BufferPartialFrame(partialFrame.Item1, partialFrame.Item2);
+            offlinePacketBuffer.FrameBuffer.BufferPartialFrame(partialFrame.Item1, partialFrame.Item2);
         }
     }
 
     [Benchmark]
     public void GetFrames()
     {
-        fbH264.GetNextFrame(out var nextFrame);
+        offlinePacketBuffer.FrameBuffer.GetNextFrame(out var nextFrame);
     }
 }

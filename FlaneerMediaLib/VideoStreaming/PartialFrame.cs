@@ -24,7 +24,7 @@ namespace FlaneerMediaLib.VideoStreaming
         
             ServiceRegistry.TryGetService(out smartBufferManager);
         }
-    
+
         public void BufferPiece(SmartBuffer framePacket, int packetIdx, int packetSize)
         {
             framePieces.Insert(packetIdx, framePacket);
@@ -35,12 +35,19 @@ namespace FlaneerMediaLib.VideoStreaming
 
         private void AssembleFrame()
         {
+            var assembledFrame = AssembleFrameImpl(seedFrame, framePieces, smartBufferManager);
+            FrameReadyCallback(seedFrame.SequenceIDX, assembledFrame, seedFrame.IsIFrame);
+        }
+
+        internal static ManagedVideoFrame AssembleFrameImpl(TransmissionVideoFrame seedFrame, List<SmartBuffer> framePieces, SmartBufferManager? smartBufferManager = null)
+        {
             var frameStream = new MemoryStream(seedFrame.FrameDataSize);
             foreach (var framePiece in framePieces)
             {
                 frameStream.Write(framePiece.Buffer);
-                smartBufferManager.ReleaseBuffer(framePiece);
+                smartBufferManager?.ReleaseBuffer(framePiece);
             }
+
             var assembledFrame = new ManagedVideoFrame()
             {
                 Codec = seedFrame.Codec,
@@ -48,7 +55,7 @@ namespace FlaneerMediaLib.VideoStreaming
                 Width = seedFrame.Width,
                 Stream = frameStream
             };
-            FrameReadyCallback(seedFrame.SequenceIDX, assembledFrame, seedFrame.IsIFrame);
+            return assembledFrame;
         }
     }
 }

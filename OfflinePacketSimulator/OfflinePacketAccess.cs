@@ -1,6 +1,6 @@
-﻿namespace PerformanceTesting;
+﻿namespace OfflinePacketSimulator;
 
-public static class BenchmarkingUtils
+public static class OfflinePacketAccess
 {
     private const string Path = "C:/Users/Tom/Code/FlaneerStreamingApp/TestResources/SamplePackets/";
 

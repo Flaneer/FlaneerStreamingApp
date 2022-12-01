@@ -140,7 +140,7 @@ public class FrameBuffer
         partialFrames[frameSequenceIDX]!.BufferPiece(framePacket, receivedFrame.PacketIdx, receivedFrame.PacketSize);
     }
 
-    private void NewFrameReady(uint sequenceIdx, ManagedVideoFrame assembledFrame, bool isIFrame)
+    internal void NewFrameReady(uint sequenceIdx, ManagedVideoFrame assembledFrame, bool isIFrame)
     {
         if(isIFrame && displayedFirstFrame)
         {

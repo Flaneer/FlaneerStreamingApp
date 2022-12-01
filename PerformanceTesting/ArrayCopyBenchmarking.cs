@@ -2,6 +2,7 @@
 using System.Runtime.InteropServices;
 using BenchmarkDotNet.Attributes;
 using Microsoft.Diagnostics.Tracing.Parsers.MicrosoftWindowsTCPIP;
+using OfflinePacketSimulator;
 
 namespace PerformanceTesting;
 
@@ -18,7 +19,7 @@ public class ArrayCopyBenchmarking
     {
         for (int i = 0; i < NumberOfPackets; i++)
         {
-            var packet = File.ReadAllBytes(BenchmarkingUtils.GetPacket(i));
+            var packet = File.ReadAllBytes(OfflinePacketAccess.GetPacket(i));
             rawPackets.Add(packet);
             destinationPackets.Add(new byte[packet.Length]);
         }
