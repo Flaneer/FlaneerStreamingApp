@@ -11,13 +11,13 @@ public class UDPReceiver : IService
 {
     private IPEndPoint receptionIpEndPoint;
     
-    private readonly Dictionary<PacketType, List<Action<byte[]>>> receptionTrafficDestinations = new();
+    private readonly Dictionary<PacketType, List<Action<SmartBuffer>>> receptionTrafficDestinations = new();
     private bool receiving;
     private readonly Logger logger;
     private readonly UDPClientStatTracker clientStatTracker;
+    private readonly SmartBufferManager smartBufferManager;
 
     private Socket s;
-    private byte[] receivedByteBuffer = new byte[Int16.MaxValue];
 
     /// <summary>
     /// ctor
@@ -34,7 +34,7 @@ public class UDPReceiver : IService
         
         receptionIpEndPoint = new IPEndPoint(IPAddress.Any, listenPort);
         
-        //s.Bind(receptionIpEndPoint);
+        ServiceRegistry.TryGetService(out smartBufferManager);
 
         Task.Run(Reception);
     }
@@ -55,9 +55,10 @@ public class UDPReceiver : IService
             try
             {
                 var endPoint = receptionIpEndPoint as EndPoint;
-                s.ReceiveFrom(receivedByteBuffer, ref endPoint);
+                var smartBuffer = smartBufferManager.CheckoutNextBuffer();
+                s.ReceiveFrom(smartBuffer.Buffer, ref endPoint);
 
-                ProcessReceivedPacket(receivedByteBuffer);
+                ProcessReceivedPacket(smartBuffer);
             }
             catch (Exception e)
             {
@@ -67,8 +68,9 @@ public class UDPReceiver : IService
         }
     }
 
-    internal void ProcessReceivedPacket(byte[] newReceivedByteBuffer)
+    internal void ProcessReceivedPacket(SmartBuffer smartBuffer)
     {
+        var newReceivedByteBuffer = smartBuffer.Buffer; 
         if (newReceivedByteBuffer.Length == 0)
             return;
 
@@ -84,7 +86,7 @@ public class UDPReceiver : IService
             {
                 foreach (var callback in receptionTrafficDestinations[receivedType])
                 {
-                    callback(newReceivedByteBuffer);
+                    callback(smartBuffer);
                 }
             }
             catch (Exception e)
@@ -98,7 +100,7 @@ public class UDPReceiver : IService
     /// <summary>
     /// Calls the given method when a packet of the given type is received
     /// </summary>
-    public void SubscribeToReceptionTraffic(PacketType packetType, Action<byte[]> callBack)
+    public void SubscribeToReceptionTraffic(PacketType packetType, Action<SmartBuffer> callBack)
     {
         if (receptionTrafficDestinations.ContainsKey(packetType))
         {
@@ -106,7 +108,7 @@ public class UDPReceiver : IService
         }
         else
         {
-            receptionTrafficDestinations.Add(packetType, new List<Action<byte[]>> {callBack});
+            receptionTrafficDestinations.Add(packetType, new List<Action<SmartBuffer>>{callBack});
         }
     }
 

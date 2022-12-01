@@ -10,6 +10,8 @@ class Program
     {
         CommandLineArgumentStore.CreateAndRegister(args);
         
+        SmartStorageSubsystem.InitSmartStorage();
+        
         NetworkSubsystem.InitServer();
 
         var videoSettings = new VideoSettings();

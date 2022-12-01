@@ -19,9 +19,9 @@ public class AckSender : IService
         receiver.SubscribeToReceptionTraffic(PacketType.VideoStreamPacket, OnPacketReceived);
     }
 
-    private void OnPacketReceived(byte[] incomingPacket)
+    private void OnPacketReceived(SmartBuffer incomingPacket)
     {
-        Ack ack = AckFromReceivedPacket(ackBuffer, incomingPacket);
+        Ack ack = AckFromReceivedPacket(ackBuffer, incomingPacket.Buffer);
         udpSender.SendToPeer(ack.ToUDPPacket());
     }
 

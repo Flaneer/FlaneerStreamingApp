@@ -41,9 +41,6 @@ public static class NetworkSubsystem
 
     private static void CommonInit()
     {
-        var smartBuffer = new SmartBufferManager();
-        ServiceRegistry.AddService(smartBuffer);
-
         Socket s = new(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
 
         var udpSender = new UDPSender(s);

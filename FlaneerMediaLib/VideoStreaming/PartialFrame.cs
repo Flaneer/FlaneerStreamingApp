@@ -4,7 +4,7 @@ namespace FlaneerMediaLib.VideoStreaming
 {
     internal class PartialFrame
     {
-        private readonly byte[] frameData;
+        private readonly List<SmartBuffer> framePieces;
 
         private readonly TransmissionVideoFrame seedFrame;
 
@@ -14,22 +14,20 @@ namespace FlaneerMediaLib.VideoStreaming
 
         //TODO: refactor as eventhandler with type for args
         private readonly Action<uint, ManagedVideoFrame, bool> FrameReadyCallback;
+        private SmartBufferManager smartBufferManager;
 
         public PartialFrame(TransmissionVideoFrame seedFrame, Action<uint, ManagedVideoFrame, bool> onFrameReady)
         {
             this.seedFrame = seedFrame;
             FrameReadyCallback = onFrameReady;
+            framePieces = new List<SmartBuffer>(seedFrame.NumberOfPackets);
         
-            frameData = new byte[seedFrame.FrameDataSize];
-            frameData.Initialize();
+            ServiceRegistry.TryGetService(out smartBufferManager);
         }
     
-        public void BufferPiece(byte[] framePacket, int packetIdx, int packetSize)
+        public void BufferPiece(SmartBuffer framePacket, int packetIdx, int packetSize)
         {
-            //This tells us where in the frame to put this part of the frame data
-            var partialFrameWriteIDX = packetIdx * VideoUtils.FRAMEWRITABLESIZE;
-            Buffer.BlockCopy(framePacket, TransmissionVideoFrame.HeaderSize, 
-                frameData, partialFrameWriteIDX, packetSize-TransmissionVideoFrame.HeaderSize);
+            framePieces.Insert(packetIdx, framePacket);
             bufferedPieces++;
             if (bufferedPieces == seedFrame.NumberOfPackets)
                 AssembleFrame();
@@ -37,7 +35,12 @@ namespace FlaneerMediaLib.VideoStreaming
 
         private void AssembleFrame()
         {
-            var frameStream = new MemoryStream(frameData, 0, frameData.Length, false, true);
+            var frameStream = new MemoryStream(seedFrame.FrameDataSize);
+            foreach (var framePiece in framePieces)
+            {
+                frameStream.Write(framePiece.Buffer);
+                smartBufferManager.ReleaseBuffer(framePiece);
+            }
             var assembledFrame = new ManagedVideoFrame()
             {
                 Codec = seedFrame.Codec,

@@ -6,11 +6,14 @@ namespace FlaneerMediaLib.VideoStreaming;
 /// <summary>
 /// Class that handles buffering of frames
 /// </summary>
-internal class FrameBuffer
+public class FrameBuffer
 {
     private readonly Dictionary<UInt32, PartialFrame?> partialFrames = new();
-    private readonly Dictionary<UInt32, ManagedVideoFrame> frameBuffer = new();
+    private readonly Dictionary<UInt32, ManagedVideoFrame> frames = new();
 
+    internal int frameBufferCount => frames.Count;
+    internal int partialFrameBufferCount => partialFrames.Count;
+    
     private uint nextFrameIdx;
     
     private readonly VideoCodec codec;
@@ -19,11 +22,13 @@ internal class FrameBuffer
     private int currentSecond = DateTime.Now.Second;
     private int currentSecondBytesIn;
 
-    private int packetCount;
+    internal int PacketCount;
     private long totalBytesIn;
 
     private bool displayedFirstFrame = false;
     
+    private SmartBufferManager smartBufferManager;
+
     /// <summary>
     /// ctor
     /// </summary>
@@ -33,15 +38,17 @@ internal class FrameBuffer
         this.codec = codec;
 
         Task.Run(LogFrameBufferInfo);
+        
+        ServiceRegistry.TryGetService(out smartBufferManager);
     }
 
     private void LogFrameBufferInfo()
     {
         while (true)
         {
-            logger.AmountStat("Frames In Buffer:", frameBuffer.Count);
+            logger.AmountStat("Frames In Buffer:", frames.Count);
             string frameIdxs = "";
-            foreach (var frame in frameBuffer)
+            foreach (var frame in frames)
             {
                 frameIdxs += $"{frame.Key}, ";
             }
@@ -62,11 +69,11 @@ internal class FrameBuffer
     /// <summary>
     /// Adds a frame to the frame buffer
     /// </summary>
-    public void BufferFrame(byte[] framePacket)
+    public void BufferFrame(SmartBuffer framePacket)
     {
-        TransmissionVideoFrame receivedFrame = TransmissionVideoFrame.FromUDPPacket(framePacket);
+        TransmissionVideoFrame receivedFrame = TransmissionVideoFrame.FromUDPPacket(framePacket.Buffer);
         //Bandwidth measurements
-        packetCount++;
+        PacketCount++;
         LogStats(receivedFrame.PacketSize);
         
         //Check the frame is new, we dont want to do anything with old frames 
@@ -91,7 +98,7 @@ internal class FrameBuffer
             logger.AmountStat("Bandwidth B/s", currentSecondBytesIn);
 
             totalBytesIn += currentSecondBytesIn;
-            logger.AmountStat("Average Bandwidth B/s", totalBytesIn / packetCount);
+            logger.AmountStat("Average Bandwidth B/s", totalBytesIn / PacketCount);
 
             currentSecond = DateTime.Now.Second;
             currentSecondBytesIn = 0;
@@ -103,19 +110,19 @@ internal class FrameBuffer
     /// </summary>
     public bool GetNextFrame(out IVideoFrame nextFrame)
     {
-        if (!frameBuffer.ContainsKey(nextFrameIdx))
+        if (!frames.ContainsKey(nextFrameIdx))
         {
             nextFrame = new ManagedVideoFrame();
             return false;
         }
 
-        nextFrame = frameBuffer[nextFrameIdx];
+        nextFrame = frames[nextFrameIdx];
 
         var lastFrameIdx = nextFrameIdx -1;
-        if (frameBuffer.ContainsKey(lastFrameIdx))
-            frameBuffer.Remove(lastFrameIdx);
+        if (frames.ContainsKey(lastFrameIdx))
+            frames.Remove(lastFrameIdx);
         
-        logger.Debug($"Sending {frameBuffer[nextFrameIdx].Stream!.Length}B Frame From Buffer");
+        logger.Debug($"Sending {frames[nextFrameIdx].Stream!.Length}B Frame From Buffer");
         
         nextFrameIdx++;
         
@@ -125,7 +132,7 @@ internal class FrameBuffer
         return true;
     }
 
-    internal void BufferPartialFrame(TransmissionVideoFrame receivedFrame, byte[] framePacket)
+    internal void BufferPartialFrame(TransmissionVideoFrame receivedFrame, SmartBuffer framePacket)
     {
         var frameSequenceIDX = receivedFrame.SequenceIDX;
         if(!partialFrames.ContainsKey(frameSequenceIDX))
@@ -140,13 +147,14 @@ internal class FrameBuffer
             logger.Trace($"Skipping to latest I frame: {sequenceIdx}");
             nextFrameIdx = sequenceIdx;
         }
-        frameBuffer[sequenceIdx] = assembledFrame;
+        frames[sequenceIdx] = assembledFrame;
     }
 
-    internal void BufferFullFrame(TransmissionVideoFrame receivedFrame, byte[] frameData)
+    internal void BufferFullFrame(TransmissionVideoFrame receivedFrame, SmartBuffer frameData)
     {
         var frameStream = new MemoryStream(receivedFrame.PacketSize);
-        frameStream.Write(frameData, TransmissionVideoFrame.HeaderSize, receivedFrame.PacketSize-TransmissionVideoFrame.HeaderSize);
+        frameStream.Write(frameData.Buffer, TransmissionVideoFrame.HeaderSize, receivedFrame.PacketSize-TransmissionVideoFrame.HeaderSize);
+        smartBufferManager.ReleaseBuffer(frameData);
 
         var newFrame = new ManagedVideoFrame()
         {

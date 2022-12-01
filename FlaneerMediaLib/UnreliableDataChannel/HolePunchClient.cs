@@ -32,9 +32,9 @@ public class HolePunchClient : IService
         udpSender.SendToServer(new HolePunchInfoPacket().ToUDPPacket());
     }
     
-    private void OnInfoReceived(byte[] obj)
+    private void OnInfoReceived(SmartBuffer smartBuffer)
     {
-        HolePunchInfoPacket packet = HolePunchInfoPacket.FromBytes(obj);
+        HolePunchInfoPacket packet = HolePunchInfoPacket.FromBytes(smartBuffer.Buffer);
         logger.Info($"Peer info received: {packet}");
         udpSender.PeerEndPoint = packet.ToEndPoint();
     }

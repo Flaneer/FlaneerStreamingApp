@@ -5,7 +5,7 @@ namespace FlaneerMediaLib.UnreliableDataChannel;
 /// <summary>
 /// Class that performs full logging of the UDP connection
 /// </summary>
-public class UDPClientStatTracker
+internal class UDPClientStatTracker
 {
     private readonly Logger logger;
     private int packetCount;
@@ -27,7 +27,7 @@ public class UDPClientStatTracker
         receiver.SubscribeToReceptionTraffic(PacketType.VideoStreamPacket, VideoStreamStats);
     }
 
-    private void VideoStreamStats(byte[] packet)
+    private void VideoStreamStats(SmartBuffer packet)
     {
         if (lastSecond != DateTime.Now.Second)
         {
@@ -38,12 +38,12 @@ public class UDPClientStatTracker
         }
         bytesThisSecond += packet.Length;
         
-        long ticks = PacketInfoParser.TimeStamp(packet);
+        long ticks = PacketInfoParser.TimeStamp(packet.Buffer);
         var latencyTicks = DateTime.UtcNow.Ticks - ticks;
         var latency = TimeSpan.FromTicks(latencyAverage.Update(latencyTicks));
         StatLogging.LogPerfStat("Latency(ms)", latency.Milliseconds);
 
-        var packetId = PacketInfoParser.PacketId(packet);
+        var packetId = PacketInfoParser.PacketId(packet.Buffer);
         droppedPackets += packetId - (lastPacket + 1);
         lastPacket = packetId;
         StatLogging.LogPerfStat("Dropped Packets", droppedPackets);

@@ -19,10 +19,15 @@
     </AssemblyAttribute>
   </ItemGroup>
 
-
   <ItemGroup>
     <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
       <_Parameter1>PerformanceTesting</_Parameter1>
+    </AssemblyAttribute>
+  </ItemGroup>
+
+  <ItemGroup>
+    <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
+      <_Parameter1>OfflinePacketSimulator</_Parameter1>
     </AssemblyAttribute>
   </ItemGroup>
   
