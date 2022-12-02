@@ -17,6 +17,7 @@ public class FrameBuffer
     private uint nextFrameIdx;
     
     private readonly VideoCodec codec;
+    private readonly bool fullLogging;
     private readonly Logger logger;
 
     private int currentSecond = DateTime.Now.Second;
@@ -32,12 +33,14 @@ public class FrameBuffer
     /// <summary>
     /// ctor
     /// </summary>
-    public FrameBuffer(VideoCodec codec)
+    public FrameBuffer(VideoCodec codec, bool fullLogging = false)
     {
         logger = Logger.GetLogger(this);
         this.codec = codec;
+        this.fullLogging = fullLogging;
 
-        Task.Run(LogFrameBufferInfo);
+        if(fullLogging)
+            Task.Run(LogFrameBufferInfo);
         
         ServiceRegistry.TryGetService(out smartBufferManager);
     }
@@ -89,6 +92,9 @@ public class FrameBuffer
 
     private void LogStats(int packetsize)
     {
+        if(!fullLogging)
+            return;
+        
         if (DateTime.Now.Second == currentSecond)
         {
             currentSecondBytesIn += packetsize;
@@ -132,6 +138,11 @@ public class FrameBuffer
         return true;
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="receivedFrame"></param>
+    /// <param name="framePacket"></param>
     internal void BufferPartialFrame(TransmissionVideoFrame receivedFrame, SmartBuffer framePacket)
     {
         var frameSequenceIDX = receivedFrame.SequenceIDX;

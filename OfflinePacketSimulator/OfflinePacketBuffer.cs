@@ -35,7 +35,7 @@ public class OfflinePacketBuffer
         }
         
         
-        fbH264 = new FrameBuffer(VideoCodec.H264);
+        fbH264 = new FrameBuffer(VideoCodec.H264, false);
         for (int i = 0; i < NumberOfPackets; i++)
         {
             rawPackets.Add(File.ReadAllBytes(OfflinePacketAccess.GetPacket(i)));
