@@ -28,11 +28,14 @@ public class OfflinePacketBuffer
     
     private const int NumberOfPackets = 200;
 
+    private SmartMemoryStreamManager smartMemoryStreamManager;
+
     public OfflinePacketBuffer(bool seedFrameBuffer = false)
     {
-        if (!ServiceRegistry.TryGetService(out SmartBufferManager sbm))
+        if (!ServiceRegistry.TryGetService(out smartMemoryStreamManager))
         {
             SmartStorageSubsystem.InitSmartStorage();
+            ServiceRegistry.TryGetService(out smartMemoryStreamManager);
         }
         
         
@@ -68,7 +71,7 @@ public class OfflinePacketBuffer
 
     public void SeedFirstFrame()
     {
-        var assembledFrame = PartialFrame.AssembleFrameImpl(firstFrame.Item1, firstFrame.Item2);
+        var assembledFrame = PartialFrame.AssembleFrameImpl(smartMemoryStreamManager, firstFrame.Item1, firstFrame.Item2);
         FrameBuffer.NewFrameReady(0, assembledFrame, true);
     }
     

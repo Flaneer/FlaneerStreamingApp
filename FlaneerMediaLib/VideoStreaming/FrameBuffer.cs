@@ -30,6 +30,7 @@ public class FrameBuffer
     private bool displayedFirstFrame = false;
     
     private SmartBufferManager smartBufferManager;
+    private SmartMemoryStreamManager smartMemoryStreamManager;
 
     /// <summary>
     /// ctor
@@ -44,6 +45,7 @@ public class FrameBuffer
             Task.Run(LogFrameBufferInfo);
         
         ServiceRegistry.TryGetService(out smartBufferManager);
+        ServiceRegistry.TryGetService(out smartMemoryStreamManager);
     }
 
     private void LogFrameBufferInfo()
@@ -139,11 +141,6 @@ public class FrameBuffer
         return true;
     }
 
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <param name="receivedFrame"></param>
-    /// <param name="framePacket"></param>
     internal void BufferPartialFrame(TransmissionVideoFrame receivedFrame, SmartBuffer framePacket)
     {
         var frameSequenceIDX = receivedFrame.SequenceIDX;
@@ -164,7 +161,7 @@ public class FrameBuffer
 
     internal void BufferFullFrame(TransmissionVideoFrame receivedFrame, SmartBuffer frameData)
     {
-        var frameStream = new MemoryStream(receivedFrame.PacketSize);
+        var frameStream = smartMemoryStreamManager.GetStream(receivedFrame.PacketSize);
         frameStream.Write(frameData.Buffer, TransmissionVideoFrame.HeaderSize, receivedFrame.PacketSize-TransmissionVideoFrame.HeaderSize);
         smartBufferManager.ReleaseBuffer(frameData);
 
