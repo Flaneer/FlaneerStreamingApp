@@ -12,5 +12,8 @@ public static class SmartStorageSubsystem
     {
         var smartBuffer = new SmartBufferManager();
         ServiceRegistry.AddService(smartBuffer);
+
+        var smartMemory = new SmartMemoryStreamManager();
+        ServiceRegistry.AddService(smartBuffer);
     }
 }
