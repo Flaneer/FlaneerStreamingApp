@@ -1,6 +1,6 @@
 ﻿using Microsoft.IO;
 
-namespace FlaneerMediaLib;
+namespace FlaneerMediaLib.SmartStorage;
 
 internal class SmartMemoryStreamManager : IService
 {
