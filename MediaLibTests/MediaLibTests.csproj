@@ -23,6 +23,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\FlaneerMediaLib\FlaneerMediaLib.csproj" />
+      <ProjectReference Include="..\OfflinePacketSimulator\OfflinePacketSimulator.csproj" />
     </ItemGroup>
 
     <ItemGroup>

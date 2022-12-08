@@ -20,9 +20,9 @@ public class AckReceiver : IService
         receiver.SubscribeToReceptionTraffic(PacketType.Ack, OnAckReceived);
     }
 
-    private void OnAckReceived(byte[] incomingAck)
+    private void OnAckReceived(SmartBuffer incomingAck)
     {
-        OnAckReceivedImpl(incomingAck, prevAcks);
+        OnAckReceivedImpl(incomingAck.Buffer, prevAcks);
         logger.Trace(prevAcks.Last().Key.ToString());
     }
 

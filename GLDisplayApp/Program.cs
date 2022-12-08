@@ -10,6 +10,8 @@ internal static class Program
     {
         CommandLineArgumentStore.CreateAndRegister(args);
 
+        SmartStorageSubsystem.InitSmartStorage();
+        
         NetworkSubsystem.InitClient();
         
         var videoSettings = new VideoSettings();

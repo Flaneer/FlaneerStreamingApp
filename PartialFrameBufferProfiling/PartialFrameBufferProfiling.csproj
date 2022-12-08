@@ -5,16 +5,9 @@
         <TargetFramework>net6.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
-        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     </PropertyGroup>
 
     <ItemGroup>
-      <PackageReference Include="BenchmarkDotNet" Version="0.13.2" />
-      <PackageReference Include="BenchmarkDotNet.Diagnostics.Windows" Version="0.13.2" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <ProjectReference Include="..\FlaneerMediaLib\FlaneerMediaLib.csproj" />
       <ProjectReference Include="..\OfflinePacketSimulator\OfflinePacketSimulator.csproj" />
     </ItemGroup>
 
