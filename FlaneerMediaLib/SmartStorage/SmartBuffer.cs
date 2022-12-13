@@ -1,4 +1,4 @@
-﻿namespace FlaneerMediaLib;
+﻿namespace FlaneerMediaLib.SmartStorage;
 
 /// <summary>
 /// A buffer with the ability to be checked out and so it can be reused in a pool

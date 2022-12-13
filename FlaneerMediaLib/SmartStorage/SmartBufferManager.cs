@@ -1,4 +1,4 @@
-﻿namespace FlaneerMediaLib;
+﻿namespace FlaneerMediaLib.SmartStorage;
 
 internal class SmartBufferManager : IService
 {

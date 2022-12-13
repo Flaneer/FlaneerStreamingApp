@@ -1,4 +1,6 @@
-﻿namespace FlaneerMediaLib.UnreliableDataChannel;
+﻿using FlaneerMediaLib.SmartStorage;
+
+namespace FlaneerMediaLib.UnreliableDataChannel;
 
 /// <summary>
 /// Sends Acks

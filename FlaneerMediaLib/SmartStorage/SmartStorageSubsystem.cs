@@ -1,4 +1,4 @@
-﻿namespace FlaneerMediaLib;
+﻿namespace FlaneerMediaLib.SmartStorage;
 
 /// <summary>
 /// Static class that can be used in the main to start all the smart storage objects and their managers
@@ -12,5 +12,8 @@ public static class SmartStorageSubsystem
     {
         var smartBuffer = new SmartBufferManager();
         ServiceRegistry.AddService(smartBuffer);
+
+        var smartMemory = new SmartMemoryStreamManager();
+        ServiceRegistry.AddService(smartMemory);
     }
 }

@@ -47,6 +47,12 @@ public class UDPReceptionBenchmarking
         }
     }
 
+    [IterationCleanup]
+    public void IterationCleanup()
+    {
+        offlinePacketBuffer.RefreshFrameBuffer();
+    }
+
     [Benchmark]
     public void GetFrames()
     {

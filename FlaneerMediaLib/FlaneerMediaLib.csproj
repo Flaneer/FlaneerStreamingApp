@@ -82,6 +82,7 @@
 
   <ItemGroup>
     <PackageReference Include="FFmpeg.AutoGen" Version="5.0.0" />
+    <PackageReference Include="Microsoft.IO.RecyclableMemoryStream" Version="2.2.1" />
     <PackageReference Include="Spectre.Console" Version="0.44.1-preview.0.17" />
   </ItemGroup>
 
