@@ -6,9 +6,7 @@ namespace FlaneerMediaLib.VideoStreaming
     internal class PartialFrame
     {
         private Dictionary<int, SmartBuffer> framePieces;
-
-        private List<SmartBuffer> OrderedFramePieces => framePieces.OrderBy(x => x.Key).Select(x => x.Value).ToList();
-
+        
         private readonly TransmissionVideoFrame seedFrame;
 
         internal int ExpectedPieces => seedFrame.NumberOfPackets;
@@ -20,18 +18,24 @@ namespace FlaneerMediaLib.VideoStreaming
         private SmartBufferManager smartBufferManager;
         private SmartMemoryStreamManager smartMemoryStreamManager;
 
+        //This array contains the indices of the framePieces, e.g. if orderedIndices[0] is 3 that means the first part is at framePieces[3]
+        private readonly int[] orderedIndices;
+
         public PartialFrame(TransmissionVideoFrame seedFrame, Action<uint, ManagedVideoFrame, bool> onFrameReady)
         {
             this.seedFrame = seedFrame;
             FrameReadyCallback = onFrameReady;
             framePieces = new Dictionary<int, SmartBuffer>(seedFrame.NumberOfPackets);
-        
+
+            orderedIndices = new int[seedFrame.NumberOfPackets];
+            
             ServiceRegistry.TryGetService(out smartBufferManager);
             ServiceRegistry.TryGetService(out smartMemoryStreamManager);
         }
 
         public void BufferPiece(SmartBuffer framePacket, int packetIdx, int packetSize)
         {
+            orderedIndices[packetIdx] = framePieces.Count;
             framePieces.Add(packetIdx, framePacket);
             bufferedPieces++;
             if (bufferedPieces == seedFrame.NumberOfPackets)
@@ -40,17 +44,17 @@ namespace FlaneerMediaLib.VideoStreaming
 
         private void AssembleFrame()
         {
-            var assembledFrame = AssembleFrameImpl(smartMemoryStreamManager, seedFrame, OrderedFramePieces, smartBufferManager);
+            var frameStream = smartMemoryStreamManager.GetStream(seedFrame.FrameDataSize);
+            var assembledFrame = AssembleFrameImpl(frameStream, seedFrame, orderedIndices, framePieces, smartBufferManager);
             FrameReadyCallback(seedFrame.SequenceIDX, assembledFrame, seedFrame.IsIFrame);
         }
 
-        internal static ManagedVideoFrame AssembleFrameImpl(SmartMemoryStreamManager smartMemoryStreamManager, TransmissionVideoFrame seedFrame, List<SmartBuffer> framePieces, SmartBufferManager? smartBufferManager = null)
+        internal static ManagedVideoFrame AssembleFrameImpl(MemoryStream stream, TransmissionVideoFrame seedFrame, int[] order, Dictionary<int, SmartBuffer> framePieces,  SmartBufferManager? smartBufferManager = null)
         {
-            var frameStream = smartMemoryStreamManager.GetStream(seedFrame.FrameDataSize);
-            
-            foreach (var framePiece in framePieces)
+            foreach (var idx in order)
             {
-                frameStream.Write(framePiece.Buffer);
+                var framePiece = framePieces[idx];
+                stream.Write(framePiece.Buffer);
                 smartBufferManager?.ReleaseBuffer(framePiece);
             }
 
@@ -59,7 +63,7 @@ namespace FlaneerMediaLib.VideoStreaming
                 Codec = seedFrame.Codec,
                 Height = seedFrame.Height,
                 Width = seedFrame.Width,
-                Stream = frameStream
+                Stream = stream
             };
             return assembledFrame;
         }

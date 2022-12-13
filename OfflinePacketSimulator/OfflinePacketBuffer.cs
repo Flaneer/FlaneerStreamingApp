@@ -12,7 +12,7 @@ public class OfflinePacketBuffer
 
     public UDPReceiver UDPReceiver => udpReceiver;
     
-    private readonly FrameBuffer fbH264;
+    private FrameBuffer fbH264;
     
     private UDPReceiver udpReceiver = new UDPReceiver();
     
@@ -36,8 +36,9 @@ public class OfflinePacketBuffer
         {
             SmartStorageSubsystem.InitSmartStorage();
             ServiceRegistry.TryGetService(out smartMemoryStreamManager);
+            //The first GetStream is slow and messes up the benchmarking
+            var initialBuffer = smartMemoryStreamManager.GetStream(Int16.MaxValue);
         }
-        
         
         fbH264 = new FrameBuffer(VideoCodec.H264, false);
         for (int i = 0; i < NumberOfPackets; i++)
@@ -69,9 +70,17 @@ public class OfflinePacketBuffer
         return new SmartBuffer(rawPackets[num]);
     }
 
+    public void RefreshFrameBuffer()
+    {
+        fbH264 = new FrameBuffer(VideoCodec.H264, false);
+    }
+    
     public void SeedFirstFrame()
     {
-        var assembledFrame = PartialFrame.AssembleFrameImpl(smartMemoryStreamManager, firstFrame.Item1, firstFrame.Item2);
+        var numberOfPackets = firstFrame.Item1.NumberOfPackets;
+        int[] orderIdxs = Enumerable.Range(0, numberOfPackets).ToArray();
+        var framePieces = firstFrame.Item2.Select((sb, i) => new { Key = i, Value = sb }).ToDictionary(x => x.Key, x => x.Value);
+        var assembledFrame = PartialFrame.AssembleFrameImpl(new MemoryStream(), firstFrame.Item1, orderIdxs, framePieces);
         FrameBuffer.NewFrameReady(0, assembledFrame, true);
     }
     
