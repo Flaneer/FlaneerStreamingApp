@@ -31,6 +31,20 @@ public class FrameBufferTests
         }
         Assert.Equal(1, frameBuffer.partialFrameBufferCount);
         Assert.Equal(1, frameBuffer.frameBufferCount);
+        
+        frames = offlinePacketBuffer.GetRandomBlockOfPartialFrames();
+        Random rnd = new Random();
+        for (int i = 0; i < frames.Count; i++)
+        {
+            int j = rnd.Next(i, frames.Count);
+            (frames[i], frames[j]) = (frames[j], frames[i]);
+        }
+        foreach (var frame in frames)
+        {
+            frameBuffer.BufferPartialFrame(frame.Item1, frame.Item2);
+        }
+        Assert.Equal(2, frameBuffer.partialFrameBufferCount);
+        Assert.Equal(2, frameBuffer.frameBufferCount);
     }
     
     [Fact]
