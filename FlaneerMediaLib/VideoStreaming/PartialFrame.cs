@@ -14,14 +14,14 @@ namespace FlaneerMediaLib.VideoStreaming
         private int bufferedPieces;
 
         //TODO: refactor as eventhandler with type for args
-        private readonly Action<uint, ManagedVideoFrame, bool> FrameReadyCallback;
+        private readonly Action<uint, UnassembledFrame, bool> FrameReadyCallback;
         private SmartBufferManager smartBufferManager;
         private SmartMemoryStreamManager smartMemoryStreamManager;
 
         //This array contains the indices of the framePieces, e.g. if orderedIndices[0] is 3 that means the first part is at framePieces[3]
         private readonly int[] orderedIndices;
 
-        public PartialFrame(TransmissionVideoFrame seedFrame, Action<uint, ManagedVideoFrame, bool> onFrameReady)
+        public PartialFrame(TransmissionVideoFrame seedFrame, Action<uint, UnassembledFrame, bool> onFrameReady)
         {
             this.seedFrame = seedFrame;
             FrameReadyCallback = onFrameReady;
@@ -44,28 +44,9 @@ namespace FlaneerMediaLib.VideoStreaming
 
         private void AssembleFrame()
         {
-            var frameStream = smartMemoryStreamManager.GetStream(seedFrame.FrameDataSize);
-            var assembledFrame = AssembleFrameImpl(frameStream, seedFrame, orderedIndices, framePieces, smartBufferManager);
-            FrameReadyCallback(seedFrame.SequenceIDX, assembledFrame, seedFrame.IsIFrame);
-        }
-
-        internal static ManagedVideoFrame AssembleFrameImpl(MemoryStream stream, TransmissionVideoFrame seedFrame, int[] order, Dictionary<int, SmartBuffer> framePieces,  SmartBufferManager? smartBufferManager = null)
-        {
-            foreach (var idx in order)
-            {
-                var framePiece = framePieces[idx];
-                stream.Write(framePiece.Buffer);
-                smartBufferManager?.ReleaseBuffer(framePiece);
-            }
-
-            var assembledFrame = new ManagedVideoFrame()
-            {
-                Codec = seedFrame.Codec,
-                Height = seedFrame.Height,
-                Width = seedFrame.Width,
-                Stream = stream
-            };
-            return assembledFrame;
+            //TODO: MAKE CODEC ACCESSIBLE THROUGH SERVICE MANAGER
+            var unassembledFrame = new PartialUnassembledFrame(VideoCodec.H264, seedFrame, framePieces, orderedIndices);
+            FrameReadyCallback(seedFrame.SequenceIDX, unassembledFrame, seedFrame.IsIFrame);
         }
     }
 }
