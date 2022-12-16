@@ -85,6 +85,13 @@ public class OfflinePacketBuffer
         FrameBuffer.NewFrameReady(firstFrame.Item1.SequenceIDX, unassembledFrame, firstFrame.Item1.IsIFrame);
     }
     
+    public MemoryStream GetFirstFrameStream()
+    {
+        var frame = firstFrame.Item2[0];
+        var stream = smartMemoryStreamManager.GetStream(frame.Buffer);
+        return stream;
+    }
+    
     public Tuple<TransmissionVideoFrame, SmartBuffer> GetRandomFullFrame()
     {
         Random rnd = new Random();

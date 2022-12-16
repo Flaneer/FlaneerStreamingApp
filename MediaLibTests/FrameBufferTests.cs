@@ -1,5 +1,5 @@
 ﻿using System;
-using FlaneerMediaLib;
+using FlaneerMediaLib.VideoDataTypes;
 using FlaneerMediaLib.VideoStreaming;
 using OfflinePacketSimulator;
 using Xunit;
@@ -75,5 +75,11 @@ public class FrameBufferTests
         Assert.Equal(0, frameBuffer.frameBufferCount);
         offlinePacketBuffer.SeedFirstFrame();
         Assert.Equal(1, frameBuffer.frameBufferCount);
+        
+        Assert.True(frameBuffer.GetNextFrame(out var outFrame));
+        ManagedVideoFrame mvf = outFrame as ManagedVideoFrame;
+        Assert.NotNull(mvf);
+        
+        Assert.True(TestUtils.IsValidH264Frame(mvf.Stream.ToArray()));
     }
 }
