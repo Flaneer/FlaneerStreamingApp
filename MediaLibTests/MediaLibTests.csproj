@@ -396,8 +396,9 @@
         <Link>TestResources\TestImageSequence\out99.png</Link>
       </Content>
     </ItemGroup>
+  
     <ItemGroup>
-      <CopyFile Include="..\ffmpeg\*" DestinationFolder="$(OutputPath)" />
+      <CopyFile Include="..\ffmpeg\*.dll" DestinationFolder="$(OutputPath)" />
     </ItemGroup>
 
 
