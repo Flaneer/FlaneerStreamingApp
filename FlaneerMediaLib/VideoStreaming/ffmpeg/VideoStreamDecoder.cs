@@ -48,13 +48,18 @@ namespace FlaneerMediaLib.VideoStreaming.ffmpeg
         {
             logger = Logger.GetLogger(this);
 
-            Init(avioCtx);
+            ServiceRegistry.TryGetService<CommandLineArgumentStore>(out var clas);
+            var frameSettings = clas.GetParams(CommandLineArgs.FrameSettings);
+            var width =  Int16.Parse(frameSettings[0]);
+            var height = Int16.Parse(frameSettings[1]);
+            
+            Init(avioCtx, width, height);
         }
 
         /// <summary>
         /// Initializes the decoder
         /// </summary>
-        internal void Init(AVIOContext* avioCtx)
+        internal void Init(AVIOContext* avioCtx, int width, int height)
         {
             //Allocate an AVFormatContext. avformat_free_context() can be used to free the context and everything allocated by the framework within it.
             var ctx = FF.avformat_alloc_context();
@@ -68,10 +73,6 @@ namespace FlaneerMediaLib.VideoStreaming.ffmpeg
             //Allocate an AVCodecContext and set its fields to default values. The resulting struct should be freed with avcodec_free_context().
             CodecContextPtr = FF.avcodec_alloc_context3(codec);
             
-            ServiceRegistry.TryGetService<CommandLineArgumentStore>(out var clas);
-            var frameSettings = clas.GetParams(CommandLineArgs.FrameSettings);
-            var width =  Int16.Parse(frameSettings[0]);
-            var height = Int16.Parse(frameSettings[1]);
             CodecContextPtr->width = width;
             CodecContextPtr->height = height;
             CodecContextPtr->pix_fmt = AVPixelFormat.AV_PIX_FMT_YUV420P;
@@ -145,18 +146,7 @@ namespace FlaneerMediaLib.VideoStreaming.ffmpeg
 
             return *framePtr;
         }
-        
-        internal static FrameInfo GetFrameInfo(AVFrame frame)
-        {
-            return new FrameInfo
-            {
-                PictType = frame.pict_type,
-                Format = (AVPixelFormat) frame.format,
-                KeyFrame = frame.key_frame == 1,
-                CodedPictureNumber = frame.coded_picture_number
-            };
-        } 
-        
+
         /// <inheritdoc />
         public void Dispose()
         {

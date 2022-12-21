@@ -1,9 +1,27 @@
-﻿using FlaneerMediaLib.VideoDataTypes;
+﻿using FFmpeg.AutoGen;
+using FlaneerMediaLib.VideoDataTypes;
 
 namespace MediaLibTests;
 
 public static class TestUtils
 {
+    internal class FrameInfo
+    {
+        public AVPixelFormat Format;
+        public bool KeyFrame;
+        public int CodedPictureNumber;
+    }
+    
+    internal static FrameInfo GetFrameInfo(AVFrame frame)
+    {
+        return new FrameInfo
+        {
+            Format = (AVPixelFormat) frame.format,
+            KeyFrame = frame.key_frame == 1,
+            CodedPictureNumber = frame.coded_picture_number
+        };
+    } 
+    
     public static bool IsValidH264(byte[] frame)
     {
         const int headerOffset = TransmissionVideoFrame.HeaderSize;
