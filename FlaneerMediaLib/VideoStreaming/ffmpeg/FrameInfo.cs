@@ -1,11 +1,11 @@
-﻿namespace FlaneerMediaLib.VideoStreaming.ffmpeg;
+﻿using FFmpeg.AutoGen;
+
+namespace FlaneerMediaLib.VideoStreaming.ffmpeg;
 
 internal class FrameInfo
 {
-    public char PictType;
-    public int Format;
-    public long Pts;
-    public int KeyFrame;
+    public AVPictureType PictType;
+    public AVPixelFormat Format;
+    public bool KeyFrame;
     public int CodedPictureNumber;
-    public int PktSize;
 }

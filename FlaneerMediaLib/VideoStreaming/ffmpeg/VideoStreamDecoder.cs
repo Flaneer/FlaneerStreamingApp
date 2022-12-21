@@ -146,16 +146,14 @@ namespace FlaneerMediaLib.VideoStreaming.ffmpeg
             return *framePtr;
         }
         
-        internal static FrameInfo GetFrameInfo(AVFrame *frame)
+        internal static FrameInfo GetFrameInfo(AVFrame frame)
         {
             return new FrameInfo
             {
-                PictType = Convert.ToChar(FF.av_get_picture_type_char(frame->pict_type)),
-                PktSize = frame->pkt_size,
-                Format = frame->format,
-                Pts = frame->pts,
-                KeyFrame = frame->key_frame,
-                CodedPictureNumber = frame->coded_picture_number
+                PictType = frame.pict_type,
+                Format = (AVPixelFormat) frame.format,
+                KeyFrame = frame.key_frame == 1,
+                CodedPictureNumber = frame.coded_picture_number
             };
         } 
         

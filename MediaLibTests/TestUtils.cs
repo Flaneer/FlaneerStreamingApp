@@ -4,7 +4,7 @@ namespace MediaLibTests;
 
 public static class TestUtils
 {
-    public static bool IsValid(byte[] frame)
+    public static bool IsValidH264(byte[] frame)
     {
         const int headerOffset = TransmissionVideoFrame.HeaderSize;
 
