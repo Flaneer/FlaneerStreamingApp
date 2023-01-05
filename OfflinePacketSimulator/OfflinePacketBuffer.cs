@@ -82,7 +82,12 @@ public class OfflinePacketBuffer
         var framePieces = firstFrame.Item2.Select((sb, i) => new { Key = i, Value = sb }).ToDictionary(x => x.Key, x => x.Value);
         
         var unassembledFrame = new PartialUnassembledFrame(VideoCodec.H264, firstFrame.Item1, framePieces, orderIdxs);
-        FrameBuffer.NewFrameReady(firstFrame.Item1.SequenceIDX, unassembledFrame, firstFrame.Item1.IsIFrame);
+        FrameBuffer.NewFrameReady(this, new FrameReadyArgs
+        {
+            sequenceIdx = firstFrame.Item1.SequenceIDX,
+            unassembledFrame = unassembledFrame,
+            isIFrame = firstFrame.Item1.IsIFrame
+        });
     }
     
     public MemoryStream GetFirstFrameStream()
