@@ -43,23 +43,23 @@
 
   <ItemGroup>
     <Content Include="..\ffmpeg\avcodec-59.dll">
-      <Link>ffmpeg\avcodec-58.dll</Link>
+      <Link>ffmpeg\avcodec-59.dll</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="..\ffmpeg\avdevice-59.dll">
-      <Link>ffmpeg\avdevice-58.dll</Link>
+      <Link>ffmpeg\avdevice-59.dll</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="..\ffmpeg\avfilter-8.dll">
-      <Link>ffmpeg\avfilter-7.dll</Link>
+      <Link>ffmpeg\avfilter-8.dll</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="..\ffmpeg\avformat-59.dll">
-      <Link>ffmpeg\avformat-58.dll</Link>
+      <Link>ffmpeg\avformat-59.dll</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="..\ffmpeg\avutil-57.dll">
-      <Link>ffmpeg\avutil-56.dll</Link>
+      <Link>ffmpeg\avutil-57.dll</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="..\ffmpeg\ffmpeg.exe">
@@ -67,15 +67,15 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="..\ffmpeg\postproc-56.dll">
-      <Link>ffmpeg\postproc-55.dll</Link>
+      <Link>ffmpeg\postproc-56.dll</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="..\ffmpeg\swresample-4.dll">
-      <Link>ffmpeg\swresample-3.dll</Link>
+      <Link>ffmpeg\swresample-4.dll</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="..\ffmpeg\swscale-6.dll">
-      <Link>ffmpeg\swscale-5.dll</Link>
+      <Link>ffmpeg\swscale-6.dll</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>

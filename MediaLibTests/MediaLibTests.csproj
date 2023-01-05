@@ -5,6 +5,8 @@
         <Nullable>enable</Nullable>
 
         <IsPackable>false</IsPackable>
+
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     </PropertyGroup>
 
     <ItemGroup>
@@ -394,8 +396,13 @@
         <Link>TestResources\TestImageSequence\out99.png</Link>
       </Content>
     </ItemGroup>
-
+  
     <ItemGroup>
+      <CopyFile Include="..\ffmpeg\*.dll" DestinationFolder="$(OutputPath)" />
+    </ItemGroup>
+
+
+  <ItemGroup>
       <None Update="xunit.runner.json">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </None>

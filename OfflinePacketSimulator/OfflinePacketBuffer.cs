@@ -80,8 +80,21 @@ public class OfflinePacketBuffer
         var numberOfPackets = firstFrame.Item1.NumberOfPackets;
         int[] orderIdxs = Enumerable.Range(0, numberOfPackets).ToArray();
         var framePieces = firstFrame.Item2.Select((sb, i) => new { Key = i, Value = sb }).ToDictionary(x => x.Key, x => x.Value);
-        var assembledFrame = PartialFrame.AssembleFrameImpl(new MemoryStream(), firstFrame.Item1, orderIdxs, framePieces);
-        FrameBuffer.NewFrameReady(0, assembledFrame, true);
+        
+        var unassembledFrame = new PartialUnassembledFrame(VideoCodec.H264, firstFrame.Item1, framePieces, orderIdxs);
+        FrameBuffer.NewFrameReady(this, new FrameReadyArgs
+        {
+            sequenceIdx = firstFrame.Item1.SequenceIDX,
+            unassembledFrame = unassembledFrame,
+            isIFrame = firstFrame.Item1.IsIFrame
+        });
+    }
+    
+    public MemoryStream GetFirstFrameStream()
+    {
+        var frame = firstFrame.Item2[0];
+        var stream = smartMemoryStreamManager.GetStream(frame.Buffer);
+        return stream;
     }
     
     public Tuple<TransmissionVideoFrame, SmartBuffer> GetRandomFullFrame()

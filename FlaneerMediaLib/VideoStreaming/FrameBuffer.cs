@@ -10,7 +10,7 @@ namespace FlaneerMediaLib.VideoStreaming;
 public class FrameBuffer
 {
     private readonly Dictionary<UInt32, PartialFrame?> partialFrames = new();
-    private readonly Dictionary<UInt32, ManagedVideoFrame> frames = new();
+    private readonly Dictionary<UInt32, UnassembledFrame> frames = new();
 
     internal int frameBufferCount => frames.Count;
     internal int partialFrameBufferCount => partialFrames.Count;
@@ -125,13 +125,11 @@ public class FrameBuffer
             return false;
         }
 
-        nextFrame = frames[nextFrameIdx];
+        nextFrame = frames[nextFrameIdx].ToFrame();
 
         var lastFrameIdx = nextFrameIdx -1;
         if (frames.ContainsKey(lastFrameIdx))
             frames.Remove(lastFrameIdx);
-        
-        logger.Debug($"Sending {frames[nextFrameIdx].Stream!.Length}B Frame From Buffer");
         
         nextFrameIdx++;
         
@@ -149,29 +147,24 @@ public class FrameBuffer
         partialFrames[frameSequenceIDX]!.BufferPiece(framePacket, receivedFrame.PacketIdx, receivedFrame.PacketSize);
     }
 
-    internal void NewFrameReady(uint sequenceIdx, ManagedVideoFrame assembledFrame, bool isIFrame)
+    internal void NewFrameReady(object sender, FrameReadyArgs e)
     {
-        if(isIFrame && displayedFirstFrame)
+        if(e.isIFrame && displayedFirstFrame)
         {
-            logger.Trace($"Skipping to latest I frame: {sequenceIdx}");
-            nextFrameIdx = sequenceIdx;
+            logger.Trace($"Skipping to latest I frame: {e.sequenceIdx}");
+            nextFrameIdx = e.sequenceIdx;
         }
-        frames[sequenceIdx] = assembledFrame;
+        frames[e.sequenceIdx] = e.unassembledFrame;
     }
 
     internal void BufferFullFrame(TransmissionVideoFrame receivedFrame, SmartBuffer frameData)
     {
-        var frameStream = smartMemoryStreamManager.GetStream(receivedFrame.PacketSize);
-        frameStream.Write(frameData.Buffer, TransmissionVideoFrame.HeaderSize, receivedFrame.PacketSize-TransmissionVideoFrame.HeaderSize);
-        smartBufferManager.ReleaseBuffer(frameData);
-
-        var newFrame = new ManagedVideoFrame()
+        var newFrame = new UnassembledFrame(codec, receivedFrame, frameData);
+        NewFrameReady(this, new FrameReadyArgs
         {
-            Codec = codec,
-            Height = receivedFrame.Height,
-            Width = receivedFrame.Width,
-            Stream = frameStream
-        };
-        NewFrameReady(receivedFrame.SequenceIDX, newFrame, receivedFrame.IsIFrame);
+            sequenceIdx = receivedFrame.SequenceIDX,
+            unassembledFrame = newFrame,
+            isIFrame = receivedFrame.IsIFrame
+        });
     }
 }
