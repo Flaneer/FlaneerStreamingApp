@@ -69,7 +69,16 @@ public class TransmissionVideoFrame : IPacketInfo, IVideoFrame
     public byte[] ToUDPPacket()
     {
         byte[] ret = new byte[HeaderSize];
-        using MemoryStream stream = new MemoryStream(ret);
+        ToUDPPacket(ret);
+        return ret;
+    }
+
+    /// <summary>
+    /// Converts the data in this class to a byte array that can be decoded
+    /// </summary>
+    public void ToUDPPacket(byte[] packetBuffer)
+    {
+        using MemoryStream stream = new MemoryStream(packetBuffer);
         using var writer = new BinaryWriter(stream, Encoding.UTF8, false);
         writer.Write((byte) PacketType);
         writer.Write(PacketSize);
@@ -82,10 +91,8 @@ public class TransmissionVideoFrame : IPacketInfo, IVideoFrame
         writer.Write(PacketIdx);
         writer.Write(FrameDataSize);
         writer.Write(flagsByte);
-        
-        return ret;
     }
-    
+
     /// <summary>
     /// Helper method for turning UDP packet into transmission frame
     /// </summary>

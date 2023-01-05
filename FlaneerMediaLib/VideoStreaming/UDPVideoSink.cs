@@ -154,12 +154,11 @@ public class UDPVideoSink : IVideoSink
             var transmissionArraySize = TransmissionVideoFrame.HeaderSize + packetSize;
             
             frameHeader.PacketSize = (ushort) transmissionArraySize;
-            var headerBytes = frameHeader.ToUDPPacket();
-            
             byte[] transmissionArray = new byte[transmissionArraySize];
             
-            Array.Copy(headerBytes, transmissionArray, headerBytes.Length);
-            Array.Copy(frameBytes, sent, transmissionArray, headerBytes.Length, packetSize);
+            frameHeader.ToUDPPacket(transmissionArray);
+
+            Array.Copy(frameBytes, sent, transmissionArray, TransmissionVideoFrame.HeaderSize, packetSize);
                 
             udpSender.SendToPeer(transmissionArray);
 
@@ -168,6 +167,9 @@ public class UDPVideoSink : IVideoSink
             
             Thread.Sleep(frameTime/numberOfPackets);
         }
+
+        var b = frameBytes.Length + ((TransmissionVideoFrame.HeaderSize + 8) * numberOfPackets) == sent;
+        logger.Debug($"FRAME BYTES: {frameBytes.Length} | SENT: {sent} | {b}");
         nextFrame++;
     }
     
