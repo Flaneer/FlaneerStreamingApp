@@ -147,19 +147,24 @@ public class FrameBuffer
         partialFrames[frameSequenceIDX]!.BufferPiece(framePacket, receivedFrame.PacketIdx, receivedFrame.PacketSize);
     }
 
-    internal void NewFrameReady(uint sequenceIdx, UnassembledFrame assembledFrame, bool isIFrame)
+    internal void NewFrameReady(object sender, FrameReadyArgs e)
     {
-        if(isIFrame && displayedFirstFrame)
+        if(e.isIFrame && displayedFirstFrame)
         {
-            logger.Trace($"Skipping to latest I frame: {sequenceIdx}");
-            nextFrameIdx = sequenceIdx;
+            logger.Trace($"Skipping to latest I frame: {e.sequenceIdx}");
+            nextFrameIdx = e.sequenceIdx;
         }
-        frames[sequenceIdx] = assembledFrame;
+        frames[e.sequenceIdx] = e.unassembledFrame;
     }
 
     internal void BufferFullFrame(TransmissionVideoFrame receivedFrame, SmartBuffer frameData)
     {
         var newFrame = new UnassembledFrame(codec, receivedFrame, frameData);
-        NewFrameReady(receivedFrame.SequenceIDX, newFrame, receivedFrame.IsIFrame);
+        NewFrameReady(this, new FrameReadyArgs
+        {
+            sequenceIdx = receivedFrame.SequenceIDX,
+            unassembledFrame = newFrame,
+            isIFrame = receivedFrame.IsIFrame
+        });
     }
 }

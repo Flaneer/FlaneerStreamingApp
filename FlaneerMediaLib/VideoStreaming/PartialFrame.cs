@@ -13,15 +13,14 @@ namespace FlaneerMediaLib.VideoStreaming
         internal int BufferedPieces => bufferedPieces;
         private int bufferedPieces;
 
-        //TODO: refactor as eventhandler with type for args
-        private readonly Action<uint, UnassembledFrame, bool> FrameReadyCallback;
+        private readonly EventHandler<FrameReadyArgs> FrameReadyCallback;
         private SmartBufferManager smartBufferManager;
         private SmartMemoryStreamManager smartMemoryStreamManager;
 
         //This array contains the indices of the framePieces, e.g. if orderedIndices[0] is 3 that means the first part is at framePieces[3]
         private readonly int[] orderedIndices;
 
-        public PartialFrame(TransmissionVideoFrame seedFrame, Action<uint, UnassembledFrame, bool> onFrameReady)
+        public PartialFrame(TransmissionVideoFrame seedFrame, EventHandler<FrameReadyArgs> onFrameReady)
         {
             this.seedFrame = seedFrame;
             FrameReadyCallback = onFrameReady;
@@ -46,7 +45,13 @@ namespace FlaneerMediaLib.VideoStreaming
         {
             //TODO: MAKE CODEC ACCESSIBLE THROUGH SERVICE MANAGER
             var unassembledFrame = new PartialUnassembledFrame(VideoCodec.H264, seedFrame, framePieces, orderedIndices);
-            FrameReadyCallback(seedFrame.SequenceIDX, unassembledFrame, seedFrame.IsIFrame);
+            FrameReadyCallback(this, new FrameReadyArgs
+            {
+                sequenceIdx = seedFrame.SequenceIDX,
+                unassembledFrame = unassembledFrame,
+                isIFrame = seedFrame.IsIFrame
+                
+            });
         }
     }
 }

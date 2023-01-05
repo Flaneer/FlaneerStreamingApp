@@ -48,5 +48,4 @@ public class CommandLineArgumentStore : IService
         clas.ParseArguments(commandLineArgs);
         ServiceRegistry.AddService(clas);
     }
-    
 }
