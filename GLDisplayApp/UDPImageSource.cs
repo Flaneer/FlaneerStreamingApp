@@ -70,7 +70,7 @@ public class UDPImageSource
                 
                 logger.Trace($"Decoding new frame of size {frame.Stream.Length}");
                 
-                WriteToFile(frame.Stream.ToArray());
+                WriteToFile(frame);
 
                 var inStream = frame.Stream;
                 
@@ -107,10 +107,11 @@ public class UDPImageSource
         return new UnsafeUnmanagedVideoFrame();
     }
 
-    private void WriteToFile(byte[] frameBytes)
+    private void WriteToFile(ManagedVideoFrame frame)
     {
         if (alsoWriteToFile)
         {
+            var frameBytes = frame.Stream.ToArray();
             try
             {
                 var f = File.Open("out.h264", FileMode.Append);
