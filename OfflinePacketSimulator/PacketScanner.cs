@@ -8,21 +8,25 @@ public class PacketScanner
 {
     private List<int> fullFrames = new List<int>();
     private Dictionary<int, List<int>> partialFrames = new ();
+    
+    private Dictionary<int, List<int>> framesToPackets = new ();
 
-    public PacketScanner()
+    public PacketScanner(int packetCount)
     {
-        ScanAllPackets();
+        ScanAllPackets(packetCount);
     }
 
-    private void ScanAllPackets()
+    private void ScanAllPackets(int packetCount)
     {
-        for (int i = 0; i < 100; i++)
+        int frameIdx = 0;
+        for (int i = 0; i < packetCount; i++)
         {
             var packet = File.ReadAllBytes(OfflinePacketAccess.GetPacket(i));
             var tvf = TransmissionVideoFrame.FromUDPPacket(packet);
             if (tvf.NumberOfPackets == 1)
             {
                 fullFrames.Add(i);
+                framesToPackets.Add(frameIdx, new List<int> {i});
             }
             else
             {
@@ -31,8 +35,10 @@ public class PacketScanner
                 {
                     partialFrames[i].Add(i+j);
                 }
+                framesToPackets.Add(frameIdx, partialFrames[i]);
                 i += tvf.NumberOfPackets-1;
             }
+            frameIdx++;
         }
     }
 
@@ -73,5 +79,23 @@ public class PacketScanner
                 newList.Add(new Tuple<TransmissionVideoFrame, SmartBuffer>(tvf, new SmartBuffer(packet)));
             }
         }
+    }
+    
+    public MemoryStream GetFrame(int frameIdx)
+    {
+        var packetList = framesToPackets[frameIdx];
+        List<byte> bytes = new ();
+        var offset = 0;
+        for (int i = 0; i < packetList.Count; i++)
+        {
+            var packetPiece = File.ReadAllBytes(OfflinePacketAccess.GetPacket(packetList[i]));
+            bytes.AddRange(packetPiece);
+            bytes.RemoveRange(offset, TransmissionVideoFrame.HeaderSize);
+            offset = bytes.Count;
+        }
+        
+        var ms = new MemoryStream(bytes.Count);
+        ms.Write(bytes.ToArray(), 0, bytes.Count);
+        return ms;
     }
 }
