@@ -118,61 +118,73 @@ public class UDPVideoSink : IVideoSink
                 if(frame is UnmanagedVideoFrame unmanagedFrame)
                     SendFrame(unmanagedFrame, frameTime);
             }
-            catch (Exception)
+            catch (Exception e)
             {
-                // ignored
+                logger.Error($"Error when sending frame: {e.Message}");
             }
         }
         stopWatch.Stop();
     }
 
-    private unsafe void SendFrame(UnmanagedVideoFrame frame, TimeSpan frameTime)
+
+    private void SendFrame(UnmanagedVideoFrame frame, TimeSpan frameTime)
     {
-        using var uStream = new UnmanagedMemoryStream((byte*) frame.FrameData, frame.FrameSize);
-        var frameBytes = new byte[frame.FrameSize];
-        uStream.Read(frameBytes, 0, frame.FrameSize);
-
-        WriteToFile(frameBytes);
-        
-        var numberOfPackets = (byte) Math.Ceiling((double)frame.FrameSize / VideoUtils.FRAMEWRITABLESIZE);
-
-        var sent = 0;
-        for (byte i = 0; i < numberOfPackets; i++)
+        var bytesSentOfFrame = 0;
+        var pixelBuffers = SplitPixels(frame);
+        byte pixelBuffersCount = (byte) pixelBuffers.Count;
+        for (byte i = 0; i < pixelBuffersCount; i++)
         {
-            var frameHeader = new TransmissionVideoFrame
-            {
-                Width = (short) videoSource.FrameSettings.Width,
-                Height = (short) videoSource.FrameSettings.Height,
-                NumberOfPackets = numberOfPackets,
-                PacketIdx = i,
-                FrameDataSize = frame.FrameSize,
-                SequenceIDX = nextFrame,
-                IsIFrame = nextFrame % videoSettings.GoPLength == 0
-            };
-            
-            var packetSize = Math.Min(VideoUtils.FRAMEWRITABLESIZE, frame.FrameSize - sent);
-            var transmissionArraySize = TransmissionVideoFrame.HeaderSize + packetSize;
-            
-            frameHeader.PacketSize = (ushort) transmissionArraySize;
-            byte[] transmissionArray = new byte[transmissionArraySize];
-            
-            frameHeader.ToUDPPacket(transmissionArray);
+            var pixelBuffer = pixelBuffers[i];
+            InsertHeader(frame.FrameSize, pixelBuffersCount, i, pixelBuffer);
+            udpSender.SendToPeer(pixelBuffer);
 
-            Array.Copy(frameBytes, sent, transmissionArray, TransmissionVideoFrame.HeaderSize, packetSize);
-                
-            udpSender.SendToPeer(transmissionArray);
-
-            sent += packetSize;
-            logger.Debug($"SENT CHUNK OF {nextFrame} | {sent} / {frame.FrameSize} [gray]Total Sent Packets = {sentPacketCount++}[/]");
+            bytesSentOfFrame += pixelBuffer.Length;
+            sentPacketCount++;
             
-            Thread.Sleep(frameTime/numberOfPackets);
+            //TODO: examine the logic of this, as it does not 
+            Thread.Sleep(frameTime / pixelBuffersCount);
         }
-
-        var b = frameBytes.Length + ((TransmissionVideoFrame.HeaderSize + 8) * numberOfPackets) == sent;
-        logger.Debug($"FRAME BYTES: {frameBytes.Length} | SENT: {sent} | {b}");
         nextFrame++;
     }
-    
+
+    private void InsertHeader(int frameSize, byte packetCount, byte packetIdx, in byte[] pixelBuffer)
+    {
+        var frameHeader = new TransmissionVideoFrame
+        {
+            Width = (short) videoSource.FrameSettings.Width,
+            Height = (short) videoSource.FrameSettings.Height,
+            NumberOfPackets = packetCount,
+            PacketIdx = packetIdx,
+            FrameDataSize = frameSize,
+            SequenceIDX = nextFrame,
+            IsIFrame = nextFrame % videoSettings.GoPLength == 0
+        };
+        frameHeader.PacketSize = (ushort) pixelBuffer.Length;
+        frameHeader.ToUDPPacket(pixelBuffer);
+    }
+
+    //TODO: Rewrite this to use smart storage
+    private unsafe List<byte[]> SplitPixels(UnmanagedVideoFrame frame)
+    {
+        using var uStream = new UnmanagedMemoryStream((byte*) frame.FrameData, frame.FrameSize);
+        var frameDataAllocated = 0;
+        
+        var numberOfPackets = (byte) Math.Ceiling((double)frame.FrameSize / VideoUtils.FRAMEWRITABLESIZE);
+        var ret = new List<byte[]>();
+        for (int i = 0; i < numberOfPackets; i++)
+        {
+            var packetSize = Math.Min(VideoUtils.FRAMEWRITABLESIZE, frame.FrameSize - frameDataAllocated);
+            //Leave room in the array for the header to be written in later
+            var frameDataChunk = new byte[TransmissionVideoFrame.HeaderSize + packetSize];
+            uStream.Read(frameDataChunk, TransmissionVideoFrame.HeaderSize, packetSize);
+            ret.Add(frameDataChunk);
+        }
+        return ret;
+    }
+
+    /// <summary>
+    /// DEBUG CODE
+    /// </summary>
     private void WriteToFile(byte[] frameBytes)
     {
         if (alsoWriteToFile)
