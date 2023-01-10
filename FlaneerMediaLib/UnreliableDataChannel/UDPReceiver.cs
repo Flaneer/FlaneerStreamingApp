@@ -19,6 +19,7 @@ public class UDPReceiver : IService
     private readonly SmartBufferManager smartBufferManager;
 
     private Socket s;
+    private readonly CommandLineArgumentStore clas;
 
     /// <summary>
     /// ctor
@@ -29,7 +30,11 @@ public class UDPReceiver : IService
         logger = Logger.GetLogger(this);
         clientStatTracker = new UDPClientStatTracker(this);
         
-        ServiceRegistry.TryGetService<CommandLineArgumentStore>(out var clas);
+        ServiceRegistry.TryGetService(out clas);
+        
+        if(clas.HasArgument(CommandLineArgs.NoNet))
+            return;
+        
         var broadcastInfo = clas.GetParams(CommandLineArgs.BroadcastAddress);
         var listenPort = Int32.Parse(broadcastInfo[1]);
         
@@ -50,6 +55,9 @@ public class UDPReceiver : IService
 
     private void Reception()
     {
+        if(clas.HasArgument(CommandLineArgs.NoNet))
+            return;
+        
         receiving = true;
         while (receiving)
         {
@@ -71,6 +79,9 @@ public class UDPReceiver : IService
 
     internal void ProcessReceivedPacket(SmartBuffer smartBuffer)
     {
+        if(clas.HasArgument(CommandLineArgs.NoNet))
+            return;
+        
         var newReceivedByteBuffer = smartBuffer.Buffer; 
         if (newReceivedByteBuffer.Length == 0)
             return;
@@ -103,6 +114,9 @@ public class UDPReceiver : IService
     /// </summary>
     public void SubscribeToReceptionTraffic(PacketType packetType, Action<SmartBuffer> callBack)
     {
+        if(clas.HasArgument(CommandLineArgs.NoNet))
+            return;
+        
         if (receptionTrafficDestinations.ContainsKey(packetType))
         {
             receptionTrafficDestinations[packetType].Add(callBack);

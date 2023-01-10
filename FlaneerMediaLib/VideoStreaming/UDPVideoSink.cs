@@ -84,14 +84,7 @@ public class UDPVideoSink : IVideoSink
         //Return in the case the encoder is not created
         if(encoder == default! || videoSource == default!)
             return;
-        
-        logger.Trace("Waiting for peer to be registered");
-        while (!udpSender.PeerRegistered)
-        {
-            Thread.Sleep(500);
-        }
-        logger.Trace("Peer registered");
-        
+
         Stopwatch stopWatch = new Stopwatch();
         stopWatch.Start();
         var frameTime = targetFramerate == -1 ? new TimeSpan(0) : new TimeSpan(0, 0, 0, 0, 1000 / targetFramerate);

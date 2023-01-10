@@ -34,6 +34,7 @@ public class UDPSender : IService
 
     private UInt32 packetCount;
     private readonly Logger logger;
+    private readonly CommandLineArgumentStore clas;
 
     /// <summary>
     /// ctor
@@ -42,7 +43,11 @@ public class UDPSender : IService
     {
         this.s = s;
         logger = Logger.GetLogger(this);
-        ServiceRegistry.TryGetService<CommandLineArgumentStore>(out var clas);
+        ServiceRegistry.TryGetService(out clas);
+        
+        if(clas.HasArgument(CommandLineArgs.NoNet))
+            return;
+        
         var frameSettings = clas.GetParams(CommandLineArgs.BroadcastAddress);
         
         var ip = IPAddress.Parse(frameSettings[0]);
@@ -54,6 +59,8 @@ public class UDPSender : IService
     /// </summary>
     public void SendToServer(byte[] bytes)
     {
+        if(clas.HasArgument(CommandLineArgs.NoNet))
+            return;
         if (PacketInfoParser.PacketType(bytes) != PacketType.Ack)
         {
             var packetCountBytes = BitConverter.GetBytes(++packetCount);
@@ -70,6 +77,8 @@ public class UDPSender : IService
     /// </summary>
     public void SendToPeer(byte[] bytes)
     {
+        if(clas.HasArgument(CommandLineArgs.NoNet))
+            return;
         if (peerEndPoint == null)
         {
             logger.Error("Can't send packet, no peer registered!");
