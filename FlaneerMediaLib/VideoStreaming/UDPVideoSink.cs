@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using FlaneerMediaLib.Logging;
+using FlaneerMediaLib.SmartStorage;
 using FlaneerMediaLib.UnreliableDataChannel;
 using FlaneerMediaLib.VideoDataTypes;
 
@@ -15,6 +16,7 @@ public class UDPVideoSink : IVideoSink
     private UInt32 nextFrame;
 
     private readonly UDPSender udpSender;
+    private SmartBufferManager smartBufferManager;
     
     private readonly Logger logger;
     private readonly VideoSettings videoSettings;
@@ -33,6 +35,8 @@ public class UDPVideoSink : IVideoSink
     {
         logger = Logger.GetLogger(this);
         ServiceRegistry.TryGetService(out udpSender);
+        
+        ServiceRegistry.TryGetService(out smartBufferManager);
         
         if(alsoWriteToFile)
             stream = new FileStream("out.h264", FileMode.Create, FileAccess.Write);
@@ -118,24 +122,24 @@ public class UDPVideoSink : IVideoSink
         }
         stopWatch.Stop();
     }
-
-
+    
     private void SendFrame(UnmanagedVideoFrame frame, TimeSpan frameTime)
     {
-        var bytesSentOfFrame = 0;
         var pixelBuffers = SplitPixels(frame);
         byte pixelBuffersCount = (byte) pixelBuffers.Count;
+        var packetSendDelay = frameTime / pixelBuffersCount;
         for (byte i = 0; i < pixelBuffersCount; i++)
         {
+            var now = DateTime.Now;
             var pixelBuffer = pixelBuffers[i];
-            InsertHeader(frame.FrameSize, pixelBuffersCount, i, pixelBuffer);
-            udpSender.SendToPeer(pixelBuffer);
-
-            bytesSentOfFrame += pixelBuffer.Length;
-            sentPacketCount++;
+            var transmissionSize = TransmissionVideoFrame.HeaderSize + pixelBuffer.Length;
+            InsertHeader(frame.FrameSize, pixelBuffersCount, i, pixelBuffer.Buffer);
+            udpSender.SendToPeer(pixelBuffer.Buffer, transmissionSize);
             
-            //TODO: examine the logic of this, as it does not 
-            Thread.Sleep(frameTime / pixelBuffersCount);
+            smartBufferManager.ReleaseBuffer(pixelBuffer);
+            
+            sentPacketCount++;
+            //Thread.Sleep(packetSendDelay - (DateTime.Now-now));
         }
         nextFrame++;
     }
@@ -148,28 +152,28 @@ public class UDPVideoSink : IVideoSink
             Height = (short) videoSource.FrameSettings.Height,
             NumberOfPackets = packetCount,
             PacketIdx = packetIdx,
+            PacketSize = (ushort) pixelBuffer.Length,
             FrameDataSize = frameSize,
             SequenceIDX = nextFrame,
             IsIFrame = nextFrame % videoSettings.GoPLength == 0
         };
-        frameHeader.PacketSize = (ushort) pixelBuffer.Length;
         frameHeader.ToUDPPacket(pixelBuffer);
     }
 
     //TODO: Rewrite this to use smart storage
-    private unsafe List<byte[]> SplitPixels(UnmanagedVideoFrame frame)
+    private unsafe List<SmartBuffer> SplitPixels(UnmanagedVideoFrame frame)
     {
         using var uStream = new UnmanagedMemoryStream((byte*) frame.FrameData, frame.FrameSize);
         var frameDataAllocated = 0;
         
         var numberOfPackets = (byte) Math.Ceiling((double)frame.FrameSize / VideoUtils.FRAMEWRITABLESIZE);
-        var ret = new List<byte[]>();
+        var ret = new List<SmartBuffer>();
         for (int i = 0; i < numberOfPackets; i++)
         {
             var packetSize = Math.Min(VideoUtils.FRAMEWRITABLESIZE, frame.FrameSize - frameDataAllocated);
-            //Leave room in the array for the header to be written in later
-            var frameDataChunk = new byte[TransmissionVideoFrame.HeaderSize + packetSize];
-            uStream.Read(frameDataChunk, TransmissionVideoFrame.HeaderSize, packetSize);
+            var frameDataChunk = smartBufferManager.CheckoutNextBuffer();
+            frameDataChunk.Length = packetSize;
+            uStream.Read(frameDataChunk.Buffer, TransmissionVideoFrame.HeaderSize, packetSize);
             ret.Add(frameDataChunk);
         }
         return ret;

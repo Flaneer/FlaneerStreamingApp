@@ -25,7 +25,7 @@ class Program
         ServiceRegistry.TryGetService(out UDPSender udpSender);
 
         logger.Trace("Waiting for peer to be registered");
-        while (!udpSender.PeerRegistered || clas.HasArgument(CommandLineArgs.NoNet))
+        while (!udpSender.PeerRegistered || !clas.HasArgument(CommandLineArgs.NoNet))
         {
             Thread.Sleep(500);
         }

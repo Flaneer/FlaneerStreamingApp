@@ -79,12 +79,23 @@ public class UDPSender : IService
     {
         if(clas.HasArgument(CommandLineArgs.NoNet))
             return;
+        SendToPeer(bytes, bytes.Length);
+    }
+
+    /// <summary>
+    /// Sends the first '<see cref="size"/>'  bytes to the address
+    /// </summary>
+    public void SendToPeer(byte[] bytes, int size)
+    {
+        if(clas.HasArgument(CommandLineArgs.NoNet))
+            return;
+
         if (peerEndPoint == null)
         {
             logger.Error("Can't send packet, no peer registered!");
             return;
         }
-        
+
         if (PacketInfoParser.PacketType(bytes) != PacketType.Ack)
         {
             var packetCountBytes = BitConverter.GetBytes(++packetCount);
@@ -93,6 +104,6 @@ public class UDPSender : IService
                 bytes[PacketInfoParser.PacketIdIdx + i] = packetCountBytes[i];
             }
         }
-        s.SendTo(bytes, peerEndPoint);
+        s.SendTo(bytes, size, SocketFlags.None, peerEndPoint);
     }
 }
