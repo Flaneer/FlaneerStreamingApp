@@ -50,10 +50,10 @@ public class Logger
     /// <summary>
     /// Log a time for benchamarking
     /// </summary>
-    public void TimeStat(string processName, TimeSpan timeTaken) => factory.TimeStat(processName, timeTaken);
+    public void TimeStat(string processName, TimeSpan timeTaken) => factory.TimeStat(typeString, processName, timeTaken);
 
     /// <summary>
     /// Log an amount for benchmarking
     /// </summary>
-    public void AmountStat(string processName, double amount, string unit ="") => factory.AmountStat(processName, amount, unit);
+    public void AmountStat(string processName, double amount, string unit ="") => factory.AmountStat(typeString, processName, amount, unit);
 }
