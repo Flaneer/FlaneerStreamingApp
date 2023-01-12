@@ -111,7 +111,7 @@ public class UDPVideoSink : IVideoSink
                 logger.AmountStat("AverageEncodeTime", (totalEncodeTime/encodeCount).TotalMilliseconds, "ms");
                 
                 if(frame is UnmanagedVideoFrame unmanagedFrame)
-                    SendFrame(unmanagedFrame, frameTime);
+                    SendFrame(unmanagedFrame);
             }
             catch (Exception e)
             {
@@ -121,7 +121,7 @@ public class UDPVideoSink : IVideoSink
         stopWatch.Stop();
     }
     
-    private void SendFrame(UnmanagedVideoFrame frame, TimeSpan frameTime)
+    private void SendFrame(UnmanagedVideoFrame frame)
     {
         var pixelBuffers = SplitPixels(frame);
         byte pixelBuffersCount = (byte) pixelBuffers.Count;
