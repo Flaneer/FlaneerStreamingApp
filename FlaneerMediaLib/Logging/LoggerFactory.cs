@@ -113,9 +113,9 @@ internal class LoggerFactory
         AnsiConsole.MarkupLine(message);
     }
 
-    internal void AmountStat(string processName, double amount)
+    internal void AmountStat(string processName, double amount, string unit = "")
     {
-        var message = $"{GetMarkupLogPrefix("bold blue", processName)} {amount:F2}";
+        var message = $"{GetMarkupLogPrefix("bold blue", processName)} {amount:F2}{unit}";
         AnsiConsole.MarkupLine(message);
     }
 }

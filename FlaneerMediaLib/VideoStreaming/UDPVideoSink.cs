@@ -107,10 +107,10 @@ public class UDPVideoSink : IVideoSink
                 var frame = encoder.GetFrame();
                 //Stats
                 var encodeTime = DateTime.Now - startEncodeTime;
-                logger.TimeStat("Encode", encodeTime);
+                logger.TimeStat("EncodeTime", encodeTime);
                 encodeCount++;
                 totalEncodeTime += encodeTime;
-                logger.TimeStat("AverageEncodeTime", totalEncodeTime/encodeCount);
+                logger.AmountStat("AverageEncodeTime", (totalEncodeTime/encodeCount).TotalMilliseconds, "ms");
                 
                 if(frame is UnmanagedVideoFrame unmanagedFrame)
                     SendFrame(unmanagedFrame, frameTime);
@@ -127,7 +127,6 @@ public class UDPVideoSink : IVideoSink
     {
         var pixelBuffers = SplitPixels(frame);
         byte pixelBuffersCount = (byte) pixelBuffers.Count;
-        var packetSendDelay = frameTime / pixelBuffersCount;
         for (byte i = 0; i < pixelBuffersCount; i++)
         {
             var now = DateTime.Now;
@@ -139,7 +138,6 @@ public class UDPVideoSink : IVideoSink
             smartBufferManager.ReleaseBuffer(pixelBuffer);
             
             sentPacketCount++;
-            //Thread.Sleep(packetSendDelay - (DateTime.Now-now));
         }
         nextFrame++;
     }
@@ -160,7 +158,6 @@ public class UDPVideoSink : IVideoSink
         frameHeader.ToUDPPacket(pixelBuffer);
     }
 
-    //TODO: Rewrite this to use smart storage
     private unsafe List<SmartBuffer> SplitPixels(UnmanagedVideoFrame frame)
     {
         using var uStream = new UnmanagedMemoryStream((byte*) frame.FrameData, frame.FrameSize);

@@ -55,5 +55,5 @@ public class Logger
     /// <summary>
     /// Log an amount for benchmarking
     /// </summary>
-    public void AmountStat(string processName, double amount) => factory.AmountStat(processName, amount);
+    public void AmountStat(string processName, double amount, string unit ="") => factory.AmountStat(processName, amount, unit);
 }
