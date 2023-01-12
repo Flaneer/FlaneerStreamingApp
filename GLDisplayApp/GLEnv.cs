@@ -54,8 +54,8 @@ public class GLEnv
         logger = Logger.GetLogger(this);
         
         
-        ServiceRegistry.TryGetService<CommandLineArgumentStore>(out var clas);
-        var frameSettings = clas.GetParams(CommandLineArgs.FrameSettings);
+        ServiceRegistry.TryGetService<CommandLineArgumentStore>(out var clArgStore);
+        var frameSettings = clArgStore.GetParams(CommandLineArgs.FrameSettings);
         var width = Int32.Parse(frameSettings[0]);
         var height = Int32.Parse(frameSettings[1]);
 

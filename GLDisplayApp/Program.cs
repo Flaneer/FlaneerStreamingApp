@@ -38,8 +38,8 @@ internal static class Program
             GoPLength = (short)videoSettings.GoPLength
         };
         
-        ServiceRegistry.TryGetService<CommandLineArgumentStore>(out var clas);
-        var videoSource = clas.HasArgument(CommandLineArgs.UseLocalFrames) ? VideoSource.TestH264 : VideoSource.UDPH264;
+        ServiceRegistry.TryGetService<CommandLineArgumentStore>(out var clArgStore);
+        var videoSource = clArgStore.HasArgument(CommandLineArgs.UseLocalFrames) ? VideoSource.TestH264 : VideoSource.UDPH264;
         
         MediaEncoderLifeCycleManager encoderLifeCycleManager = new MediaEncoderLifeCycleManager(videoSource);
         encoderLifeCycleManager.InitVideoSource(frameSettings, codecSettings);

@@ -1,5 +1,7 @@
 ﻿using FlaneerMediaLib;
+using FlaneerMediaLib.Logging;
 using FlaneerMediaLib.SmartStorage;
+using FlaneerMediaLib.UnreliableDataChannel;
 using FlaneerMediaLib.VideoDataTypes;
 using FlaneerMediaLib.VideoStreaming;
 
@@ -9,12 +11,26 @@ class Program
 {
     static void Main(string[] args)
     {
+        var logger = Logger.GetLogger(new object());
+     
+        logger.Trace("Building command line argument store");
         CommandLineArgumentStore.CreateAndRegister(args);
+        ServiceRegistry.TryGetService<CommandLineArgumentStore>(out var clas);
         
+        logger.Trace("Initializing Smart Storage");
         SmartStorageSubsystem.InitSmartStorage();
-        
+        logger.Trace("Initializing Server");
         NetworkSubsystem.InitServer();
 
+        ServiceRegistry.TryGetService(out UDPSender udpSender);
+
+        logger.Trace("Waiting for peer to be registered");
+        while (!udpSender.PeerRegistered && !clas.HasArgument(CommandLineArgs.NoNet))
+        {
+            Thread.Sleep(500);
+        }
+        logger.Trace("Peer registered");
+        
         var videoSettings = new VideoSettings();
         InitialiseMediaEncoder(videoSettings);
 

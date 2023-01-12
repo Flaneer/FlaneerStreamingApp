@@ -36,8 +36,8 @@ public class LocalFramesVideoSource : IVideoSource
 
     private bool LoadInfoFromCLI()
     {
-        ServiceRegistry.TryGetService<CommandLineArgumentStore>(out var clas);
-        var clParams = clas.GetParams(CommandLineArgs.UseLocalFrames);
+        ServiceRegistry.TryGetService<CommandLineArgumentStore>(out var clArgStore);
+        var clParams = clArgStore.GetParams(CommandLineArgs.UseLocalFrames);
         try
         {
             framesPath = clParams[0];

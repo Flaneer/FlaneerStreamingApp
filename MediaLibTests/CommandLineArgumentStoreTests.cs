@@ -13,17 +13,17 @@ public class CommandLineArgumentStoreTests
     {
         ServiceRegistry.ClearRegistry();
         CommandLineArgumentStore.CreateAndRegister(INPUT);
-        ServiceRegistry.TryGetService<CommandLineArgumentStore>(out var clas);
+        ServiceRegistry.TryGetService<CommandLineArgumentStore>(out var clArgStore);
         
-        Assert.True(clas.HasArgument("arg1"));
+        Assert.True(clArgStore.HasArgument("arg1"));
         
-        var arg1Params = clas.GetParams("arg1");
+        var arg1Params = clArgStore.GetParams("arg1");
         Assert.Equal(new string[]{}, arg1Params);
         
-        var arg2Params = clas.GetParams("arg2");
+        var arg2Params = clArgStore.GetParams("arg2");
         Assert.Equal(new string[]{"param"}, arg2Params);
         
-        var arg3Params = clas.GetParams("arg3");
+        var arg3Params = clArgStore.GetParams("arg3");
         Assert.Equal(new string[]{"param1", "param2", "param3"}, arg3Params);
     }
 }

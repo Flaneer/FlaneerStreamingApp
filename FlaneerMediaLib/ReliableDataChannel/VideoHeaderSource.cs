@@ -29,8 +29,8 @@ public class VideoHeaderSource: ITcpSource, IDisposable
     /// </summary>
     public VideoHeaderSource()
     {
-        ServiceRegistry.TryGetService<CommandLineArgumentStore>(out var clas);
-        var broadcastInfo = clas.GetParams(CommandLineArgs.BroadcastAddress);
+        ServiceRegistry.TryGetService<CommandLineArgumentStore>(out var clArgStore);
+        var broadcastInfo = clArgStore.GetParams(CommandLineArgs.BroadcastAddress);
         Address = IPAddress.Parse(broadcastInfo[0]);
         Port = Int32.Parse(broadcastInfo[1]);
         listener = new TcpListener(Address, Port);

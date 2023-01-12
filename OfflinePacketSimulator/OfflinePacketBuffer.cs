@@ -16,7 +16,7 @@ public class OfflinePacketBuffer
     
     private UDPReceiver udpReceiver = new UDPReceiver();
     
-    private PacketScanner packetScanner = new PacketScanner();
+    private PacketScanner packetScanner = new PacketScanner(NumberOfPackets);
 
     private List<byte[]> rawPackets = new List<byte[]>();
     
@@ -26,7 +26,7 @@ public class OfflinePacketBuffer
     
     private Tuple<TransmissionVideoFrame, List<SmartBuffer>> firstFrame;
     
-    private const int NumberOfPackets = 200;
+    private const int NumberOfPackets = 1932;
 
     private SmartMemoryStreamManager smartMemoryStreamManager;
 
@@ -96,6 +96,8 @@ public class OfflinePacketBuffer
         var stream = smartMemoryStreamManager.GetStream(frame.Buffer);
         return stream;
     }
+
+    public MemoryStream GetFrame(int idx) => packetScanner.GetFrame(idx);
     
     public Tuple<TransmissionVideoFrame, SmartBuffer> GetRandomFullFrame()
     {

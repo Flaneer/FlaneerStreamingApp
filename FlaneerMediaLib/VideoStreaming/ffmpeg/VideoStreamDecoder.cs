@@ -48,8 +48,8 @@ namespace FlaneerMediaLib.VideoStreaming.ffmpeg
         {
             logger = Logger.GetLogger(this);
 
-            ServiceRegistry.TryGetService<CommandLineArgumentStore>(out var clas);
-            var frameSettings = clas.GetParams(CommandLineArgs.FrameSettings);
+            ServiceRegistry.TryGetService<CommandLineArgumentStore>(out var clArgStore);
+            var frameSettings = clArgStore.GetParams(CommandLineArgs.FrameSettings);
             var width =  Int16.Parse(frameSettings[0]);
             var height = Int16.Parse(frameSettings[1]);
             

@@ -23,4 +23,10 @@ public class CommandLineArgs
     /// <example>-broadcastip 127.0.0.1 8000</example>
     /// </summary>
     public const string BroadcastAddress = "broadcastaddress";
+    
+    /// <summary>
+    /// This specifies that the network code will behave like it is connected to a server, but in reality it will send no data.
+    /// <example>-nonet</example>
+    /// </summary>
+    public const string NoNet = "nonet";
 }
