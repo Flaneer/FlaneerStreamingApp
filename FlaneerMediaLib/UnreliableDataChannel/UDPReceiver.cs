@@ -28,12 +28,12 @@ public class UDPReceiver : IService
     {
         this.s = s;
         logger = Logger.GetLogger(this);
-        clientStatTracker = new UDPClientStatTracker(this);
         
         ServiceRegistry.TryGetService(out clas);
-        
         if(clas.HasArgument(CommandLineArgs.NoNet))
             return;
+        
+        clientStatTracker = new UDPClientStatTracker(this);
         
         var broadcastInfo = clas.GetParams(CommandLineArgs.BroadcastAddress);
         var listenPort = Int32.Parse(broadcastInfo[1]);
