@@ -79,11 +79,11 @@ public class UDPVideoSink : IVideoSink
     }
     
     /// <inheritdoc />
-    public void ProcessFrame() => CaptureFrameImpl();
+    public void ProcessFrame() => CaptureFrameImpl(1, -1);
     /// <inheritdoc />
-    public void ProcessFrames(int numberOfFrames, int targetFramerate) => CaptureFrameImpl(numberOfFrames, targetFramerate);
+    public void ProcessFrames(int numberOfFrames, int targetFramerate = -1) => CaptureFrameImpl(numberOfFrames, targetFramerate);
 
-    private void CaptureFrameImpl(int numberOfFrames = 1, int targetFramerate = -1)
+    private void CaptureFrameImpl(int numberOfFrames, int targetFramerate)
     {
         //Return in the case the encoder is not created
         if(encoder == default! || videoSource == default!)
@@ -96,9 +96,7 @@ public class UDPVideoSink : IVideoSink
         for (int i = 0; i < numberOfFrames; i++)
         {
             while (stopWatch.Elapsed < (frameTime*i))
-            {
                 Thread.Sleep(1);
-            }
 
             try
             {

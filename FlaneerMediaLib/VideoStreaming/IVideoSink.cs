@@ -12,6 +12,6 @@
         /// <summary>
         /// Process a number of frames at a given rate
         /// </summary>
-        void ProcessFrames(int numberOfFrames, int targetFramerate);
+        void ProcessFrames(int numberOfFrames, int targetFramerate = -1);
     }
 }
