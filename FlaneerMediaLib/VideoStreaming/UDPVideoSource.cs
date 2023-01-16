@@ -47,8 +47,12 @@ namespace FlaneerMediaLib.VideoStreaming
             }
     
             frameBuffer = new FrameBuffer(codec);
-    
-            if (!ServiceRegistry.TryGetService(out UDPReceiver receiver))
+
+            ServiceRegistry.TryGetService(out CommandLineArgumentStore clArgStore);
+            if (clArgStore.HasArgument(CommandLineArgs.NoNet))
+                return true;
+            
+            if ( !ServiceRegistry.TryGetService(out UDPReceiver receiver))
             {
                 throw new Exception("No UDP Receiver");
             }
