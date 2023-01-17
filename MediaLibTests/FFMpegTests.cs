@@ -72,7 +72,7 @@ public class FFMpegTests
         DecodeFrames(w, h);
     }
     
-    [Fact]
+    [Fact (Skip = "Not a test, just useful code")]
     public unsafe void TestLiveH264ToJpeg()
     {
         var w = 1280;
