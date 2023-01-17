@@ -130,18 +130,22 @@ void NvEncoder::SetEncoderParams(NV_ENC_INITIALIZE_PARAMS* pIntializeParams, GUI
 
     pIntializeParams->encodeGUID = codecGuid;
     pIntializeParams->presetGUID = presetGuid;
+
     pIntializeParams->encodeWidth = m_width;
     pIntializeParams->encodeHeight = m_height;
     pIntializeParams->darWidth = m_width;
     pIntializeParams->darHeight = m_height;
-    pIntializeParams->frameRateNum = 60;
-    pIntializeParams->frameRateDen = 1;
-    pIntializeParams->enablePTD = 1;
-    pIntializeParams->reportSliceOffsets = 0;
-    pIntializeParams->enableSubFrameWrite = 0;
     pIntializeParams->maxEncodeWidth = m_width;
     pIntializeParams->maxEncodeHeight = m_height;
+
+    pIntializeParams->frameRateNum = 60;
+    pIntializeParams->frameRateDen = 1;
+
+    pIntializeParams->enablePTD = 1;
+    pIntializeParams->enableSubFrameWrite = 0;
     pIntializeParams->enableMEOnlyMode = m_motionEstimationOnly;
+    pIntializeParams->enableWeightedPrediction = 1;
+
 #if defined(_WIN32)
     pIntializeParams->enableEncodeAsync = true;
 #endif
@@ -150,20 +154,20 @@ void NvEncoder::SetEncoderParams(NV_ENC_INITIALIZE_PARAMS* pIntializeParams, GUI
     m_nvenc.nvEncGetEncodePresetConfig(m_encoder, codecGuid, presetGuid, &presetConfig);
     memcpy(pIntializeParams->encodeConfig, &presetConfig.presetCfg, sizeof(NV_ENC_CONFIG));
     pIntializeParams->encodeConfig->frameIntervalP = 1;
-    //TODO: set this with the param
+
     pIntializeParams->encodeConfig->gopLength = m_gopLength;
 
-    pIntializeParams->encodeConfig->rcParams.rateControlMode = NV_ENC_PARAMS_RC_VBR;
-    //pIntializeParams->encodeConfig->rcParams.maxBitRate = 1;
+    pIntializeParams->encodeConfig->rcParams.rateControlMode = NV_ENC_PARAMS_RC_CBR_LOWDELAY_HQ;
+    pIntializeParams->encodeConfig->rcParams.averageBitRate = 2500000;
     pIntializeParams->encodeConfig->rcParams.zeroReorderDelay = 1;
 
     if (pIntializeParams->encodeGUID == NV_ENC_CODEC_H264_GUID)
     {
         pIntializeParams->encodeConfig->encodeCodecConfig.h264Config.idrPeriod = pIntializeParams->encodeConfig->gopLength;
-        pIntializeParams->encodeConfig->encodeCodecConfig.h264Config.sliceMode = 3;
-        pIntializeParams->encodeConfig->encodeCodecConfig.h264Config.sliceModeData = 16;
+        pIntializeParams->encodeConfig->encodeCodecConfig.h264Config.sliceMode = 1;
+        //This value needs more investigation, but it is so 1 slice will fit into a packet neatly, the SO link below explains more
+        pIntializeParams->encodeConfig->encodeCodecConfig.h264Config.sliceModeData = INT16_MAX - 38;
         pIntializeParams->encodeConfig->encodeCodecConfig.h264Config.repeatSPSPPS = 1;
-
     }
     else if (pIntializeParams->encodeGUID == NV_ENC_CODEC_HEVC_GUID)
     {
@@ -171,6 +175,8 @@ void NvEncoder::SetEncoderParams(NV_ENC_INITIALIZE_PARAMS* pIntializeParams, GUI
         pIntializeParams->encodeConfig->encodeCodecConfig.hevcConfig.idrPeriod = pIntializeParams->encodeConfig->gopLength;
     }
 }
+//This link may have useful info
+//https://stackoverflow.com/questions/38411775/nvidia-nvenc-with-hvec-causes-div-by-zero
 
 void NvEncoder::CreateEncoder(const NV_ENC_INITIALIZE_PARAMS* pEncoderParams)
 {

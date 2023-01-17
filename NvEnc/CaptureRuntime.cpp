@@ -148,7 +148,7 @@ HRESULT CaptureRuntime::InitEnc()
             ZeroMemory(&m_encInitParams, sizeof(m_encInitParams));
             m_encInitParams.encodeConfig = &m_encConfig; 
             ZeroMemory(&m_encConfig, sizeof(m_encConfig));
-            m_encoder->SetEncoderParams(&m_encInitParams, m_codecId, NV_ENC_PRESET_LOW_LATENCY_HP_GUID);
+            m_encoder->SetEncoderParams(&m_encInitParams, m_codecId, NV_ENC_PRESET_LOW_LATENCY_HQ_GUID);
             m_encoder->CreateEncoder(&m_encInitParams);
         }
         catch (...)
