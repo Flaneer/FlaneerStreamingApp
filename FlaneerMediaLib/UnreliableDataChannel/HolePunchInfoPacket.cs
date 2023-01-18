@@ -13,10 +13,22 @@ public class HolePunchInfoPacket : IPacketInfo
     /// The size of the header in bytes
     /// <remarks>This is manually calculated</remarks>
     /// </summary>
-    public const int HeaderSize = 21;
+    public const int HeaderSize = 24;
     
     /// <inheritdoc/>
     public PacketType PacketType => PacketType.HolePunchInfo;
+    
+    /// <summary>
+    /// The node type, used for building a connection pair
+    /// </summary>
+    /// <returns></returns>
+    public NodeType NodeType { get; private init; }
+    
+    /// <summary>
+    /// The unique connection id of the node
+    /// </summary>
+    public ushort ConnectionId { get; private init; }
+    
     /// <inheritdoc/>
     public ushort PacketSize
     {
@@ -39,6 +51,19 @@ public class HolePunchInfoPacket : IPacketInfo
     /// The port of the client
     /// </summary>
     private UInt16 port;
+
+    /// <summary>
+    /// ctor
+    /// </summary>
+    public HolePunchInfoPacket(NodeType nodeType, ushort connectionId)
+    {
+        NodeType = nodeType;
+        ConnectionId = connectionId;
+    }
+
+    private HolePunchInfoPacket()
+    {
+    }
     
     /// <inheritdoc/>
     public byte[] ToUDPPacket()
@@ -52,6 +77,8 @@ public class HolePunchInfoPacket : IPacketInfo
         writer.Write(PacketId);
         writer.Write(host);
         writer.Write(port);
+        writer.Write((byte) NodeType);
+        writer.Write(ConnectionId);
         return ret;
     }
     
@@ -76,6 +103,8 @@ public class HolePunchInfoPacket : IPacketInfo
             PacketId = reader.ReadUInt32(),
             host = reader.ReadUInt32(),
             port = reader.ReadUInt16(),
+            NodeType = (NodeType) reader.ReadByte(),
+            ConnectionId = reader.ReadUInt16()
         };
 
         return ret;
@@ -84,9 +113,9 @@ public class HolePunchInfoPacket : IPacketInfo
     /// <summary>
     /// Helper method for turning ip endpoint into info packet
     /// </summary>
-    public static HolePunchInfoPacket FromIpEndpoint(IPEndPoint ep)
+    public static HolePunchInfoPacket FromIpEndpoint(IPEndPoint ep, NodeType nodeType, ushort connectionId)
     {
-        return new HolePunchInfoPacket()
+        return new HolePunchInfoPacket(nodeType, connectionId)
         {
             host = IpToUInt32(ep.Address.ToString()),
             port = (UInt16) ep.Port

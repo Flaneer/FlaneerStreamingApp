@@ -29,4 +29,10 @@ public class CommandLineArgs
     /// <example>-nonet</example>
     /// </summary>
     public const string NoNet = "nonet";
+    
+    /// <summary>
+    /// The unique session ID to use for this node, it should match exactly 1 other node. It is a 16 bit int, so must be between 0-65535.
+    /// <example>-sessionid 777</example>
+    /// </summary>
+    public const string SessionId = "sessionid";
 }

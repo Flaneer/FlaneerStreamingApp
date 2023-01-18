@@ -22,3 +22,18 @@ public enum PacketType : byte
     /// </summary>
     TestPacket = Byte.MaxValue, 
 }
+
+/// <summary>
+/// Defines the type for the node 
+/// </summary>
+public enum NodeType : byte
+{
+    /// <summary>
+    /// A node that is sending video
+    /// </summary>
+    StreamingServer,
+    /// <summary>
+    /// A node that is receiving video
+    /// </summary>
+    StreamingClient,
+}

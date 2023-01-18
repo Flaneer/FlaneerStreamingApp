@@ -23,8 +23,10 @@ internal class Program
             s.ReceiveFrom(inBuf, ref inEP);
             var inIp = inEP as IPEndPoint ?? throw new InvalidOperationException();
             Console.WriteLine($"Contact from {inIp}");
+
+            var packetIn = HolePunchInfoPacket.FromBytes(inBuf);
             
-            HolePunchInfoPacket newClient = HolePunchInfoPacket.FromIpEndpoint(inIp);
+            HolePunchInfoPacket newClient = HolePunchInfoPacket.FromIpEndpoint(inIp, packetIn.NodeType, packetIn.ConnectionId);
             Console.WriteLine($"Added new client {newClient}");
 
             foreach (var client in clients)

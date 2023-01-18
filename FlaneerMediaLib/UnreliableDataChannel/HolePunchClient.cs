@@ -16,7 +16,7 @@ public class HolePunchClient : IService
     /// <summary>
     /// ctor
     /// </summary>
-    public HolePunchClient()
+    public HolePunchClient(NodeType nodeType)
     {
         logger = Logger.GetLogger(this);
         
@@ -30,7 +30,13 @@ public class HolePunchClient : IService
             }
         };
 
-        udpSender.SendToServer(new HolePunchInfoPacket().ToUDPPacket());
+        ushort connectionId = 0;
+        
+        ServiceRegistry.TryGetService<CommandLineArgumentStore>(out var clas);
+        if(clas.HasArgument(CommandLineArgs.SessionId))
+            connectionId = ushort.Parse(clas.GetParams(CommandLineArgs.SessionId).First());
+        
+        udpSender.SendToServer(new HolePunchInfoPacket(nodeType, connectionId).ToUDPPacket());
     }
     
     private void OnInfoReceived(SmartBuffer smartBuffer)
