@@ -1,6 +1,5 @@
 ﻿using System.Net;
 using System.Text;
-using Microsoft.VisualBasic.CompilerServices;
 
 namespace FlaneerMediaLib.UnreliableDataChannel;
 
@@ -126,7 +125,7 @@ public class HolePunchInfoPacket : IPacketInfo
     /// <summary>
     /// Helper method for turning info packet into ip endpoint
     /// </summary>
-    public IPEndPoint? ToEndPoint() => new IPEndPoint(new IPAddress(host), port);
+    public IPEndPoint? ToEndPoint() => new(new IPAddress(host), port);
 
     private static UInt32 IpToUInt32(string ip)
     {
