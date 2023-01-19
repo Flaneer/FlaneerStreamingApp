@@ -59,6 +59,16 @@ public class HolePunchInfoPacket : IPacketInfo
         NodeType = nodeType;
         ConnectionId = connectionId;
     }
+    
+    /// <summary>
+    /// TEST CTOR
+    /// </summary>
+    /// <remarks>Are you using this outside of a test. Don't. Don't do that.</remarks>
+    internal HolePunchInfoPacket(string host, UInt16 port)
+    {
+        this.host = IpToUInt32(host);
+        this.port = port;
+    }
 
     private HolePunchInfoPacket()
     {
@@ -112,7 +122,7 @@ public class HolePunchInfoPacket : IPacketInfo
     /// <summary>
     /// Helper method for turning ip endpoint into info packet
     /// </summary>
-    public static HolePunchInfoPacket FromIpEndpoint(IPEndPoint ep, NodeType nodeType, ushort connectionId)
+    public static HolePunchInfoPacket FromEndPoint(IPEndPoint ep, NodeType nodeType, ushort connectionId)
     {
         return new HolePunchInfoPacket(nodeType, connectionId)
         {

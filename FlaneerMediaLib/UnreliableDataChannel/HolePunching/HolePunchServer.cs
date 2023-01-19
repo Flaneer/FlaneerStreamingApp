@@ -7,7 +7,7 @@ namespace FlaneerMediaLib.UnreliableDataChannel.HolePunching;
 /// <summary>
 /// The hole punch server allows connections to form without explicit ip sharing
 /// </summary>
-public class HolePunchServer : IDisposable
+public class HolePunchServer : IService
 {
     Dictionary<ushort, ConnectionPair> connections = new();
     private readonly IPEndPoint ipMe;
@@ -57,7 +57,7 @@ public class HolePunchServer : IDisposable
         }
     }
 
-    private bool AttemptPairing(HolePunchInfoPacket newClient)
+    internal bool AttemptPairing(HolePunchInfoPacket newClient)
     {
         if (connections.ContainsKey(newClient.ConnectionId))
         {
@@ -84,12 +84,6 @@ public class HolePunchServer : IDisposable
     private static HolePunchInfoPacket CreatePacketFromReceptionBuffer(byte[] inBuf, IPEndPoint inIp)
     {
         var packetIn = HolePunchInfoPacket.FromBytes(inBuf);
-        return HolePunchInfoPacket.FromIpEndpoint(inIp, packetIn.NodeType, packetIn.ConnectionId);
-    }
-
-    /// <inheritdoc />
-    public void Dispose()
-    {
-        holePunchingActive = false;
+        return HolePunchInfoPacket.FromEndPoint(inIp, packetIn.NodeType, packetIn.ConnectionId);
     }
 }

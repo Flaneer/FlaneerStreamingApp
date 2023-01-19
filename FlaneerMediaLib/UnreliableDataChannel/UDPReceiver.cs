@@ -49,7 +49,7 @@ public class UDPReceiver : IService
     /// <summary>
     /// Ctor used for tests
     /// </summary>
-    /// <remarks>Are you using this not in a test. Don't. Don't do that.</remarks>
+    /// <remarks>Are you using this outside of a test. Don't. Don't do that.</remarks>
     internal UDPReceiver(){}
 #pragma warning restore CS8618
 
