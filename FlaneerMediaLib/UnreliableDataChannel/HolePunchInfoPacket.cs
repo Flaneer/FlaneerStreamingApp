@@ -135,5 +135,5 @@ public class HolePunchInfoPacket : IPacketInfo
     }
     
     /// <inheritdoc/>
-    public override string ToString() => $"{new IPAddress(host)}:{port}";
+    public override string ToString() => $"ID:{ConnectionId} TYPE:{NodeType} ADDR:{new IPAddress(host)}:{port}";
 }

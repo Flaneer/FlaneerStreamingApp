@@ -44,20 +44,36 @@ public class HolePunchServer : IDisposable
             var newClient = CreatePacketFromReceptionBuffer(inBuf, inIp);
             logger.Info($"Added new client {newClient}");
 
-            if (connections.ContainsKey(newClient.ConnectionId))
+            if (AttemptPairing(newClient))
             {
-                var connectionPair = connections[newClient.ConnectionId];
-                connectionPair.RegisterClient(newClient);
-                
-                s.SendTo(connectionPair.Client.ToUDPPacket(), connectionPair.Server.ToEndPoint() ?? throw new InvalidOperationException());
-                
-                s.SendTo(connectionPair.Server.ToUDPPacket(), connectionPair.Client.ToEndPoint() ?? throw new InvalidOperationException());
+                logger.Info("Connection Established");
+                connections.Remove(newClient.ConnectionId);
             }
             else
             {
-                connections[newClient.ConnectionId] = new ConnectionPair(newClient);
+                logger.Info($"Client {newClient} registered");
+                //Heartbeat code goes here
             }
         }
+    }
+
+    private bool AttemptPairing(HolePunchInfoPacket newClient)
+    {
+        if (connections.ContainsKey(newClient.ConnectionId))
+        {
+            var connectionPair = connections[newClient.ConnectionId];
+            connectionPair.RegisterClient(newClient);
+
+            s.SendTo(connectionPair.Client.ToUDPPacket(),
+                connectionPair.Server.ToEndPoint() ?? throw new InvalidOperationException());
+
+            s.SendTo(connectionPair.Server.ToUDPPacket(),
+                connectionPair.Client.ToEndPoint() ?? throw new InvalidOperationException());
+
+            return true;
+        }
+        connections[newClient.ConnectionId] = new ConnectionPair(newClient);
+        return false;
     }
 
     private static HolePunchInfoPacket CreatePacketFromReceptionBuffer(byte[] inBuf, IPEndPoint inIp)
