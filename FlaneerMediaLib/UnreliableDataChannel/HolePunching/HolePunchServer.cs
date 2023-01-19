@@ -62,17 +62,22 @@ public class HolePunchServer : IDisposable
         if (connections.ContainsKey(newClient.ConnectionId))
         {
             var connectionPair = connections[newClient.ConnectionId];
-            connectionPair.RegisterClient(newClient);
+            //If we make a pair exchange the deets
+            if (connectionPair.RegisterClient(newClient))
+            {
+                s.SendTo(connectionPair.Client.ToUDPPacket(),
+                    connectionPair.Server.ToEndPoint() ?? throw new InvalidOperationException());
 
-            s.SendTo(connectionPair.Client.ToUDPPacket(),
-                connectionPair.Server.ToEndPoint() ?? throw new InvalidOperationException());
+                s.SendTo(connectionPair.Server.ToUDPPacket(),
+                    connectionPair.Client.ToEndPoint() ?? throw new InvalidOperationException());
+                return true;
+            }
 
-            s.SendTo(connectionPair.Server.ToUDPPacket(),
-                connectionPair.Client.ToEndPoint() ?? throw new InvalidOperationException());
-
-            return true;
         }
-        connections[newClient.ConnectionId] = new ConnectionPair(newClient);
+        else
+        {
+            connections[newClient.ConnectionId] = new ConnectionPair(newClient);
+        }
         return false;
     }
 

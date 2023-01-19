@@ -20,7 +20,7 @@ public class ConnectionPair
     /// <summary>
     /// Both a client and server are present and the connection is made.
     /// </summary>
-    public bool PairMade => client != null && server != null;
+    public bool Paired => client != null && server != null;
 
     /// <summary>
     /// ctor
@@ -42,6 +42,32 @@ public class ConnectionPair
             case NodeType.StreamingServer: server = holePunchInfoPacket; break;
         }
 
-        return PairMade;
+        return Paired;
+    }
+    
+    /// <summary>
+    /// Removes the given node type from the pair
+    /// </summary>
+    /// <returns>Returns true if you have changed the state, or false if you have made no change</returns>
+    public bool RemoveClient(NodeType nodeType)
+    {
+        var ret = false;
+        switch (nodeType)
+        {
+            case NodeType.StreamingClient:
+            {
+                ret = client != null;
+                client = null; 
+                break;
+            }
+            case NodeType.StreamingServer:
+            {
+                ret = server != null;
+                server = null; 
+                break;
+            }
+        }
+
+        return ret;
     }
 }
