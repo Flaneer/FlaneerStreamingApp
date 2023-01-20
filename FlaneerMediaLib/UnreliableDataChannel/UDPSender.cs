@@ -12,7 +12,7 @@ public class UDPSender : IService
     /// <summary>
     /// Whether or not a hole punched peer is registered
     /// </summary>
-    public bool PeerRegistered = false;
+    public bool PeerRegistered { get; private set; }
     
     private readonly Socket s;
 
@@ -22,7 +22,14 @@ public class UDPSender : IService
         set
         {
             if (value != null)
+            {
                 PeerRegistered = true;
+            }
+            else
+            {
+                PeerRegistered = false;
+                return;
+            }
             //Ping the peer
             byte[] buf = {128, 128};
             s.SendTo(buf, value);
