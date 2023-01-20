@@ -31,6 +31,8 @@ public class HolePunchServer : IService
 
         ipMe = new IPEndPoint(IPAddress.Any, 11000);
         s.Bind(ipMe);
+
+        Task.Run(CheckHeartBeats);
     }
 
     /// <summary>
@@ -47,26 +49,15 @@ public class HolePunchServer : IService
             logger.Info($"Contact from {inIp}");
 
             var newClient = CreatePacketFromReceptionBuffer(inBuf, inIp);
-            logger.Info($"Added new client {newClient}");
-
             if (AttemptPairing(newClient))
             {
                 logger.Info("Connection Established");
             }
-            else
-            {
-                logger.Info($"Client {newClient} registered");
-            }
-            
-            if(connections.TryGetValue(newClient.ConnectionId, out var pair))
-                pair.SetLastUpdate(newClient);
-            CheckHeartBeats();
         }
     }
 
     private void CheckHeartBeats()
     {
-        logger.Debug($"Checking Added ms {DateTime.UtcNow.AddMilliseconds(HeartbeatInterval * 2)} against {DateTime.UtcNow}");
         foreach (var connection in connections)
         {
             if (connection.Value.ClientIsConnected && connection.Value.LastClientUpdate.AddMilliseconds(HeartbeatInterval * 2) < DateTime.UtcNow)
@@ -91,10 +82,9 @@ public class HolePunchServer : IService
 
     internal bool AttemptPairing(HolePunchInfoPacket newClient)
     {
-        if (connections.ContainsKey(newClient.ConnectionId))
+        if (connections.TryGetValue(newClient.ConnectionId, out var connectionPair))
         {
-            var connectionPair = connections[newClient.ConnectionId];
-            //If we make a pair exchange the deets
+            //If we make a NEW pair exchange the deets
             if (connectionPair.RegisterClient(newClient))
             {
                 s.SendTo(connectionPair.Client.ToUDPPacket(),
@@ -107,7 +97,8 @@ public class HolePunchServer : IService
         }
         else
         {
-            connections[newClient.ConnectionId] = new ConnectionPair(newClient);
+            var newConnectionPair = new ConnectionPair(newClient);
+            connections[newClient.ConnectionId] = newConnectionPair;
         }
         return false;
     }

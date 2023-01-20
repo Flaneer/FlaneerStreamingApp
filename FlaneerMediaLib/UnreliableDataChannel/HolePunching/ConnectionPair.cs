@@ -85,6 +85,8 @@ public class ConnectionPair
             }
         }
 
+        SetLastUpdate(holePunchInfoPacket);
+
         return Paired && newPair;
     }
     
