@@ -49,6 +49,17 @@ public class ConnectionPair
     {
         RegisterClient(holePunchInfoPacket);
     }
+    
+    /// <summary>
+    /// Sets the time for the last heartbeat from the node
+    /// </summary>
+    public void SetLastUpdate(HolePunchInfoPacket holePunchInfoPacket)
+    {
+        if (holePunchInfoPacket.HolePunchMessageType == HolePunchMessageType.StreamingClient)
+            LastClientUpdate = DateTime.UtcNow;
+        else if (holePunchInfoPacket.HolePunchMessageType == HolePunchMessageType.StreamingServer)
+            LastServerUpdate = DateTime.UtcNow;
+    }
 
     /// <summary>
     /// Register a new client

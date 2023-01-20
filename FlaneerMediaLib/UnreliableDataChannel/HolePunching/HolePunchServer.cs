@@ -58,6 +58,8 @@ public class HolePunchServer : IService
                 logger.Info($"Client {newClient} registered");
             }
             
+            if(connections.TryGetValue(newClient.ConnectionId, out var pair))
+                pair.SetLastUpdate(newClient);
             CheckHeartBeats();
         }
     }
