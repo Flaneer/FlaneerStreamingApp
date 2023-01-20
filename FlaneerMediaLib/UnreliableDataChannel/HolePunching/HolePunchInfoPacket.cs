@@ -1,7 +1,7 @@
 ﻿using System.Net;
 using System.Text;
 
-namespace FlaneerMediaLib.UnreliableDataChannel;
+namespace FlaneerMediaLib.UnreliableDataChannel.HolePunching;
 
 /// <summary>
 /// A packet containing an ip address for facilitating hole punching

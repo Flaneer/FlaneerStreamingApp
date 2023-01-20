@@ -2,6 +2,7 @@
 using System.Net.Sockets;
 using FlaneerMediaLib;
 using FlaneerMediaLib.UnreliableDataChannel;
+using FlaneerMediaLib.UnreliableDataChannel.HolePunching;
 
 namespace UDPHolePunchClient;
 

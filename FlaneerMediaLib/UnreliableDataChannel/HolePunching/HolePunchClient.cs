@@ -1,10 +1,7 @@
-﻿using System.Net;
-using System.Net.Sockets;
-using FlaneerMediaLib.Logging;
+﻿using FlaneerMediaLib.Logging;
 using FlaneerMediaLib.SmartStorage;
-using FlaneerMediaLib.UnreliableDataChannel.HolePunching;
 
-namespace FlaneerMediaLib.UnreliableDataChannel;
+namespace FlaneerMediaLib.UnreliableDataChannel.HolePunching;
 
 /// <summary>
 /// Listens for the address of a punched hole

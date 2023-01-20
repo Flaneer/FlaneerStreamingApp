@@ -69,7 +69,7 @@ public class HolePunchServer : IService
         logger.Debug($"Checking Added ms {DateTime.UtcNow.AddMilliseconds(HeartbeatInterval * 2)} against {DateTime.UtcNow}");
         foreach (var connection in connections)
         {
-            if (connection.Value.LastClientUpdate.AddMilliseconds(HeartbeatInterval * 2) < DateTime.UtcNow)
+            if (connection.Value.ClientIsConnected && connection.Value.LastClientUpdate.AddMilliseconds(HeartbeatInterval * 2) < DateTime.UtcNow)
             {
                 logger.Debug($"Connection {connection.Value.Client} timed out, last update was {DateTime.UtcNow -connection.Value.LastClientUpdate} ago");
                 connection.Value.RemoveClient(HolePunchMessageType.StreamingClient);
@@ -78,7 +78,7 @@ public class HolePunchServer : IService
                         connection.Value.Server.ToEndPoint() ?? throw new InvalidOperationException());
             }
 
-            if (connection.Value.LastServerUpdate.AddMilliseconds(HeartbeatInterval * 2) < DateTime.UtcNow)
+            if (connection.Value.ServerIsConnected && connection.Value.LastServerUpdate.AddMilliseconds(HeartbeatInterval * 2) < DateTime.UtcNow)
             {
                 logger.Debug($"Connection {connection.Value.Server} timed out, last update was {DateTime.UtcNow -connection.Value.LastServerUpdate} ago");
                 connection.Value.RemoveClient(HolePunchMessageType.StreamingServer);
