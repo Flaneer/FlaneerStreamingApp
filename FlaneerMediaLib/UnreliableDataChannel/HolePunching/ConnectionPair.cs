@@ -64,16 +64,28 @@ public class ConnectionPair
     /// <summary>
     /// Register a new client
     /// </summary>
-    /// <returns>Returns true if both clients are present</returns>
+    /// <returns>Returns true if both clients are present and newly paired</returns>
     public bool RegisterClient(HolePunchInfoPacket holePunchInfoPacket)
     {
+        // If we already have a client, but the new client is different, then we return true
+        var newPair = false;
         switch (holePunchInfoPacket.HolePunchMessageType)
         {
-            case HolePunchMessageType.StreamingClient: client = holePunchInfoPacket; break;
-            case HolePunchMessageType.StreamingServer: server = holePunchInfoPacket; break;
+            case HolePunchMessageType.StreamingClient:
+            {
+                newPair = !Equals(holePunchInfoPacket.ToEndPoint(), client?.ToEndPoint());
+                client = holePunchInfoPacket;
+                break;
+            }
+            case HolePunchMessageType.StreamingServer:
+            {
+                newPair = !Equals(holePunchInfoPacket.ToEndPoint(), server?.ToEndPoint());
+                server = holePunchInfoPacket;
+                break;
+            }
         }
 
-        return Paired;
+        return Paired && newPair;
     }
     
     /// <summary>
