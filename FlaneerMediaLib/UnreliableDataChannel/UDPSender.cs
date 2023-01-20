@@ -92,7 +92,7 @@ public class UDPSender : IService
 
         if (peerEndPoint == null)
         {
-            logger.Error("Can't send packet, no peer registered!");
+            logger.Trace("Can't send packet, no peer registered!");
             return;
         }
 

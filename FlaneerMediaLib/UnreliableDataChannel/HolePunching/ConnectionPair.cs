@@ -12,11 +12,31 @@ public class ConnectionPair
     private HolePunchInfoPacket? client;
 
     /// <summary>
+    /// Whether the client is connected
+    /// </summary>
+    public bool ClientIsConnected => client != null;
+    
+    /// <summary>
     /// The server node
     /// </summary>
     public HolePunchInfoPacket Server => server;
     private HolePunchInfoPacket? server;
 
+    /// <summary>
+    /// Whether the server is connected
+    /// </summary>
+    public bool ServerIsConnected => server != null;
+    
+    /// <summary>
+    /// The last time we received a packet from the client
+    /// </summary>
+    public DateTime LastClientUpdate { get; private set; }
+    
+    /// <summary>
+    /// The last time we received a packet from the server
+    /// </summary>
+    public DateTime LastServerUpdate { get; private set; }
+    
     /// <summary>
     /// Both a client and server are present and the connection is made.
     /// </summary>
@@ -36,10 +56,10 @@ public class ConnectionPair
     /// <returns>Returns true if both clients are present</returns>
     public bool RegisterClient(HolePunchInfoPacket holePunchInfoPacket)
     {
-        switch (holePunchInfoPacket.NodeType)
+        switch (holePunchInfoPacket.HolePunchMessageType)
         {
-            case NodeType.StreamingClient: client = holePunchInfoPacket; break;
-            case NodeType.StreamingServer: server = holePunchInfoPacket; break;
+            case HolePunchMessageType.StreamingClient: client = holePunchInfoPacket; break;
+            case HolePunchMessageType.StreamingServer: server = holePunchInfoPacket; break;
         }
 
         return Paired;
@@ -49,18 +69,18 @@ public class ConnectionPair
     /// Removes the given node type from the pair
     /// </summary>
     /// <returns>Returns true if you have changed the state, or false if you have made no change</returns>
-    public bool RemoveClient(NodeType nodeType)
+    public bool RemoveClient(HolePunchMessageType holePunchMessageType)
     {
         var ret = false;
-        switch (nodeType)
+        switch (holePunchMessageType)
         {
-            case NodeType.StreamingClient:
+            case HolePunchMessageType.StreamingClient:
             {
                 ret = client != null;
                 client = null; 
                 break;
             }
-            case NodeType.StreamingServer:
+            case HolePunchMessageType.StreamingServer:
             {
                 ret = server != null;
                 server = null; 

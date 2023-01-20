@@ -21,7 +21,7 @@ public class HolePunchInfoPacket : IPacketInfo
     /// The node type, used for building a connection pair
     /// </summary>
     /// <returns></returns>
-    public NodeType NodeType { get; private init; }
+    public HolePunchMessageType HolePunchMessageType { get; private init; }
     
     /// <summary>
     /// The unique connection id of the node
@@ -54,9 +54,9 @@ public class HolePunchInfoPacket : IPacketInfo
     /// <summary>
     /// ctor
     /// </summary>
-    public HolePunchInfoPacket(NodeType nodeType, ushort connectionId)
+    public HolePunchInfoPacket(HolePunchMessageType holePunchMessageType, ushort connectionId)
     {
-        NodeType = nodeType;
+        HolePunchMessageType = holePunchMessageType;
         ConnectionId = connectionId;
     }
     
@@ -86,7 +86,7 @@ public class HolePunchInfoPacket : IPacketInfo
         writer.Write(PacketId);
         writer.Write(host);
         writer.Write(port);
-        writer.Write((byte) NodeType);
+        writer.Write((byte) HolePunchMessageType);
         writer.Write(ConnectionId);
         return ret;
     }
@@ -112,7 +112,7 @@ public class HolePunchInfoPacket : IPacketInfo
             PacketId = reader.ReadUInt32(),
             host = reader.ReadUInt32(),
             port = reader.ReadUInt16(),
-            NodeType = (NodeType) reader.ReadByte(),
+            HolePunchMessageType = (HolePunchMessageType) reader.ReadByte(),
             ConnectionId = reader.ReadUInt16()
         };
 
@@ -122,9 +122,9 @@ public class HolePunchInfoPacket : IPacketInfo
     /// <summary>
     /// Helper method for turning ip endpoint into info packet
     /// </summary>
-    public static HolePunchInfoPacket FromEndPoint(IPEndPoint ep, NodeType nodeType, ushort connectionId)
+    public static HolePunchInfoPacket FromEndPoint(IPEndPoint ep, HolePunchMessageType holePunchMessageType, ushort connectionId)
     {
-        return new HolePunchInfoPacket(nodeType, connectionId)
+        return new HolePunchInfoPacket(holePunchMessageType, connectionId)
         {
             host = IpToUInt32(ep.Address.ToString()),
             port = (UInt16) ep.Port
@@ -144,5 +144,5 @@ public class HolePunchInfoPacket : IPacketInfo
     }
     
     /// <inheritdoc/>
-    public override string ToString() => $"ID:{ConnectionId} TYPE:{NodeType} ADDR:{new IPAddress(host)}:{port}";
+    public override string ToString() => $"ID:{ConnectionId} TYPE:{HolePunchMessageType} ADDR:{new IPAddress(host)}:{port}";
 }

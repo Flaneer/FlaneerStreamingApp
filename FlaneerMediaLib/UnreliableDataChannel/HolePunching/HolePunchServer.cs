@@ -9,6 +9,11 @@ namespace FlaneerMediaLib.UnreliableDataChannel.HolePunching;
 /// </summary>
 public class HolePunchServer : IService
 {
+    /// <summary>
+    /// The interval in ms to send a keep alive packet
+    /// </summary>
+    public const int HeartbeatInterval = 5000;
+    
     Dictionary<ushort, ConnectionPair> connections = new();
     private readonly IPEndPoint ipMe;
     private readonly Socket s;
@@ -47,12 +52,36 @@ public class HolePunchServer : IService
             if (AttemptPairing(newClient))
             {
                 logger.Info("Connection Established");
-                connections.Remove(newClient.ConnectionId);
             }
             else
             {
                 logger.Info($"Client {newClient} registered");
-                //Heartbeat code goes here
+            }
+            
+            CheckHeartBeats();
+        }
+    }
+
+    private void CheckHeartBeats()
+    {
+        foreach (var connection in connections)
+        {
+            if (connection.Value.LastClientUpdate.AddMilliseconds(HeartbeatInterval * 2) < DateTime.Now)
+            {
+                logger.Debug($"Connection {connection.Value.Client} timed out");
+                connection.Value.RemoveClient(HolePunchMessageType.StreamingClient);
+                if (connection.Value.ServerIsConnected)
+                    s.SendTo(new HolePunchInfoPacket(HolePunchMessageType.PartnerDisconnected, connection.Key).ToUDPPacket(),
+                        connection.Value.Server.ToEndPoint() ?? throw new InvalidOperationException());
+            }
+
+            if (connection.Value.LastServerUpdate.AddMilliseconds(HeartbeatInterval * 2) < DateTime.Now)
+            {
+                logger.Debug($"Connection {connection.Value.Server} timed out");
+                connection.Value.RemoveClient(HolePunchMessageType.StreamingServer);
+                if(connection.Value.ClientIsConnected)
+                    s.SendTo(new HolePunchInfoPacket(HolePunchMessageType.PartnerDisconnected, connection.Key).ToUDPPacket(),
+                        connection.Value.Client.ToEndPoint() ?? throw new InvalidOperationException());
             }
         }
     }
@@ -72,7 +101,6 @@ public class HolePunchServer : IService
                     connectionPair.Client.ToEndPoint() ?? throw new InvalidOperationException());
                 return true;
             }
-
         }
         else
         {
@@ -84,6 +112,6 @@ public class HolePunchServer : IService
     private static HolePunchInfoPacket CreatePacketFromReceptionBuffer(byte[] inBuf, IPEndPoint inIp)
     {
         var packetIn = HolePunchInfoPacket.FromBytes(inBuf);
-        return HolePunchInfoPacket.FromEndPoint(inIp, packetIn.NodeType, packetIn.ConnectionId);
+        return HolePunchInfoPacket.FromEndPoint(inIp, packetIn.HolePunchMessageType, packetIn.ConnectionId);
     }
 }

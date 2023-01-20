@@ -26,7 +26,7 @@ public enum PacketType : byte
 /// <summary>
 /// Defines the type for the node 
 /// </summary>
-public enum NodeType : byte
+public enum HolePunchMessageType : byte
 {
     /// <summary>
     /// A node that is sending video
@@ -36,4 +36,8 @@ public enum NodeType : byte
     /// A node that is receiving video
     /// </summary>
     StreamingClient,
+    /// <summary>
+    /// Notifies that the node is no longer connected to a partner
+    /// </summary>
+    PartnerDisconnected,
 }

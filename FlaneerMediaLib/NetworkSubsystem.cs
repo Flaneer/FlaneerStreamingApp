@@ -14,7 +14,7 @@ public static class NetworkSubsystem
     /// </summary>
     public static void InitClient()
     {
-        CommonInit(NodeType.StreamingClient);
+        CommonInit(HolePunchMessageType.StreamingClient);
 
         var ackSender = new AckSender();
         ServiceRegistry.AddService(ackSender);
@@ -28,7 +28,7 @@ public static class NetworkSubsystem
     public static void InitServer()
     {
         
-        CommonInit(NodeType.StreamingServer);
+        CommonInit(HolePunchMessageType.StreamingServer);
 
         var ackReceiver = new AckReceiver();
         ServiceRegistry.AddService(ackReceiver);
@@ -39,14 +39,14 @@ public static class NetworkSubsystem
 
     }
 
-    private static void CommonInit(NodeType nodeType)
+    private static void CommonInit(HolePunchMessageType holePunchMessageType)
     {
         Socket s = new(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
 
         var udpSender = new UDPSender(s);
         ServiceRegistry.AddService(udpSender);
 
-        var holePunchClient = new HolePunchClient(nodeType);
+        var holePunchClient = new HolePunchClient(holePunchMessageType);
         ServiceRegistry.AddService(holePunchClient);
 
         var udpReceiver = new UDPReceiver(s);

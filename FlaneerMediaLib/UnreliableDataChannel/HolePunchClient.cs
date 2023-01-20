@@ -2,6 +2,7 @@
 using System.Net.Sockets;
 using FlaneerMediaLib.Logging;
 using FlaneerMediaLib.SmartStorage;
+using FlaneerMediaLib.UnreliableDataChannel.HolePunching;
 
 namespace FlaneerMediaLib.UnreliableDataChannel;
 
@@ -10,14 +11,18 @@ namespace FlaneerMediaLib.UnreliableDataChannel;
 /// </summary>
 public class HolePunchClient : IService
 {
+    private readonly HolePunchMessageType holePunchMessageType;
     private readonly Logger logger;
     private UDPSender udpSender;
+    private readonly ushort connectionId;
+    private bool connected;
 
     /// <summary>
     /// ctor
     /// </summary>
-    public HolePunchClient(NodeType nodeType)
+    public HolePunchClient(HolePunchMessageType holePunchMessageType)
     {
+        this.holePunchMessageType = holePunchMessageType;
         logger = Logger.GetLogger(this);
         
         ServiceRegistry.TryGetService(out udpSender);
@@ -30,19 +35,38 @@ public class HolePunchClient : IService
             }
         };
 
-        ushort connectionId = 0;
+        connectionId = 0;
         
         ServiceRegistry.TryGetService<CommandLineArgumentStore>(out var clas);
         if(clas.HasArgument(CommandLineArgs.SessionId))
             connectionId = ushort.Parse(clas.GetParams(CommandLineArgs.SessionId).First());
-        
-        udpSender.SendToServer(new HolePunchInfoPacket(nodeType, connectionId).ToUDPPacket());
+
+        connected = true;
+        Task.Run(HolePunchHeartBeat);
     }
-    
+
+    private void HolePunchHeartBeat()
+    {
+        while (connected)
+        {
+            udpSender.SendToServer(new HolePunchInfoPacket(holePunchMessageType, connectionId).ToUDPPacket());
+            Thread.Sleep(HolePunchServer.HeartbeatInterval);
+        }
+    }
+
+
     private void OnInfoReceived(SmartBuffer smartBuffer)
     {
         HolePunchInfoPacket packet = HolePunchInfoPacket.FromBytes(smartBuffer.Buffer);
-        logger.Info($"Peer info received: {packet}");
-        udpSender.PeerEndPoint = packet.ToEndPoint();
+        if (packet.HolePunchMessageType == HolePunchMessageType.PartnerDisconnected)
+        {
+            udpSender.PeerEndPoint = null;
+        }
+        else
+        {
+            logger.Info($"Peer info received: {packet}");
+            udpSender.PeerEndPoint = packet.ToEndPoint();
+        }
+        
     }
 }

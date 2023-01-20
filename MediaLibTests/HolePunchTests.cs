@@ -12,7 +12,7 @@ public class HolePunchTests
     [Fact]
     public void TestHeaderSize()
     {
-        HolePunchInfoPacket holePunchInfoPacket = new HolePunchInfoPacket(NodeType.StreamingClient, UInt16.MinValue);
+        HolePunchInfoPacket holePunchInfoPacket = new HolePunchInfoPacket(HolePunchMessageType.StreamingClient, UInt16.MinValue);
         var packet = holePunchInfoPacket.ToUDPPacket();
         Assert.Equal(HolePunchInfoPacket.HeaderSize, packet.Length);
     }
@@ -20,7 +20,7 @@ public class HolePunchTests
     [Fact]
     public void TestToFromUDPPacket()
     {
-        HolePunchInfoPacket holePunchInfoPacket = new HolePunchInfoPacket(NodeType.StreamingClient, UInt16.MinValue);
+        HolePunchInfoPacket holePunchInfoPacket = new HolePunchInfoPacket(HolePunchMessageType.StreamingClient, UInt16.MinValue);
         var packetIn = holePunchInfoPacket.ToUDPPacket();
         var packetOut = HolePunchInfoPacket.FromBytes(packetIn);
         
@@ -28,7 +28,7 @@ public class HolePunchTests
         Assert.Equal(holePunchInfoPacket.PacketSize, packetOut.PacketSize);
         Assert.Equal(holePunchInfoPacket.PacketId, packetOut.PacketId);
         Assert.Equal(holePunchInfoPacket.ConnectionId, packetOut.ConnectionId);
-        Assert.Equal(holePunchInfoPacket.NodeType, packetOut.NodeType);
+        Assert.Equal(holePunchInfoPacket.HolePunchMessageType, packetOut.HolePunchMessageType);
         //Check the timestamp is within 1 second of the current time, it is encoded when ToUDPPacket is called so is not in the original packet
         Assert.True(DateTime.UtcNow.Ticks - packetOut.TimeStamp < TimeSpan.TicksPerSecond);
     }
@@ -38,7 +38,7 @@ public class HolePunchTests
     {
         HolePunchInfoPacket holePunchInfoPacket = new HolePunchInfoPacket("8.8.8.8", 42069);
         var ipEndPoint = holePunchInfoPacket.ToEndPoint();
-        var packetOut = HolePunchInfoPacket.FromEndPoint(ipEndPoint, NodeType.StreamingServer, UInt16.MinValue);
+        var packetOut = HolePunchInfoPacket.FromEndPoint(ipEndPoint, HolePunchMessageType.StreamingServer, UInt16.MinValue);
         
         Assert.Equal(holePunchInfoPacket.ToString(), packetOut.ToString());
     }
@@ -48,8 +48,8 @@ public class HolePunchTests
     {
         HolePunchServer holePunchServer = new HolePunchServer();
         
-        HolePunchInfoPacket holePunchInfoPacket1 = new HolePunchInfoPacket(NodeType.StreamingClient, UInt16.MinValue);
-        HolePunchInfoPacket holePunchInfoPacket2 = new HolePunchInfoPacket(NodeType.StreamingServer, UInt16.MinValue);
+        HolePunchInfoPacket holePunchInfoPacket1 = new HolePunchInfoPacket(HolePunchMessageType.StreamingClient, UInt16.MinValue);
+        HolePunchInfoPacket holePunchInfoPacket2 = new HolePunchInfoPacket(HolePunchMessageType.StreamingServer, UInt16.MinValue);
         
         Assert.False(holePunchServer.AttemptPairing(holePunchInfoPacket1));
         //This would return true if connection was successful, however it will always throw as the server is not running
@@ -61,8 +61,8 @@ public class HolePunchTests
     {
         HolePunchServer holePunchServer = new HolePunchServer();
         
-        HolePunchInfoPacket holePunchInfoPacket1 = new HolePunchInfoPacket(NodeType.StreamingClient, UInt16.MinValue);
-        HolePunchInfoPacket holePunchInfoPacket2 = new HolePunchInfoPacket(NodeType.StreamingClient, UInt16.MinValue);
+        HolePunchInfoPacket holePunchInfoPacket1 = new HolePunchInfoPacket(HolePunchMessageType.StreamingClient, UInt16.MinValue);
+        HolePunchInfoPacket holePunchInfoPacket2 = new HolePunchInfoPacket(HolePunchMessageType.StreamingClient, UInt16.MinValue);
         
         Assert.False(holePunchServer.AttemptPairing(holePunchInfoPacket1));
         Assert.False(holePunchServer.AttemptPairing(holePunchInfoPacket2));

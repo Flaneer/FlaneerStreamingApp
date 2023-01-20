@@ -12,7 +12,7 @@ internal class Program
         IPAddress serverAddr = IPAddress.Parse(args[0]);
         Socket s = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
 
-        byte[] bytes = new HolePunchInfoPacket(NodeType.StreamingClient, 0).ToUDPPacket();
+        byte[] bytes = new HolePunchInfoPacket(HolePunchMessageType.StreamingClient, 0).ToUDPPacket();
         IPEndPoint serverEndPoint = new IPEndPoint(serverAddr, 11000);
         
         s.SendTo(bytes, serverEndPoint);

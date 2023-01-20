@@ -126,10 +126,4 @@ public class UDPReceiver : IService
             receptionTrafficDestinations.Add(packetType, new List<Action<SmartBuffer>>{callBack});
         }
     }
-
-    /// <inheritdoc />
-    public void Dispose()
-    {
-        receiving = false;
-    }
 }
