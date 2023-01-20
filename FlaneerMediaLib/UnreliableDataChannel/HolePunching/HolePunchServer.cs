@@ -68,7 +68,7 @@ public class HolePunchServer : IService
     {
         foreach (var connection in connections)
         {
-            if (connection.Value.LastClientUpdate.AddMilliseconds(HeartbeatInterval * 2) < DateTime.Now)
+            if (connection.Value.LastClientUpdate.AddMilliseconds(HeartbeatInterval * 2) < DateTime.UtcNow)
             {
                 logger.Debug($"Connection {connection.Value.Client} timed out");
                 connection.Value.RemoveClient(HolePunchMessageType.StreamingClient);
@@ -77,7 +77,7 @@ public class HolePunchServer : IService
                         connection.Value.Server.ToEndPoint() ?? throw new InvalidOperationException());
             }
 
-            if (connection.Value.LastServerUpdate.AddMilliseconds(HeartbeatInterval * 2) < DateTime.Now)
+            if (connection.Value.LastServerUpdate.AddMilliseconds(HeartbeatInterval * 2) < DateTime.UtcNow)
             {
                 logger.Debug($"Connection {connection.Value.Server} timed out");
                 connection.Value.RemoveClient(HolePunchMessageType.StreamingServer);
