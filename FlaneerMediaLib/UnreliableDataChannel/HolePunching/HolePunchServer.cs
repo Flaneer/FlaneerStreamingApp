@@ -20,6 +20,7 @@ public class HolePunchServer : IService
     private readonly Logger logger;
     private bool holePunchingActive = true;
     private List<ushort> connectionsToRemove;
+    private bool noNet;
 
     /// <summary>
     /// ctor
@@ -37,6 +38,16 @@ public class HolePunchServer : IService
         CheckHeartBeats();
     }
 
+    /// <summary>
+    /// Test ctor
+    /// <remarks>Don't use this in production code... why would you want a nonet server in prod</remarks>
+    /// </summary>
+    internal HolePunchServer(bool noNet)
+    {
+        this.noNet = noNet;
+        logger = LoggerFactory.CreateLogger(this);
+    }
+    
     /// <summary>
     /// Begins the reception loop for hole punching
     /// </summary>
@@ -93,7 +104,7 @@ public class HolePunchServer : IService
                 if (connection.Value.ServerIsConnected)
                 {
                     var buffer = new HolePunchInfoPacket(HolePunchMessageType.PartnerDisconnected, connection.Key).ToUDPPacket();
-                    s.SendTo(buffer, connection.Value.Server.ToEndPoint() ?? throw new InvalidOperationException());
+                    SendTo(buffer, connection.Value.Server.ToEndPoint() ?? throw new InvalidOperationException());
                 }
             }
 
@@ -104,7 +115,7 @@ public class HolePunchServer : IService
                 if (connection.Value.ClientIsConnected)
                 {
                     var buffer = new HolePunchInfoPacket(HolePunchMessageType.PartnerDisconnected, connection.Key).ToUDPPacket();
-                    s.SendTo(buffer, connection.Value.Client.ToEndPoint() ?? throw new InvalidOperationException());
+                    SendTo(buffer, connection.Value.Client.ToEndPoint() ?? throw new InvalidOperationException());
                 }
             }
             
@@ -129,11 +140,8 @@ public class HolePunchServer : IService
             {
                 try
                 {
-                    s.SendTo(connectionPair.Client.ToUDPPacket(),
-                        connectionPair.Server.ToEndPoint() ?? throw new InvalidOperationException());
-
-                    s.SendTo(connectionPair.Server.ToUDPPacket(),
-                        connectionPair.Client.ToEndPoint() ?? throw new InvalidOperationException());
+                    SendTo(connectionPair.Client.ToUDPPacket(), connectionPair.Server.ToEndPoint() ?? throw new InvalidOperationException());
+                    SendTo(connectionPair.Server.ToUDPPacket(), connectionPair.Client.ToEndPoint() ?? throw new InvalidOperationException());
                 }
                 catch (Exception e)
                 {
@@ -150,6 +158,13 @@ public class HolePunchServer : IService
         return false;
     }
 
+    private void SendTo(byte[] buffer, EndPoint endPoint)
+    {
+        if(noNet)
+            return;
+        s.SendTo(buffer, endPoint);
+    }
+    
     private static HolePunchInfoPacket CreatePacketFromReceptionBuffer(byte[] inBuf, IPEndPoint inIp)
     {
         var packetIn = HolePunchInfoPacket.FromBytes(inBuf);
