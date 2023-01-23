@@ -19,6 +19,7 @@ public class HolePunchServer : IService
     private readonly Socket s;
     private readonly Logger logger;
     private bool holePunchingActive = true;
+    private List<ushort> connectionsToRemove;
 
     /// <summary>
     /// ctor
@@ -82,33 +83,40 @@ public class HolePunchServer : IService
 
     private void CheckAllConnections()
     {
+        connectionsToRemove = new List<ushort>();
         foreach (var connection in connections)
         {
-            if (connection.Value.ClientIsConnected &&
-                connection.Value.LastClientUpdate.AddMilliseconds(HeartbeatInterval * 2) < DateTime.UtcNow)
+            if (connection.Value.ClientIsConnected && connection.Value.LastClientUpdate.AddMilliseconds(HeartbeatInterval * 2) < DateTime.UtcNow)
             {
-                logger.Debug(
-                    $"Connection {connection.Value.Client} timed out, last update was {DateTime.UtcNow - connection.Value.LastClientUpdate} ago");
+                logger.Debug( $"Connection {connection.Value.Client} timed out, last update was {DateTime.UtcNow - connection.Value.LastClientUpdate} ago");
                 connection.Value.RemoveClient(HolePunchMessageType.StreamingClient);
                 if (connection.Value.ServerIsConnected)
-                    s.SendTo(
-                        new HolePunchInfoPacket(HolePunchMessageType.PartnerDisconnected, connection.Key)
-                            .ToUDPPacket(),
-                        connection.Value.Server.ToEndPoint() ?? throw new InvalidOperationException());
+                {
+                    var buffer = new HolePunchInfoPacket(HolePunchMessageType.PartnerDisconnected, connection.Key).ToUDPPacket();
+                    s.SendTo(buffer, connection.Value.Server.ToEndPoint() ?? throw new InvalidOperationException());
+                }
             }
 
-            if (connection.Value.ServerIsConnected &&
-                connection.Value.LastServerUpdate.AddMilliseconds(HeartbeatInterval * 2) < DateTime.UtcNow)
+            if (connection.Value.ServerIsConnected && connection.Value.LastServerUpdate.AddMilliseconds(HeartbeatInterval * 2) < DateTime.UtcNow)
             {
-                logger.Debug(
-                    $"Connection {connection.Value.Server} timed out, last update was {DateTime.UtcNow - connection.Value.LastServerUpdate} ago");
+                logger.Debug($"Connection {connection.Value.Server} timed out, last update was {DateTime.UtcNow - connection.Value.LastServerUpdate} ago");
                 connection.Value.RemoveClient(HolePunchMessageType.StreamingServer);
                 if (connection.Value.ClientIsConnected)
-                    s.SendTo(
-                        new HolePunchInfoPacket(HolePunchMessageType.PartnerDisconnected, connection.Key)
-                            .ToUDPPacket(),
-                        connection.Value.Client.ToEndPoint() ?? throw new InvalidOperationException());
+                {
+                    var buffer = new HolePunchInfoPacket(HolePunchMessageType.PartnerDisconnected, connection.Key).ToUDPPacket();
+                    s.SendTo(buffer, connection.Value.Client.ToEndPoint() ?? throw new InvalidOperationException());
+                }
             }
+            
+            if (!connection.Value.ClientIsConnected && !connection.Value.ServerIsConnected)
+            {
+                connectionsToRemove.Add(connection.Key);
+            }
+        }
+
+        foreach (var connectionId in connectionsToRemove)
+        {
+            connections.Remove(connectionId);
         }
     }
 
