@@ -32,13 +32,14 @@ public class HolePunchServer : IService
         ipMe = new IPEndPoint(IPAddress.Any, 11000);
         s.Bind(ipMe);
 
-        Task.Run(CheckHeartBeats);
+        Task.Run(InitHolePunching);
+        CheckHeartBeats();
     }
 
     /// <summary>
     /// Begins the reception loop for hole punching
     /// </summary>
-    public void InitHolePunching()
+    private void InitHolePunching()
     {
         while (holePunchingActive)
         {
@@ -76,13 +77,13 @@ public class HolePunchServer : IService
                 // ignored
             }
         }
+        Thread.Sleep(500);
     }
 
     private void CheckAllConnections()
     {
         foreach (var connection in connections)
         {
-            logger.Debug(connection.Value.ToString());
             if (connection.Value.ClientIsConnected &&
                 connection.Value.LastClientUpdate.AddMilliseconds(HeartbeatInterval * 2) < DateTime.UtcNow)
             {
