@@ -63,6 +63,7 @@ public class HolePunchServer : IService
         {
             foreach (var connection in connections)
             {
+                logger.Debug(connection.Value.ToString());
                 if (connection.Value.ClientIsConnected &&
                     connection.Value.LastClientUpdate.AddMilliseconds(HeartbeatInterval * 2) < DateTime.UtcNow)
                 {

@@ -115,4 +115,10 @@ public class ConnectionPair
 
         return ret;
     }
+
+    /// <inheritdoc />
+    public override string ToString()
+    {
+        return $"Client: {client?.ToString()} Server: {server?.ToString()}";
+    }
 }
