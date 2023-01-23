@@ -14,7 +14,6 @@ public class HolePunchServer : IService
     /// </summary>
     public const int HeartbeatInterval = 5000;
     
-    private ReaderWriterLockSlim cacheLock = new ReaderWriterLockSlim();
     private Dictionary<ushort, ConnectionPair> connections = new();
     private readonly IPEndPoint ipMe;
     private readonly Socket s;
@@ -50,9 +49,13 @@ public class HolePunchServer : IService
             logger.Info($"Contact from {inIp}");
 
             var newClient = CreatePacketFromReceptionBuffer(inBuf, inIp);
-            if (AttemptPairing(newClient))
+            
+            lock (connections)
             {
-                logger.Info("Connection Established");
+                if (AttemptPairing(newClient))
+                {
+                    logger.Info("Connection Established");
+                }
             }
         }
     }
@@ -63,47 +66,53 @@ public class HolePunchServer : IService
         {
             try
             {
-                cacheLock.EnterReadLock();
-                foreach (var connection in connections)
+                lock (connections)
                 {
-                    logger.Debug(connection.Value.ToString());
-                    if (connection.Value.ClientIsConnected &&
-                        connection.Value.LastClientUpdate.AddMilliseconds(HeartbeatInterval * 2) < DateTime.UtcNow)
-                    {
-                        logger.Debug(
-                            $"Connection {connection.Value.Client} timed out, last update was {DateTime.UtcNow - connection.Value.LastClientUpdate} ago");
-                        connection.Value.RemoveClient(HolePunchMessageType.StreamingClient);
-                        if (connection.Value.ServerIsConnected)
-                            s.SendTo(
-                                new HolePunchInfoPacket(HolePunchMessageType.PartnerDisconnected, connection.Key)
-                                    .ToUDPPacket(),
-                                connection.Value.Server.ToEndPoint() ?? throw new InvalidOperationException());
-                    }
-
-                    if (connection.Value.ServerIsConnected &&
-                        connection.Value.LastServerUpdate.AddMilliseconds(HeartbeatInterval * 2) < DateTime.UtcNow)
-                    {
-                        logger.Debug(
-                            $"Connection {connection.Value.Server} timed out, last update was {DateTime.UtcNow - connection.Value.LastServerUpdate} ago");
-                        connection.Value.RemoveClient(HolePunchMessageType.StreamingServer);
-                        if (connection.Value.ClientIsConnected)
-                            s.SendTo(
-                                new HolePunchInfoPacket(HolePunchMessageType.PartnerDisconnected, connection.Key)
-                                    .ToUDPPacket(),
-                                connection.Value.Client.ToEndPoint() ?? throw new InvalidOperationException());
-                    }
+                    CheckAllConnections();
                 }
             }
             catch
             {
-                cacheLock.ExitReadLock();
+                // ignored
+            }
+        }
+    }
+
+    private void CheckAllConnections()
+    {
+        foreach (var connection in connections)
+        {
+            logger.Debug(connection.Value.ToString());
+            if (connection.Value.ClientIsConnected &&
+                connection.Value.LastClientUpdate.AddMilliseconds(HeartbeatInterval * 2) < DateTime.UtcNow)
+            {
+                logger.Debug(
+                    $"Connection {connection.Value.Client} timed out, last update was {DateTime.UtcNow - connection.Value.LastClientUpdate} ago");
+                connection.Value.RemoveClient(HolePunchMessageType.StreamingClient);
+                if (connection.Value.ServerIsConnected)
+                    s.SendTo(
+                        new HolePunchInfoPacket(HolePunchMessageType.PartnerDisconnected, connection.Key)
+                            .ToUDPPacket(),
+                        connection.Value.Server.ToEndPoint() ?? throw new InvalidOperationException());
+            }
+
+            if (connection.Value.ServerIsConnected &&
+                connection.Value.LastServerUpdate.AddMilliseconds(HeartbeatInterval * 2) < DateTime.UtcNow)
+            {
+                logger.Debug(
+                    $"Connection {connection.Value.Server} timed out, last update was {DateTime.UtcNow - connection.Value.LastServerUpdate} ago");
+                connection.Value.RemoveClient(HolePunchMessageType.StreamingServer);
+                if (connection.Value.ClientIsConnected)
+                    s.SendTo(
+                        new HolePunchInfoPacket(HolePunchMessageType.PartnerDisconnected, connection.Key)
+                            .ToUDPPacket(),
+                        connection.Value.Client.ToEndPoint() ?? throw new InvalidOperationException());
             }
         }
     }
 
     internal bool AttemptPairing(HolePunchInfoPacket newClient)
     {
-        cacheLock.EnterReadLock();
         if (connections.TryGetValue(newClient.ConnectionId, out var connectionPair))
         {
             //If we make a NEW pair exchange the deets
@@ -119,21 +128,16 @@ public class HolePunchServer : IService
                 }
                 catch (Exception e)
                 {
-                    cacheLock.ExitReadLock();
                     return false;
                 }
-                cacheLock.ExitReadLock();
                 return true;
             }
         }
         else
         {
-            cacheLock.EnterWriteLock();
             var newConnectionPair = new ConnectionPair(newClient);
             connections[newClient.ConnectionId] = newConnectionPair;
-            cacheLock.ExitWriteLock();
         }
-        cacheLock.ExitReadLock();
         return false;
     }
 
