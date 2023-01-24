@@ -1,8 +1,7 @@
 ﻿using System.Net;
 using System.Text;
-using Microsoft.VisualBasic.CompilerServices;
 
-namespace FlaneerMediaLib.UnreliableDataChannel;
+namespace FlaneerMediaLib.UnreliableDataChannel.HolePunching;
 
 /// <summary>
 /// A packet containing an ip address for facilitating hole punching
@@ -13,10 +12,22 @@ public class HolePunchInfoPacket : IPacketInfo
     /// The size of the header in bytes
     /// <remarks>This is manually calculated</remarks>
     /// </summary>
-    public const int HeaderSize = 21;
+    public const int HeaderSize = 24;
     
     /// <inheritdoc/>
     public PacketType PacketType => PacketType.HolePunchInfo;
+    
+    /// <summary>
+    /// The node type, used for building a connection pair
+    /// </summary>
+    /// <returns></returns>
+    public HolePunchMessageType HolePunchMessageType { get; private init; }
+    
+    /// <summary>
+    /// The unique connection id of the node
+    /// </summary>
+    public ushort ConnectionId { get; private init; }
+    
     /// <inheritdoc/>
     public ushort PacketSize
     {
@@ -39,6 +50,29 @@ public class HolePunchInfoPacket : IPacketInfo
     /// The port of the client
     /// </summary>
     private UInt16 port;
+
+    /// <summary>
+    /// ctor
+    /// </summary>
+    public HolePunchInfoPacket(HolePunchMessageType holePunchMessageType, ushort connectionId)
+    {
+        HolePunchMessageType = holePunchMessageType;
+        ConnectionId = connectionId;
+    }
+    
+    /// <summary>
+    /// TEST CTOR
+    /// </summary>
+    /// <remarks>Are you using this outside of a test. Don't. Don't do that.</remarks>
+    internal HolePunchInfoPacket(string host, UInt16 port)
+    {
+        this.host = IpToUInt32(host);
+        this.port = port;
+    }
+
+    private HolePunchInfoPacket()
+    {
+    }
     
     /// <inheritdoc/>
     public byte[] ToUDPPacket()
@@ -52,6 +86,8 @@ public class HolePunchInfoPacket : IPacketInfo
         writer.Write(PacketId);
         writer.Write(host);
         writer.Write(port);
+        writer.Write((byte) HolePunchMessageType);
+        writer.Write(ConnectionId);
         return ret;
     }
     
@@ -76,6 +112,8 @@ public class HolePunchInfoPacket : IPacketInfo
             PacketId = reader.ReadUInt32(),
             host = reader.ReadUInt32(),
             port = reader.ReadUInt16(),
+            HolePunchMessageType = (HolePunchMessageType) reader.ReadByte(),
+            ConnectionId = reader.ReadUInt16()
         };
 
         return ret;
@@ -84,9 +122,9 @@ public class HolePunchInfoPacket : IPacketInfo
     /// <summary>
     /// Helper method for turning ip endpoint into info packet
     /// </summary>
-    public static HolePunchInfoPacket FromIpEndpoint(IPEndPoint ep)
+    public static HolePunchInfoPacket FromEndPoint(IPEndPoint ep, HolePunchMessageType holePunchMessageType, ushort connectionId)
     {
-        return new HolePunchInfoPacket()
+        return new HolePunchInfoPacket(holePunchMessageType, connectionId)
         {
             host = IpToUInt32(ep.Address.ToString()),
             port = (UInt16) ep.Port
@@ -97,7 +135,7 @@ public class HolePunchInfoPacket : IPacketInfo
     /// <summary>
     /// Helper method for turning info packet into ip endpoint
     /// </summary>
-    public IPEndPoint? ToEndPoint() => new IPEndPoint(new IPAddress(host), port);
+    public IPEndPoint? ToEndPoint() => new(new IPAddress(host), port);
 
     private static UInt32 IpToUInt32(string ip)
     {
@@ -106,5 +144,5 @@ public class HolePunchInfoPacket : IPacketInfo
     }
     
     /// <inheritdoc/>
-    public override string ToString() => $"{new IPAddress(host)}:{port}";
+    public override string ToString() => $"ID:{ConnectionId} TYPE:{HolePunchMessageType} ADDR:{new IPAddress(host)}:{port}";
 }

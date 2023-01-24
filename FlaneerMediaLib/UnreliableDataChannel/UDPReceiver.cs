@@ -2,6 +2,7 @@
 using System.Net.Sockets;
 using FlaneerMediaLib.Logging;
 using FlaneerMediaLib.SmartStorage;
+using FlaneerMediaLib.UnreliableDataChannel.HolePunching;
 
 namespace FlaneerMediaLib.UnreliableDataChannel;
 
@@ -49,7 +50,7 @@ public class UDPReceiver : IService
     /// <summary>
     /// Ctor used for tests
     /// </summary>
-    /// <remarks>Are you using this not in a test. Don't. Don't do that.</remarks>
+    /// <remarks>Are you using this outside of a test. Don't. Don't do that.</remarks>
     internal UDPReceiver(){}
 #pragma warning restore CS8618
 
@@ -125,11 +126,5 @@ public class UDPReceiver : IService
         {
             receptionTrafficDestinations.Add(packetType, new List<Action<SmartBuffer>>{callBack});
         }
-    }
-
-    /// <inheritdoc />
-    public void Dispose()
-    {
-        receiving = false;
     }
 }

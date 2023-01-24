@@ -1,4 +1,6 @@
-﻿namespace FlaneerMediaLib;
+﻿using Salaros.Configuration;
+
+namespace FlaneerMediaLib;
 
 /// <summary>
 /// Class that parses CL arguments and stores them in a dictionary
@@ -46,6 +48,30 @@ public class CommandLineArgumentStore : IService
     {
         var clas = new CommandLineArgumentStore();
         clas.ParseArguments(commandLineArgs);
+        clas.LoadFromConfigFile();
         ServiceRegistry.AddService(clas);
+    }
+
+    //TODO: Add support for args with no params, there is no obvious way to do this with the current implementation, nor an obvious need to do it
+    private void LoadFromConfigFile()
+    {
+        var flaneerStreamingConfigPath = "FlaneerStreamingConfig.ini";
+        var ret = new string[] { };
+        if(File.Exists(flaneerStreamingConfigPath))
+        {
+            var configFile = new ConfigParser(flaneerStreamingConfigPath);
+            foreach (var configFileSection in configFile.Sections)
+            {
+                foreach (var configKeyValue in configFileSection.Keys)
+                {
+                    if(!HasArgument(configKeyValue.Name))
+                    {
+                        var rawValue = configKeyValue.Content;
+                        var values = rawValue.Split(' ');
+                        arguments.Add(configKeyValue.Name, values.ToList());
+                    }
+                }
+            }
+        }
     }
 }

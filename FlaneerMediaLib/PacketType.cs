@@ -22,3 +22,22 @@ public enum PacketType : byte
     /// </summary>
     TestPacket = Byte.MaxValue, 
 }
+
+/// <summary>
+/// Defines the type for the node 
+/// </summary>
+public enum HolePunchMessageType : byte
+{
+    /// <summary>
+    /// A node that is sending video
+    /// </summary>
+    StreamingServer,
+    /// <summary>
+    /// A node that is receiving video
+    /// </summary>
+    StreamingClient,
+    /// <summary>
+    /// Notifies that the node is no longer connected to a partner
+    /// </summary>
+    PartnerDisconnected,
+}

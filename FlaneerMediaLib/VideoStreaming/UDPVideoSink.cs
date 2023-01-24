@@ -101,15 +101,9 @@ public class UDPVideoSink : IVideoSink
             try
             {
                 var startEncodeTime = DateTime.Now;
-                //Get a new frame
                 var frame = encoder.GetFrame();
-                //Stats
-                var encodeTime = DateTime.Now - startEncodeTime;
-                logger.TimeStat("EncodeTime", encodeTime);
-                encodeCount++;
-                totalEncodeTime += encodeTime;
-                logger.AmountStat("AverageEncodeTime", (totalEncodeTime/encodeCount).TotalMilliseconds, "ms");
-                
+                UpdateStats(startEncodeTime);
+
                 if(frame is UnmanagedVideoFrame unmanagedFrame)
                     SendFrame(unmanagedFrame);
             }
@@ -120,7 +114,16 @@ public class UDPVideoSink : IVideoSink
         }
         stopWatch.Stop();
     }
-    
+
+    private void UpdateStats(DateTime startEncodeTime)
+    {
+        var encodeTime = DateTime.Now - startEncodeTime;
+        logger.TimeStat("EncodeTime", encodeTime);
+        encodeCount++;
+        totalEncodeTime += encodeTime;
+        logger.AmountStat("AverageEncodeTime", (totalEncodeTime / encodeCount).TotalMilliseconds, "ms");
+    }
+
     private void SendFrame(UnmanagedVideoFrame frame)
     {
         var pixelBuffers = SplitPixels(frame);
