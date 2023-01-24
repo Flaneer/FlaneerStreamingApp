@@ -35,4 +35,10 @@ public class CommandLineArgs
     /// <example>-sessionid 777</example>
     /// </summary>
     public const string SessionId = "sessionid";
+    
+    /// <summary>
+    /// The length of time to wait between heartbeats in ms
+    /// <example>-heartbeat 1000</example>
+    /// </summary>
+    public const string HeartBeatInterval = "heartbeatinterval";
 }
