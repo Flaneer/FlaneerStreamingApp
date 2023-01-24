@@ -13,7 +13,7 @@ public class HolePunchServer
     /// The interval in ms to send a keep alive packet
     /// <remarks>Defaults to 5000 if no other interval is provided</remarks>
     /// </summary>
-    public int HeartbeatInterval = 5000;
+    private int heartbeatInterval = 5000;
     
     private Dictionary<ushort, ConnectionPair> connections = new();
     private readonly IPEndPoint ipMe;
@@ -31,7 +31,7 @@ public class HolePunchServer
         logger = LoggerFactory.CreateLogger(this);
         
         ServiceRegistry.TryGetService<CommandLineArgumentStore>(out var clArgStore);
-        HeartbeatInterval = Int32.Parse(clArgStore.GetParams(CommandLineArgs.HeartBeatInterval)[0]);
+        heartbeatInterval = Int32.Parse(clArgStore.GetParams(CommandLineArgs.HeartBeatInterval)[0]);
         
         s = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
 
@@ -102,7 +102,7 @@ public class HolePunchServer
         connectionsToRemove = new List<ushort>();
         foreach (var connection in connections)
         {
-            if (connection.Value.ClientIsConnected && connection.Value.LastClientUpdate.AddMilliseconds(HeartbeatInterval * 2) < DateTime.UtcNow)
+            if (connection.Value.ClientIsConnected && connection.Value.LastClientUpdate.AddMilliseconds(heartbeatInterval * 2) < DateTime.UtcNow)
             {
                 logger.Debug( $"Connection {connection.Value.Client} timed out, last update was {(DateTime.UtcNow - connection.Value.LastClientUpdate).Milliseconds}ms ago");
                 connection.Value.RemoveClient(HolePunchMessageType.StreamingClient);
@@ -113,7 +113,7 @@ public class HolePunchServer
                 }
             }
 
-            if (connection.Value.ServerIsConnected && connection.Value.LastServerUpdate.AddMilliseconds(HeartbeatInterval * 2) < DateTime.UtcNow)
+            if (connection.Value.ServerIsConnected && connection.Value.LastServerUpdate.AddMilliseconds(heartbeatInterval * 2) < DateTime.UtcNow)
             {
                 logger.Debug($"Connection {connection.Value.Server} timed out, last update was {DateTime.UtcNow - connection.Value.LastServerUpdate} ago");
                 connection.Value.RemoveClient(HolePunchMessageType.StreamingServer);

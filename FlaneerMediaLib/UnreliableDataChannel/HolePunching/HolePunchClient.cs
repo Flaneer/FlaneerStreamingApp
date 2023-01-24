@@ -8,6 +8,12 @@ namespace FlaneerMediaLib.UnreliableDataChannel.HolePunching;
 /// </summary>
 public class HolePunchClient : IService
 {
+    /// <summary>
+    /// The interval in ms to send a keep alive packet
+    /// <remarks>Defaults to 5000 if no other interval is provided</remarks>
+    /// </summary>
+    private int heartbeatInterval = 5000;
+    
     private readonly HolePunchMessageType holePunchMessageType;
     private readonly Logger logger;
     private UDPSender udpSender;
@@ -38,6 +44,9 @@ public class HolePunchClient : IService
         if(clas.HasArgument(CommandLineArgs.SessionId))
             connectionId = ushort.Parse(clas.GetParams(CommandLineArgs.SessionId).First());
 
+        ServiceRegistry.TryGetService<CommandLineArgumentStore>(out var clArgStore);
+        heartbeatInterval = Int32.Parse(clArgStore.GetParams(CommandLineArgs.HeartBeatInterval)[0]);
+        
         connected = true;
         Task.Run(HolePunchHeartBeat);
     }
@@ -47,7 +56,7 @@ public class HolePunchClient : IService
         while (connected)
         {
             udpSender.SendToServer(new HolePunchInfoPacket(holePunchMessageType, connectionId).ToUDPPacket());
-            Thread.Sleep(HolePunchServer.HeartbeatInterval);
+            Thread.Sleep(heartbeatInterval);
         }
     }
 
