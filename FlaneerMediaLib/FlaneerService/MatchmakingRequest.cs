@@ -6,10 +6,10 @@ namespace FlaneerMediaLib.FlaneerService;
 /// <summary>
 /// Used to send the client information to the server.
 /// </summary>
-public class MatchmakingInfo : RestRequestObject
+public class MatchmakingRequest : RestRequestObject
 {
     /// <inheritdoc />
-    public override Type? ResponseType => typeof(MatchmakingResponseObject);
+    public override Type? ResponseType => typeof(MatchmakingResponse);
     
     /// <summary>
     /// The client's connection IP address and port.
@@ -25,7 +25,7 @@ public class MatchmakingInfo : RestRequestObject
     /// <summary>
     /// ctor
     /// </summary>
-    public MatchmakingInfo(Method method, string clientAddress, string serverAddress) : base(method)
+    public MatchmakingRequest(Method method, string clientAddress, string serverAddress) : base(method)
     {
         this.clientAddress = clientAddress;
         this.serverAddress = serverAddress;

@@ -27,8 +27,7 @@ public class RestService : IService
         var response = await restClient.GetAsync(requestObject.ToRestRequest());
         return GetResponseObject(requestObject, response, out var responseObject) ? responseObject : null;
     }
-    
-    
+
     /// <summary>
     /// Returns a response object that matches the request object expected type
     /// </summary>

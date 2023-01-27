@@ -1,5 +1,6 @@
 ﻿using System.Net;
 using System.Net.Sockets;
+using FlaneerMediaLib.FlaneerService;
 using FlaneerMediaLib.Logging;
 
 namespace FlaneerMediaLib.UnreliableDataChannel.HolePunching;
@@ -22,6 +23,7 @@ public class HolePunchServer
     private bool holePunchingActive = true;
     private List<ushort> connectionsToRemove;
     private bool noNet;
+    private readonly RestService restService;
 
     /// <summary>
     /// ctor
@@ -32,6 +34,9 @@ public class HolePunchServer
         
         ServiceRegistry.TryGetService<CommandLineArgumentStore>(out var clArgStore);
         heartbeatInterval = Int32.Parse(clArgStore.GetParams(CommandLineArgs.HeartBeatInterval)[0]);
+
+        ServiceRegistry.TryGetService<RestService>(out var restService);
+        this.restService = restService;
         
         s = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
 
