@@ -80,6 +80,6 @@ public class FrameBufferTests
         ManagedVideoFrame mvf = outFrame as ManagedVideoFrame;
         Assert.NotNull(mvf);
         
-        Assert.True(TestUtils.IsValidH264(mvf.Stream.ToArray()));
+        Assert.True(VideoTestUtils.IsValidH264(mvf.Stream.ToArray()));
     }
 }

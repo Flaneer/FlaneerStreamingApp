@@ -54,7 +54,7 @@ public class FFMpegTests
 
             var frame = videoStreamDecoder.DecodeNextFrame();
 
-            var frameInfo = TestUtils.GetFrameInfo(frame);
+            var frameInfo = VideoTestUtils.GetFrameInfo(frame);
             Assert.Equal(0, frameInfo.CodedPictureNumber);
             //This is the first frame, so it should be a key frame
             Assert.True(frameInfo.KeyFrame);

@@ -3,7 +3,7 @@ using FlaneerMediaLib.VideoDataTypes;
 
 namespace MediaLibTests;
 
-public static class TestUtils
+public static class VideoTestUtils
 {
     internal class FrameInfo
     {
