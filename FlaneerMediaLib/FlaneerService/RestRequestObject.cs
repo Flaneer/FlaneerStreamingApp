@@ -26,7 +26,7 @@ public abstract class RestRequestObject
     }
 
     /// <summary>
-    /// ctor
+    /// Creates a rest request object from the current object
     /// </summary>
     public RestRequest ToRestRequest()
     {
