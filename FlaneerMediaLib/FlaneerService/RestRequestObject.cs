@@ -36,7 +36,7 @@ public abstract class RestRequestObject
         return request;
     }
 
-    private string ToJson()
+    internal string ToJson()
     {
         return JsonConvert.SerializeObject(this);
     }
