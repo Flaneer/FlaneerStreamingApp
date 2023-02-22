@@ -39,9 +39,9 @@ There is no direct pushing to master, all work should go through the standard PR
 
 ## Useful resources
 
-- Initial research for streaming, there are some useful links on here:
+- Initial research for streaming, there are some useful links on here (for the internal team only):
     - https://miro.com/app/board/uXjVOWgIaFs=/?share_link_id=153011960191
-- Initial designs for the streaming app (this should be in date, but will likely lack relavence over time):
+- Initial designs for the streaming app (this should be in date, but will likely lack relavence over time)  (for the internal team only):
     - https://miro.com/app/board/uXjVORPp6F8=/?share_link_id=193081114046
 - This guide on the group of pictures from Amazon contains some really useful video basics:
     - https://aws.amazon.com/blogs/media/part-1-back-to-basics-gops-explained/
